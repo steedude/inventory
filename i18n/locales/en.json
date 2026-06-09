@@ -49,9 +49,110 @@
     "userId": "User ID",
     "empty": "No data yet"
   },
+  "quickUse": {
+    "title": "Quick use",
+    "description": "Enter a barcode or upload a barcode image. Existing items open the edit page, and unknown barcodes open the create item page.",
+    "barcode": "Barcode",
+    "barcodePlaceholder": "Enter or scan barcode",
+    "search": "Search",
+    "uploadImage": "Upload image",
+    "routeHint": "After the barcode is recognized, the system will route you to the right workflow automatically.",
+    "unsupported": "Barcode image detection is not supported by this browser. You can still enter the barcode manually.",
+    "noBarcodeFound": "No barcode was detected in this image.",
+    "barcodeDetected": "Barcode detected",
+    "existingItem": "Existing item",
+    "existingItemDescription": "This barcode matches an inventory item. Adjust the quantity below.",
+    "newItem": "New item",
+    "newItemDescription": "No item uses this barcode yet. Create a new inventory item with this barcode.",
+    "adjustQuantity": "Adjustment quantity",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "createWithBarcode": "Create item"
+  },
   "data": {
     "title": "Data",
-    "description": "This page is reserved for inventory data, Google Sheets sync status, and table management."
+    "description": "Start by creating the categories, locations, groups, and items needed for inventory management. Google Sheets sync can be connected later.",
+    "empty": "No inventory items yet",
+    "loading": "Loading data...",
+    "sections": {
+      "category": "Category setup",
+      "categoryDescription": "Main categories define the broad item type. Subcategories belong under a main category.",
+      "meta": "Locations and groups",
+      "metaDescription": "Locations track where items are stored. Groups can organize items by brand or series.",
+      "item": "Create item",
+      "itemDescription": "Create inventory items and connect them to a subcategory, group, and location.",
+      "list": "Item list",
+      "listDescription": "Inventory records currently stored in Supabase.",
+      "currentData": "Current data",
+      "currentDataDescription": "Review the categories, locations, and groups already stored in Supabase."
+    },
+    "pages": {
+      "createItem": "Create item",
+      "createItemDescription": "Open a dedicated form for adding inventory records.",
+      "editItem": "Edit item",
+      "editItemDescription": "Update the item name, quantity, category, group, location, and notes.",
+      "itemList": "Item list",
+      "itemListDescription": "Review the inventory records currently stored in Supabase."
+    },
+    "form": {
+      "mainCategory": "Main category",
+      "mainCategoryPlaceholder": "For example: cat food",
+      "parentCategory": "Parent category",
+      "parentCategoryPlaceholder": "Select a main category",
+      "subCategory": "Subcategory",
+      "subCategoryPlaceholder": "For example: treats, cans",
+      "location": "Location",
+      "locationPlaceholder": "For example: living room cabinet",
+      "group": "Group",
+      "groupPlaceholder": "For example: Brand A cat treats",
+      "groupCategory": "Group subcategory",
+      "itemName": "Item name",
+      "itemNamePlaceholder": "For example: tuna can",
+      "quantity": "Quantity",
+      "barcode": "Barcode",
+      "barcodePlaceholder": "Scan or enter barcode",
+      "imageUrl": "Image URL",
+      "imageUrlPlaceholder": "https://...",
+      "note": "Note",
+      "notePlaceholder": "Expiration date, spec, or other details",
+      "noCategory": "No subcategory",
+      "noGroup": "No group",
+      "noLocation": "No location",
+      "noNote": "No note"
+    },
+    "actions": {
+      "createMainCategory": "Create main category",
+      "createSubCategory": "Create subcategory",
+      "createLocation": "Create location",
+      "createGroup": "Create group",
+      "createItem": "Create item",
+      "edit": "Edit",
+      "editItem": "Edit item",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "close": "Close",
+      "save": "Save",
+      "saveItem": "Save item",
+      "refresh": "Refresh",
+      "backToSettings": "Back to settings"
+    },
+    "dialog": {
+      "confirmDeleteTitle": "Delete data",
+      "confirmDelete": "Delete this data? This action cannot be undone.",
+      "inUseTitle": "Cannot delete",
+      "inUse": "This data is currently in use and cannot be deleted."
+    },
+    "emptyStates": {
+      "categories": "No categories yet",
+      "subCategories": "No subcategories yet",
+      "locations": "No locations yet",
+      "groups": "No groups yet"
+    },
+    "toast": {
+      "created": "Data created",
+      "deleted": "Data deleted",
+      "updated": "Data updated"
+    }
   },
   "auth": {
     "email": "Email",

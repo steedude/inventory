@@ -11,20 +11,20 @@
     "data": "資料頁面"
   },
   "home": {
-    "badge": "庫存管理系統",
-    "title": "把庫存、試算表與資料庫整理成一個工作入口",
-    "description": "首頁保留前台介紹感，讓使用者快速了解系統用途；登入後再進入主控台，處理庫存資料、Google Sheet 連結與同步狀態。",
+    "badge": "庫存管理",
+    "title": "把庫存、試算表與資料庫整理成同一個工作區",
+    "description": "首頁先簡短介紹系統。登入後可以進入主控台，管理庫存資料、Google Sheet 串接與同步狀態。",
     "language": "選擇語言",
     "start": "開始使用",
     "dashboardPreview": "前往主控台",
     "features": {
       "googleSheets": {
-        "title": "連結 Google Sheet",
-        "description": "可規劃將既有試算表資料同步到系統，降低導入成本，也保留團隊熟悉的資料維護方式。"
+        "title": "Google Sheet 串接",
+        "description": "規劃從既有試算表同步資料，讓團隊能保留熟悉的流程，同時逐步導入庫存系統。"
       },
       "database": {
         "title": "Supabase 資料庫",
-        "description": "以 Supabase PostgreSQL 儲存庫存、品項、異動紀錄與使用者資料，並搭配 Supabase Auth 管理登入。"
+        "description": "使用 Supabase PostgreSQL 儲存庫存、分類、位置與使用者資料，並透過 Supabase Auth 處理登入。"
       },
       "stack": {
         "title": "現代前端技術",
@@ -34,24 +34,125 @@
   },
   "dashboard": {
     "title": "主控台",
-    "description": "登入後的工作區會集中顯示庫存摘要、Google Sheet 連線狀態與近期同步資訊。",
+    "description": "登入後的工作區會整理庫存概況、Google Sheet 連線狀態與近期同步紀錄。",
     "summary": {
-      "items": "庫存品項",
-      "sheets": "已連結試算表",
+      "items": "庫存物品",
+      "sheets": "已連接試算表",
       "sync": "同步狀態",
       "notConfigured": "尚未設定"
     }
   },
   "profile": {
     "title": "個人資料",
-    "description": "這裡會顯示目前登入帳號的基本資料，之後可以擴充姓名、角色與權限設定。",
+    "description": "這裡會顯示目前登入帳號的基本資料，之後可以再加入姓名、角色與權限設定。",
     "email": "Email",
     "userId": "使用者 ID",
     "empty": "尚無資料"
   },
+  "quickUse": {
+    "title": "快速使用",
+    "description": "輸入條碼或上傳條碼圖片。若已有物品會前往編輯頁，若沒有對應物品會前往新增物品頁。",
+    "barcode": "條碼",
+    "barcodePlaceholder": "輸入或掃描條碼",
+    "search": "搜尋",
+    "uploadImage": "上傳圖片",
+    "routeHint": "辨識條碼後，系統會自動帶你到對應的操作流程。",
+    "unsupported": "這個瀏覽器不支援圖片條碼辨識，你仍然可以手動輸入條碼。",
+    "noBarcodeFound": "這張圖片沒有辨識到條碼。",
+    "barcodeDetected": "已辨識條碼",
+    "existingItem": "既有物品",
+    "existingItemDescription": "此條碼已對應到庫存物品，可以在下方直接調整數量。",
+    "newItem": "新增物品",
+    "newItemDescription": "目前沒有物品使用此條碼，請用此條碼建立新的庫存物品。",
+    "adjustQuantity": "調整數量",
+    "increase": "增加",
+    "decrease": "減少",
+    "createWithBarcode": "建立物品"
+  },
   "data": {
     "title": "資料頁面",
-    "description": "這裡會預留給庫存資料、Google Sheet 同步狀態與資料表管理功能。"
+    "description": "先建立庫存管理需要的分類、位置、群組與物品資料，之後再接上 Google Sheet 同步。",
+    "empty": "目前還沒有物品資料",
+    "loading": "資料載入中...",
+    "sections": {
+      "category": "分類設定",
+      "categoryDescription": "大類別用來區分主要品項，小類別掛在大類別底下。",
+      "meta": "位置與群組",
+      "metaDescription": "位置用來記錄物品放在哪裡，群組可用來整理同品牌或同系列物品。",
+      "item": "新增物品",
+      "itemDescription": "建立真正的庫存項目，並選擇小類別、群組與位置。",
+      "list": "物品清單",
+      "listDescription": "目前 Supabase 裡已建立的庫存資料。",
+      "currentData": "目前資料",
+      "currentDataDescription": "查看目前 Supabase 裡已建立的分類、位置與群組。"
+    },
+    "pages": {
+      "createItem": "新增物品",
+      "createItemDescription": "開啟獨立表單來新增庫存物品。",
+      "editItem": "編輯物品",
+      "editItemDescription": "更新物品名稱、數量、分類、群組、位置與備註。",
+      "itemList": "物品清單",
+      "itemListDescription": "查看目前 Supabase 裡已建立的庫存資料。"
+    },
+    "form": {
+      "mainCategory": "大類別",
+      "mainCategoryPlaceholder": "例如：貓飼料",
+      "parentCategory": "所屬大類別",
+      "parentCategoryPlaceholder": "選擇大類別",
+      "subCategory": "小類別",
+      "subCategoryPlaceholder": "例如：餅乾、罐頭",
+      "location": "位置",
+      "locationPlaceholder": "例如：客廳櫃子",
+      "group": "群組",
+      "groupPlaceholder": "例如：A 品牌貓餅乾",
+      "groupCategory": "群組所屬小類別",
+      "itemName": "物品名稱",
+      "itemNamePlaceholder": "例如：鮪魚罐頭",
+      "quantity": "數量",
+      "barcode": "條碼",
+      "barcodePlaceholder": "掃描或輸入條碼",
+      "imageUrl": "圖片網址",
+      "imageUrlPlaceholder": "https://...",
+      "note": "備註",
+      "notePlaceholder": "保存期限、規格或其他補充",
+      "noCategory": "不指定小類別",
+      "noGroup": "不指定群組",
+      "noLocation": "不指定位置",
+      "noNote": "沒有備註"
+    },
+    "actions": {
+      "createMainCategory": "新增大類別",
+      "createSubCategory": "新增小類別",
+      "createLocation": "新增位置",
+      "createGroup": "新增群組",
+      "createItem": "新增物品",
+      "edit": "編輯",
+      "editItem": "編輯物品",
+      "delete": "刪除",
+      "cancel": "取消",
+      "close": "關閉",
+      "save": "儲存",
+      "saveItem": "儲存物品",
+      "refresh": "重新整理",
+      "backToSettings": "回到資料設定"
+    },
+    "dialog": {
+      "confirmDeleteTitle": "刪除資料",
+      "confirmDelete": "確定要刪除這筆資料嗎？此操作無法復原。",
+      "inUseTitle": "無法刪除",
+      "inUse": "這筆資料正在被使用，不能刪除。"
+    },
+    "emptyStates": {
+      "categories": "目前還沒有分類",
+      "subCategories": "目前還沒有小類別",
+      "locations": "目前還沒有位置",
+      "groups": "目前還沒有群組"
+    },
+    "toast": {
+      "created": "已新增資料",
+      "deleted": "已刪除資料",
+      "updated": "已更新資料"
+    }
   },
   "auth": {
     "email": "Email",
@@ -61,12 +162,12 @@
     "signup": "註冊",
     "loginTitle": "登入帳號",
     "signupTitle": "建立帳號",
-    "useLogin": "改用登入",
+    "useLogin": "使用登入",
     "useSignup": "建立新帳號",
     "signedIn": "已登入",
     "loginSuccess": "登入成功",
     "logoutSuccess": "已登出",
     "signupSignedIn": "註冊成功，已登入",
-    "signupSuccess": "註冊成功，請到信箱確認 Email 後再登入。"
+    "signupSuccess": "註冊成功，請到 Email 信箱確認後再登入。"
   }
 }

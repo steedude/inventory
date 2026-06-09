@@ -1,8 +1,9 @@
 import type { AuthChangeEvent, Session, SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '../../types/database'
 
 export function useAuth() {
   const auth = useAuthStore()
-  const { $supabase } = useNuxtApp() as unknown as { $supabase: SupabaseClient }
+  const { $supabase } = useNuxtApp() as unknown as { $supabase: SupabaseClient<Database> }
 
   const initialize = async () => {
     if (auth.initialized) {

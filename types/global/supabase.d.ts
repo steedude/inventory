@@ -1,14 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '../database'
 
 declare module '#app' {
   interface NuxtApp {
-    $supabase: SupabaseClient
+    $supabase: SupabaseClient<Database>
   }
 }
 
 declare module 'vue' {
   interface ComponentCustomProperties {
-    $supabase: SupabaseClient
+    $supabase: SupabaseClient<Database>
   }
 }
 

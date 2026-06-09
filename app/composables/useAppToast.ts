@@ -1,14 +1,17 @@
-import type { AuthError } from '@supabase/supabase-js'
-
-type ToastMessage = string | Error | AuthError | null | undefined
-
 export function useAppToast() {
   const toast = useToast()
   const i18n = useI18n()
 
   const resolveMessage = (message: string) => i18n.te(message) === true ? i18n.t(message) : message
 
-  const getMessage = (message: ToastMessage) => {
+  const isMessageObject = (message: unknown): message is { message: string } => {
+    return typeof message === 'object'
+      && message !== null
+      && 'message' in message
+      && typeof message.message === 'string'
+  }
+
+  const getMessage = (message: unknown) => {
     if (message === null || message === undefined || message === '') {
       return ''
     }
@@ -17,7 +20,11 @@ export function useAppToast() {
       return resolveMessage(message)
     }
 
-    return message.message
+    if (isMessageObject(message)) {
+      return message.message
+    }
+
+    return ''
   }
 
   const setSuccess = (message: string, description?: string) => {
@@ -29,7 +36,7 @@ export function useAppToast() {
     })
   }
 
-  const setError = (message: ToastMessage) => {
+  const setError = (message: unknown) => {
     const title = getMessage(message)
 
     toast.add({

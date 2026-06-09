@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { toasterConfig } from '../../config/toast'
 
-const route = useRoute()
 const { locale, locales, setLocale, t } = useI18n()
 
 const localeOptions = computed(() => locales.value.map(item => ({
@@ -14,33 +13,50 @@ const navigationItems = computed(() => [
     label: t('navigation.home'),
     icon: 'i-lucide-house',
     to: '/dashboard',
+    exact: true,
     value: 'dashboard',
   },
   {
     label: t('navigation.profile'),
     icon: 'i-lucide-user',
     to: '/dashboard/profile',
+    exact: true,
     value: 'profile',
   },
   {
-    label: t('navigation.data'),
-    icon: 'i-lucide-database',
-    to: '/dashboard/data',
-    value: 'data',
+    label: t('quickUse.title'),
+    icon: 'i-lucide-scan-barcode',
+    to: '/dashboard/quick-use',
+    exact: true,
+    value: 'quick-use',
+  },
+  {
+    label: t('data.pages.createItem'),
+    icon: 'i-lucide-package-plus',
+    to: '/dashboard/create-item',
+    exact: true,
+    value: 'data-create-item',
+  },
+  {
+    label: t('data.pages.itemList'),
+    icon: 'i-lucide-list',
+    to: '/dashboard/item-list',
+    exact: true,
+    value: 'data-item-list',
+  },
+  {
+    label: t('data.sections.category'),
+    icon: 'i-lucide-tags',
+    to: '/dashboard/category-settings',
+    exact: true,
+    value: 'data-settings',
   },
 ])
 
-const activeNavigation = computed(() => {
-  if (route.path.startsWith('/dashboard/profile')) {
-    return 'profile'
-  }
-
-  if (route.path.startsWith('/dashboard/data')) {
-    return 'data'
-  }
-
-  return 'dashboard'
-})
+const bottomNavigationItems = computed(() => navigationItems.value.map(item => ({
+  ...item,
+  label: undefined,
+})))
 </script>
 
 <template>
@@ -76,11 +92,10 @@ const activeNavigation = computed(() => {
         </UContainer>
       </header>
 
-      <UContainer class="grid gap-6 py-6 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside class="lg:sticky lg:top-22 lg:h-[calc(100dvh-7rem)]">
+      <UContainer class="grid gap-6 pb-24 pt-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:pb-6">
+        <aside class="hidden lg:sticky lg:top-22 lg:block lg:h-[calc(100dvh-7rem)]">
           <UNavigationMenu
             :items="navigationItems"
-            :model-value="activeNavigation"
             orientation="vertical"
             class="w-full"
           />
@@ -90,6 +105,13 @@ const activeNavigation = computed(() => {
           <slot />
         </main>
       </UContainer>
+
+      <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-default/95 px-4 py-2 backdrop-blur lg:hidden">
+        <UNavigationMenu
+          :items="bottomNavigationItems"
+          class="mx-auto max-w-md justify-center"
+        />
+      </nav>
     </div>
   </UApp>
 </template>
