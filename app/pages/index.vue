@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const counter = useCounterStore()
 const auth = useAuthStore()
+const appToast = useAppToast()
+const authLang = useAuthLang()
 const { locale, locales, setLocale, t } = useI18n()
 
 await auth.initialize()
@@ -11,7 +13,14 @@ const localeOptions = computed(() => locales.value.map(item => ({
 })))
 
 async function signOut() {
-  await auth.signOut()
+  const { error } = await auth.signOut()
+
+  if (error) {
+    appToast.setError(error)
+    return
+  }
+
+  appToast.setSuccess(authLang.logoutSuccess())
 }
 </script>
 
@@ -52,15 +61,6 @@ async function signOut() {
           {{ t('auth.login') }}
         </UButton>
       </div>
-
-      <UAlert
-        v-if="auth.isAuthenticated"
-        color="success"
-        variant="soft"
-        icon="i-lucide-circle-check"
-        :title="t('auth.signedIn')"
-        :description="auth.user?.email"
-      />
 
       <div class="flex items-center gap-3">
         <UButton

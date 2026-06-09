@@ -1,4 +1,7 @@
 {
+  "common": {
+    "error": "發生錯誤"
+  },
   "home": {
     "badge": "Nuxt 4 起始專案",
     "title": "Inventory",
@@ -21,6 +24,9 @@
     "useLogin": "改用登入",
     "useSignup": "建立新帳號",
     "signedIn": "已登入",
+    "loginSuccess": "登入成功",
+    "logoutSuccess": "已登出",
+    "signupSignedIn": "註冊成功，已登入",
     "signupSuccess": "註冊成功，請到信箱確認 Email 後再登入。"
   }
 }

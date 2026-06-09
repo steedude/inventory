@@ -1,4 +1,7 @@
 {
+  "common": {
+    "error": "Something went wrong"
+  },
   "home": {
     "badge": "Nuxt 4 Starter",
     "title": "Inventory",
@@ -21,6 +24,9 @@
     "useLogin": "Use sign in",
     "useSignup": "Create account",
     "signedIn": "Signed in",
+    "loginSuccess": "Signed in",
+    "logoutSuccess": "Signed out",
+    "signupSignedIn": "Account created and signed in",
     "signupSuccess": "Account created. Check your inbox to confirm your email, then sign in."
   }
 }

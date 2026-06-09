@@ -1,28 +1,25 @@
-import type { AuthChangeEvent, AuthError, Session, SupabaseClient, User } from '@supabase/supabase-js'
+import type { AuthChangeEvent, Session, SupabaseClient, User } from '@supabase/supabase-js'
+import { AuthMode } from '../../config/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const { $supabase } = useNuxtApp() as unknown as { $supabase: SupabaseClient }
 
   const user = ref<User | null>(null)
   const session = ref<Session | null>(null)
+  const mode = ref<AuthMode>(AuthMode.Login)
   const loading = ref(false)
-  const errorMessage = ref('')
-  const successMessage = ref('')
   const initialized = ref(false)
 
   const isAuthenticated = computed(() => Boolean(user.value))
+  const isLogin = computed(() => mode.value === AuthMode.Login)
 
   const setSession = (nextSession: Session | null) => {
     session.value = nextSession
     user.value = nextSession?.user ?? null
   }
 
-  const setError = (error: AuthError | Error | null) => {
-    errorMessage.value = error?.message ?? ''
-  }
-
-  const setSuccess = (message = '') => {
-    successMessage.value = message
+  const toggleMode = () => {
+    mode.value = isLogin.value ? AuthMode.Signup : AuthMode.Login
   }
 
   const initialize = async () => {
@@ -34,7 +31,6 @@ export const useAuthStore = defineStore('auth', () => {
     const { data, error } = await $supabase.auth.getSession()
 
     setSession(data.session)
-    setError(error)
 
     $supabase.auth.onAuthStateChange((_event: AuthChangeEvent, nextSession: Session | null) => {
       setSession(nextSession)
@@ -42,22 +38,19 @@ export const useAuthStore = defineStore('auth', () => {
 
     initialized.value = true
     loading.value = false
+
+    return { data, error }
   }
 
   const signIn = async (email: string, password: string) => {
     loading.value = true
-    setError(null)
-    setSuccess()
 
     const { data, error } = await $supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
-      setError(error)
-    }
-    else {
+    if (!error) {
       setSession(data.session)
     }
 
@@ -67,22 +60,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   const signUp = async (email: string, password: string) => {
     loading.value = true
-    setError(null)
-    setSuccess()
 
     const { data, error } = await $supabase.auth.signUp({
       email,
       password,
     })
 
-    if (error) {
-      setError(error)
-    }
-    else {
+    if (!error) {
       setSession(data.session)
-      if (!data.session) {
-        setSuccess('auth.signupSuccess')
-      }
     }
 
     loading.value = false
@@ -91,15 +76,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   const signOut = async () => {
     loading.value = true
-    setError(null)
-    setSuccess()
 
     const { error } = await $supabase.auth.signOut()
 
-    if (error) {
-      setError(error)
-    }
-    else {
+    if (!error) {
       setSession(null)
     }
 
@@ -110,12 +90,12 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     session,
+    mode,
     loading,
-    errorMessage,
-    successMessage,
     initialized,
     isAuthenticated,
-    setSuccess,
+    isLogin,
+    toggleMode,
     initialize,
     signIn,
     signUp,

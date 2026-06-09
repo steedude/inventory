@@ -5,6 +5,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/ui', '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt', '@nuxtjs/i18n', '@nuxt/eslint'],
   css: ['~/assets/css/main.css'],
+  vite: {
+    optimizeDeps: {
+      include: ['@supabase/supabase-js'],
+    },
+  },
   runtimeConfig: {
     public: {
       supabaseUrl: process.env.SUPABASE_URL ?? '',

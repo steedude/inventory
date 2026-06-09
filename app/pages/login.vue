@@ -1,26 +1,30 @@
 <script setup lang="ts">
 const auth = useAuthStore()
+const appToast = useAppToast()
+const authLang = useAuthLang()
 const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
-const mode = ref<'login' | 'signup'>('login')
 
 await auth.initialize()
 
 async function submit() {
-  const result = mode.value === 'login'
+  const result = auth.isLogin
     ? await auth.signIn(email.value, password.value)
     : await auth.signUp(email.value, password.value)
 
-  if (!result.error && auth.isAuthenticated) {
-    await navigateTo('/')
+  if (result.error) {
+    appToast.setError(result.error)
+    return
   }
-}
 
-function toggleMode() {
-  auth.setSuccess()
-  mode.value = mode.value === 'login' ? 'signup' : 'login'
+  if (auth.isAuthenticated) {
+    appToast.setSuccess(auth.isLogin ? authLang.loginSuccess() : authLang.signupSignedIn())
+    return navigateTo('/')
+  }
+
+  appToast.setSuccess(authLang.signupSuccess())
 }
 </script>
 
@@ -32,25 +36,9 @@ function toggleMode() {
           {{ t('auth.badge') }}
         </UBadge>
         <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
-          {{ mode === 'login' ? t('auth.loginTitle') : t('auth.signupTitle') }}
+          {{ auth.isLogin ? t('auth.loginTitle') : t('auth.signupTitle') }}
         </h1>
       </div>
-
-      <UAlert
-        v-if="auth.errorMessage"
-        color="error"
-        variant="soft"
-        icon="i-lucide-circle-alert"
-        :title="auth.errorMessage"
-      />
-
-      <UAlert
-        v-if="auth.successMessage"
-        color="success"
-        variant="soft"
-        icon="i-lucide-circle-check"
-        :title="t(auth.successMessage)"
-      />
 
       <UFormField :label="t('auth.email')">
         <UInput
@@ -75,15 +63,15 @@ function toggleMode() {
 
       <div class="flex items-center gap-3">
         <UButton type="submit" :loading="auth.loading">
-          {{ mode === 'login' ? t('auth.login') : t('auth.signup') }}
+          {{ auth.isLogin ? t('auth.login') : t('auth.signup') }}
         </UButton>
         <UButton
           type="button"
           color="neutral"
           variant="ghost"
-          @click="toggleMode"
+          @click="auth.toggleMode"
         >
-          {{ mode === 'login' ? t('auth.useSignup') : t('auth.useLogin') }}
+          {{ auth.isLogin ? t('auth.useSignup') : t('auth.useLogin') }}
         </UButton>
       </div>
     </form>
