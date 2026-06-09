@@ -1,0 +1,26 @@
+{
+  "home": {
+    "badge": "Nuxt 4 Starter",
+    "title": "Inventory",
+    "description": "Nuxt 4, TypeScript, Tailwind CSS, Pinia, Nuxt UI, Husky, i18n, and Supabase Auth are ready.",
+    "language": "Select language"
+  },
+  "counter": {
+    "decrease": "Decrease count",
+    "increase": "Increase count"
+  },
+  "auth": {
+    "badge": "Supabase Auth",
+    "email": "Email",
+    "password": "Password",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "signup": "Sign up",
+    "loginTitle": "Sign in",
+    "signupTitle": "Create account",
+    "useLogin": "Use sign in",
+    "useSignup": "Create account",
+    "signedIn": "Signed in",
+    "signupSuccess": "Account created. Check your inbox to confirm your email, then sign in."
+  }
+}

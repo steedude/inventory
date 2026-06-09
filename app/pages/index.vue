@@ -5,12 +5,12 @@ const { locale, locales, setLocale, t } = useI18n()
 
 await auth.initialize()
 
-const localeOptions = computed(() => locales.value.map((item) => ({
+const localeOptions = computed(() => locales.value.map(item => ({
   label: item.name ?? item.code,
-  value: item.code
+  value: item.code,
 })))
 
-const signOut = async () => {
+async function signOut() {
   await auth.signOut()
 }
 </script>

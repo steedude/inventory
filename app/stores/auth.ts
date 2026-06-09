@@ -51,12 +51,13 @@ export const useAuthStore = defineStore('auth', () => {
 
     const { data, error } = await $supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     })
 
     if (error) {
       setError(error)
-    } else {
+    }
+    else {
       setSession(data.session)
     }
 
@@ -71,12 +72,13 @@ export const useAuthStore = defineStore('auth', () => {
 
     const { data, error } = await $supabase.auth.signUp({
       email,
-      password
+      password,
     })
 
     if (error) {
       setError(error)
-    } else {
+    }
+    else {
       setSession(data.session)
       if (!data.session) {
         setSuccess('auth.signupSuccess')
@@ -96,7 +98,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (error) {
       setError(error)
-    } else {
+    }
+    else {
       setSession(null)
     }
 
@@ -116,6 +119,6 @@ export const useAuthStore = defineStore('auth', () => {
     initialize,
     signIn,
     signUp,
-    signOut
+    signOut,
   }
 })

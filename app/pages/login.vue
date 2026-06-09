@@ -8,7 +8,7 @@ const mode = ref<'login' | 'signup'>('login')
 
 await auth.initialize()
 
-const submit = async () => {
+async function submit() {
   const result = mode.value === 'login'
     ? await auth.signIn(email.value, password.value)
     : await auth.signUp(email.value, password.value)
@@ -18,7 +18,7 @@ const submit = async () => {
   }
 }
 
-const toggleMode = () => {
+function toggleMode() {
   auth.setSuccess()
   mode.value = mode.value === 'login' ? 'signup' : 'login'
 }

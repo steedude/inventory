@@ -1,3 +1,5 @@
+import type { StorageLike } from 'pinia-plugin-persistedstate'
+
 export const useCounterStore = defineStore('counter', () => {
   const count = ref(0)
   const doubleCount = computed(() => count.value * 2)
@@ -14,10 +16,10 @@ export const useCounterStore = defineStore('counter', () => {
     count,
     doubleCount,
     increment,
-    decrement
+    decrement,
   }
 }, {
   persist: {
-    storage: piniaPluginPersistedstate.localStorage()
-  }
+    storage: piniaPluginPersistedstate.localStorage() as StorageLike,
+  },
 })
