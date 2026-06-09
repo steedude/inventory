@@ -1,78 +1,63 @@
 <script setup lang="ts">
-const counter = useCounterStore()
 const auth = useAuthStore()
-const appToast = useAppToast()
-const authLang = useAuthLang()
-const { locale, locales, setLocale, t } = useI18n()
+const { t } = useI18n()
 
-await auth.initialize()
+const startTo = computed(() => auth.isLogin ? '/dashboard' : '/login')
 
-const localeOptions = computed(() => locales.value.map(item => ({
-  label: item.name ?? item.code,
-  value: item.code,
-})))
-
-async function signOut() {
-  const { error } = await auth.signOut()
-
-  if (error) {
-    appToast.setError(error)
-    return
-  }
-
-  appToast.setSuccess(authLang.logoutSuccess())
-}
+const features = computed(() => [
+  {
+    icon: 'i-lucide-table-2',
+    title: t('home.features.googleSheets.title'),
+    description: t('home.features.googleSheets.description'),
+  },
+  {
+    icon: 'i-lucide-database-zap',
+    title: t('home.features.database.title'),
+    description: t('home.features.database.description'),
+  },
+  {
+    icon: 'i-lucide-layers-3',
+    title: t('home.features.stack.title'),
+    description: t('home.features.stack.description'),
+  },
+])
 </script>
 
 <template>
-  <UContainer class="grid min-h-dvh place-items-center py-12">
-    <div class="w-full max-w-xl space-y-6">
-      <div class="space-y-3">
+  <UContainer class="py-10 sm:py-14">
+    <section class="grid min-h-[calc(100dvh-9rem)] content-center gap-8">
+      <div class="max-w-3xl space-y-5">
         <UBadge color="primary" variant="soft">
           {{ t('home.badge') }}
         </UBadge>
-        <h1 class="text-3xl font-semibold tracking-normal text-highlighted sm:text-4xl">
+        <h1 class="text-4xl font-semibold tracking-normal text-highlighted sm:text-5xl">
           {{ t('home.title') }}
         </h1>
-        <p class="text-base leading-7 text-muted">
+        <p class="max-w-2xl text-base leading-7 text-muted">
           {{ t('home.description') }}
         </p>
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <UButton icon="i-lucide-arrow-right" trailing :to="startTo">
+            {{ t('home.start') }}
+          </UButton>
+        </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <USelect
-          :model-value="locale"
-          :items="localeOptions"
-          :aria-label="t('home.language')"
-          class="w-40"
-          @update:model-value="setLocale"
-        />
-        <UButton
-          v-if="auth.isAuthenticated"
-          icon="i-lucide-log-out"
-          color="neutral"
-          variant="soft"
-          :loading="auth.loading"
-          @click="signOut"
+      <section class="grid gap-4 md:grid-cols-3">
+        <div
+          v-for="feature in features"
+          :key="feature.title"
+          class="rounded-md border border-default bg-default p-5"
         >
-          {{ t('auth.logout') }}
-        </UButton>
-        <UButton v-else icon="i-lucide-log-in" to="/login">
-          {{ t('auth.login') }}
-        </UButton>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <UButton
-          icon="i-lucide-minus"
-          color="neutral"
-          variant="soft"
-          :aria-label="t('counter.decrease')"
-          @click="counter.decrement"
-        />
-        <span class="min-w-10 text-center text-lg font-medium text-highlighted">{{ counter.count }}</span>
-        <UButton icon="i-lucide-plus" :aria-label="t('counter.increase')" @click="counter.increment" />
-      </div>
-    </div>
+          <UIcon :name="feature.icon" class="mb-4 size-6 text-primary" />
+          <h2 class="text-base font-semibold text-highlighted">
+            {{ feature.title }}
+          </h2>
+          <p class="mt-2 text-sm leading-6 text-muted">
+            {{ feature.description }}
+          </p>
+        </div>
+      </section>
+    </section>
   </UContainer>
 </template>

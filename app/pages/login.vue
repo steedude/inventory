@@ -1,44 +1,47 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: 'auth',
+})
+
 const auth = useAuthStore()
+const authService = useAuth()
 const appToast = useAppToast()
 const authLang = useAuthLang()
 const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
-
-await auth.initialize()
+const isLoginMode = ref(true)
 
 async function submit() {
-  const result = auth.isLogin
-    ? await auth.signIn(email.value, password.value)
-    : await auth.signUp(email.value, password.value)
+  const result = isLoginMode.value
+    ? await authService.signIn(email.value, password.value)
+    : await authService.signUp(email.value, password.value)
 
   if (result.error) {
     appToast.setError(result.error)
     return
   }
 
-  if (auth.isAuthenticated) {
-    appToast.setSuccess(auth.isLogin ? authLang.loginSuccess() : authLang.signupSignedIn())
-    return navigateTo('/')
+  if (auth.isLogin) {
+    appToast.setSuccess(isLoginMode.value ? authLang.loginSuccess() : authLang.signupSignedIn())
+    return navigateTo('/dashboard')
   }
 
   appToast.setSuccess(authLang.signupSuccess())
+}
+
+function toggleMode() {
+  isLoginMode.value = !isLoginMode.value
 }
 </script>
 
 <template>
   <UContainer class="grid min-h-dvh place-items-center py-12">
     <form class="w-full max-w-sm space-y-5" @submit.prevent="submit">
-      <div class="space-y-2">
-        <UBadge color="primary" variant="soft">
-          {{ t('auth.badge') }}
-        </UBadge>
-        <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
-          {{ auth.isLogin ? t('auth.loginTitle') : t('auth.signupTitle') }}
-        </h1>
-      </div>
+      <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
+        {{ isLoginMode ? t('auth.loginTitle') : t('auth.signupTitle') }}
+      </h1>
 
       <UFormField :label="t('auth.email')">
         <UInput
@@ -63,15 +66,15 @@ async function submit() {
 
       <div class="flex items-center gap-3">
         <UButton type="submit" :loading="auth.loading">
-          {{ auth.isLogin ? t('auth.login') : t('auth.signup') }}
+          {{ isLoginMode ? t('auth.login') : t('auth.signup') }}
         </UButton>
         <UButton
           type="button"
           color="neutral"
           variant="ghost"
-          @click="auth.toggleMode"
+          @click="toggleMode"
         >
-          {{ auth.isLogin ? t('auth.useSignup') : t('auth.useLogin') }}
+          {{ isLoginMode ? t('auth.useSignup') : t('auth.useLogin') }}
         </UButton>
       </div>
     </form>

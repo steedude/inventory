@@ -1,19 +1,59 @@
 {
+  "app": {
+    "name": "庫存管理系統"
+  },
   "common": {
     "error": "發生錯誤"
   },
-  "home": {
-    "badge": "Nuxt 4 起始專案",
-    "title": "Inventory",
-    "description": "Nuxt 4、TypeScript、Tailwind CSS、Pinia、Nuxt UI、Husky、i18n 和 Supabase Auth 都已準備好。",
-    "language": "選擇語言"
+  "navigation": {
+    "home": "首頁",
+    "profile": "個人資料",
+    "data": "資料頁面"
   },
-  "counter": {
-    "decrease": "減少數字",
-    "increase": "增加數字"
+  "home": {
+    "badge": "庫存管理系統",
+    "title": "把庫存、試算表與資料庫整理成一個工作入口",
+    "description": "首頁保留前台介紹感，讓使用者快速了解系統用途；登入後再進入主控台，處理庫存資料、Google Sheet 連結與同步狀態。",
+    "language": "選擇語言",
+    "start": "開始使用",
+    "dashboardPreview": "前往主控台",
+    "features": {
+      "googleSheets": {
+        "title": "連結 Google Sheet",
+        "description": "可規劃將既有試算表資料同步到系統，降低導入成本，也保留團隊熟悉的資料維護方式。"
+      },
+      "database": {
+        "title": "Supabase 資料庫",
+        "description": "以 Supabase PostgreSQL 儲存庫存、品項、異動紀錄與使用者資料，並搭配 Supabase Auth 管理登入。"
+      },
+      "stack": {
+        "title": "現代前端技術",
+        "description": "使用 Nuxt 4、TypeScript、Tailwind CSS、Pinia、Nuxt UI 與 i18n 建立可維護的管理介面。"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "主控台",
+    "description": "登入後的工作區會集中顯示庫存摘要、Google Sheet 連線狀態與近期同步資訊。",
+    "summary": {
+      "items": "庫存品項",
+      "sheets": "已連結試算表",
+      "sync": "同步狀態",
+      "notConfigured": "尚未設定"
+    }
+  },
+  "profile": {
+    "title": "個人資料",
+    "description": "這裡會顯示目前登入帳號的基本資料，之後可以擴充姓名、角色與權限設定。",
+    "email": "Email",
+    "userId": "使用者 ID",
+    "empty": "尚無資料"
+  },
+  "data": {
+    "title": "資料頁面",
+    "description": "這裡會預留給庫存資料、Google Sheet 同步狀態與資料表管理功能。"
   },
   "auth": {
-    "badge": "Supabase Auth",
     "email": "Email",
     "password": "密碼",
     "login": "登入",

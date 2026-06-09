@@ -1,18 +1,46 @@
 <script setup lang="ts">
 import { toasterConfig } from '../../config/toast'
 
-const auth = useAuthStore()
-const authService = useAuth()
+const route = useRoute()
 const { locale, locales, setLocale, t } = useI18n()
-
-onMounted(() => {
-  void authService.initialize()
-})
 
 const localeOptions = computed(() => locales.value.map(item => ({
   label: item.name ?? item.code,
   value: item.code,
 })))
+
+const navigationItems = computed(() => [
+  {
+    label: t('navigation.home'),
+    icon: 'i-lucide-house',
+    to: '/dashboard',
+    value: 'dashboard',
+  },
+  {
+    label: t('navigation.profile'),
+    icon: 'i-lucide-user',
+    to: '/dashboard/profile',
+    value: 'profile',
+  },
+  {
+    label: t('navigation.data'),
+    icon: 'i-lucide-database',
+    to: '/dashboard/data',
+    value: 'data',
+  },
+])
+
+const activeNavigation = computed(() => {
+  if (route.path.startsWith('/dashboard/profile')) {
+    return 'profile'
+  }
+
+  if (route.path.startsWith('/dashboard/data')) {
+    return 'data'
+  }
+
+  return 'dashboard'
+})
 </script>
 
 <template>
@@ -20,7 +48,7 @@ const localeOptions = computed(() => locales.value.map(item => ({
     <div class="min-h-dvh bg-default text-default">
       <header class="sticky top-0 z-40 border-b border-default bg-default/95 backdrop-blur">
         <UContainer class="flex h-16 items-center justify-between gap-4">
-          <NuxtLink to="/" class="flex min-w-0 items-center gap-3">
+          <NuxtLink to="/dashboard" class="flex min-w-0 items-center gap-3">
             <div class="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-white">
               <UIcon name="i-lucide-boxes" class="size-5" />
             </div>
@@ -38,14 +66,6 @@ const localeOptions = computed(() => locales.value.map(item => ({
               @update:model-value="setLocale"
             />
             <UButton
-              v-if="!auth.isLogin"
-              icon="i-lucide-log-in"
-              to="/login"
-            >
-              {{ t('auth.login') }}
-            </UButton>
-            <UButton
-              v-else
               icon="i-lucide-circle-user-round"
               color="neutral"
               variant="ghost"
@@ -56,9 +76,20 @@ const localeOptions = computed(() => locales.value.map(item => ({
         </UContainer>
       </header>
 
-      <main>
-        <slot />
-      </main>
+      <UContainer class="grid gap-6 py-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <aside class="lg:sticky lg:top-22 lg:h-[calc(100dvh-7rem)]">
+          <UNavigationMenu
+            :items="navigationItems"
+            :model-value="activeNavigation"
+            orientation="vertical"
+            class="w-full"
+          />
+        </aside>
+
+        <main class="min-w-0">
+          <slot />
+        </main>
+      </UContainer>
     </div>
   </UApp>
 </template>
