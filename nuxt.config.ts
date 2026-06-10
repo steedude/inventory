@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     locales: [
       {
         code: 'zh-tw',
-        name: '\u7E41\u9AD4\u4E2D\u6587',
+        name: '繁體中文',
         file: 'zh-tw.json',
       },
       {

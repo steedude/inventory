@@ -1,20 +1,22 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '../../types/database'
 import type {
+  CreateInventoryCategoryPayload,
+  CreateInventoryGroupPayload,
+  CreateInventoryItemPayload,
+  CreateInventoryLocationPayload,
   InventoryCategory,
-  InventoryCategoryUpdate,
   InventoryGroup,
-  InventoryGroupUpdate,
   InventoryItem,
-  InventoryItemInsert,
-  InventoryItemUpdate,
   InventoryLocation,
-  InventoryLocationUpdate,
-} from '../../types/inventory'
+  InventoryNameRecord,
+  UpdateInventoryCategoryPayload,
+  UpdateInventoryGroupPayload,
+  UpdateInventoryItemPayload,
+  UpdateInventoryLocationPayload,
+} from '~~/types/inventoryTypes'
 
 export function useInventoryData() {
   const auth = useAuthStore()
-  const { $supabase } = useNuxtApp() as unknown as { $supabase: SupabaseClient<Database> }
+  const { $supabase } = useNuxtApp()
 
   const categories = ref<InventoryCategory[]>([])
   const groups = ref<InventoryGroup[]>([])
@@ -40,7 +42,7 @@ export function useInventoryData() {
     return trimmedValue.length > 0 ? trimmedValue : null
   }
 
-  const findName = (records: Array<{ id: string, name: string }>, id: string | null) => {
+  const findName = (records: InventoryNameRecord[], id: string | null) => {
     if (id === null) {
       return '-'
     }
@@ -143,13 +145,12 @@ export function useInventoryData() {
     }
   }
 
-  const createCategory = async (name: string, parentId: string | null = null) => {
+  const createCategory = async (payload: CreateInventoryCategoryPayload) => {
     const { error } = await $supabase
       .from('categories')
       .insert({
+        ...payload,
         user_id: requireUserId(),
-        parent_id: parentId,
-        name,
       })
 
     if (error !== null) {
@@ -159,7 +160,7 @@ export function useInventoryData() {
     await fetchCategories()
   }
 
-  const updateCategory = async (id: string, payload: InventoryCategoryUpdate) => {
+  const updateCategory = async (id: string, payload: UpdateInventoryCategoryPayload) => {
     const { error } = await $supabase
       .from('categories')
       .update(payload)
@@ -185,13 +186,12 @@ export function useInventoryData() {
     await fetchCategories()
   }
 
-  const createGroup = async (name: string, categoryId: string | null = null) => {
+  const createGroup = async (payload: CreateInventoryGroupPayload) => {
     const { error } = await $supabase
       .from('item_groups')
       .insert({
+        ...payload,
         user_id: requireUserId(),
-        category_id: categoryId,
-        name,
       })
 
     if (error !== null) {
@@ -201,7 +201,7 @@ export function useInventoryData() {
     await fetchGroups()
   }
 
-  const updateGroup = async (id: string, payload: InventoryGroupUpdate) => {
+  const updateGroup = async (id: string, payload: UpdateInventoryGroupPayload) => {
     const { error } = await $supabase
       .from('item_groups')
       .update(payload)
@@ -227,7 +227,7 @@ export function useInventoryData() {
     await fetchGroups()
   }
 
-  const createItem = async (payload: Omit<InventoryItemInsert, 'user_id'>) => {
+  const createItem = async (payload: CreateInventoryItemPayload) => {
     const { error } = await $supabase
       .from('items')
       .insert({
@@ -242,7 +242,7 @@ export function useInventoryData() {
     await fetchItems()
   }
 
-  const updateItem = async (id: string, payload: InventoryItemUpdate) => {
+  const updateItem = async (id: string, payload: UpdateInventoryItemPayload) => {
     const { error } = await $supabase
       .from('items')
       .update(payload)
@@ -268,12 +268,12 @@ export function useInventoryData() {
     await fetchItems()
   }
 
-  const createLocation = async (name: string) => {
+  const createLocation = async (payload: CreateInventoryLocationPayload) => {
     const { error } = await $supabase
       .from('locations')
       .insert({
+        ...payload,
         user_id: requireUserId(),
-        name,
       })
 
     if (error !== null) {
@@ -283,7 +283,7 @@ export function useInventoryData() {
     await fetchLocations()
   }
 
-  const updateLocation = async (id: string, payload: InventoryLocationUpdate) => {
+  const updateLocation = async (id: string, payload: UpdateInventoryLocationPayload) => {
     const { error } = await $supabase
       .from('locations')
       .update(payload)

@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import type { InventorySelectModelValue } from '~~/types/inventoryTypes'
+import {
+  createCategoryOptions,
+  InventoryDeleteTarget,
+  InventorySelectValue,
+  selectToNull,
+} from '~~/config/inventorySelectConfig'
+
 definePageMeta({
   layout: 'dashboard',
 })
@@ -6,19 +14,21 @@ definePageMeta({
 const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const emptySelectValue = '__none__'
+const inventoryLang = useInventoryLang()
+const { runSafely } = useSafeRun()
+const { optionalSubCategoryOptions } = useInventorySelectOptions(inventory)
 
 const mainCategoryName = ref('')
 const subCategoryName = ref('')
 const selectedMainCategoryId = ref<string>()
 const locationName = ref('')
 const groupName = ref('')
-const selectedGroupCategoryId = ref(emptySelectValue)
+const selectedGroupCategoryId = ref<InventorySelectModelValue>(InventorySelectValue.None)
 const deletingId = ref<string>()
 const inUseDialogOpen = ref(false)
 const pendingDelete = reactive<{
   id: string
-  type: 'category' | 'group' | 'location' | null
+  type: InventoryDeleteTarget | null
 }>({
   id: '',
   type: null,
@@ -34,10 +44,14 @@ const editingLocation = reactive({
   name: '',
 })
 
-const editingGroup = reactive({
+const editingGroup = reactive<{
+  id: string
+  name: string
+  category_id: InventorySelectModelValue
+}>({
   id: '',
   name: '',
-  category_id: emptySelectValue,
+  category_id: InventorySelectValue.None,
 })
 
 const creating = reactive({
@@ -47,30 +61,12 @@ const creating = reactive({
   group: false,
 })
 
-const categoryOptions = computed(() => inventory.mainCategories.value.map(category => ({
-  label: category.name,
-  value: category.id,
-})))
-
-const groupCategoryOptions = computed(() => [
-  {
-    label: t('data.form.noCategory'),
-    value: emptySelectValue,
-  },
-  ...inventory.subCategories.value.map(category => ({
-    label: category.name,
-    value: category.id,
-  })),
-])
+const categoryOptions = computed(() => createCategoryOptions(inventory.mainCategories.value))
 
 const groupedCategories = computed(() => inventory.mainCategories.value.map(category => ({
   ...category,
   children: inventory.subCategories.value.filter(subCategory => subCategory.parent_id === category.id),
 })))
-
-function selectToNull(value: string | undefined) {
-  return value !== undefined && value !== emptySelectValue ? value : null
-}
 
 function isEditingCategory(id: string) {
   return editingCategory.id === id
@@ -97,7 +93,7 @@ function startEditLocation(id: string, name: string) {
 function startEditGroup(id: string, name: string, categoryId: string | null) {
   editingGroup.id = id
   editingGroup.name = name
-  editingGroup.category_id = categoryId ?? emptySelectValue
+  editingGroup.category_id = categoryId ?? InventorySelectValue.None
 }
 
 function stopEditCategory() {
@@ -113,7 +109,7 @@ function stopEditLocation() {
 function stopEditGroup() {
   editingGroup.id = ''
   editingGroup.name = ''
-  editingGroup.category_id = emptySelectValue
+  editingGroup.category_id = InventorySelectValue.None
 }
 
 function categoryIsUsed(id: string) {
@@ -134,7 +130,7 @@ function showInUseDialog() {
   inUseDialogOpen.value = true
 }
 
-function showDeleteDialog(type: 'category' | 'group' | 'location', id: string) {
+function showDeleteDialog(type: InventoryDeleteTarget, id: string) {
   pendingDelete.type = type
   pendingDelete.id = id
 }
@@ -144,15 +140,6 @@ function closeDeleteDialog() {
   pendingDelete.id = ''
 }
 
-async function safelyRun(action: () => Promise<void>) {
-  try {
-    await action()
-  }
-  catch (error) {
-    appToast.setError(error)
-  }
-}
-
 async function saveCategory() {
   const name = editingCategory.name.trim()
 
@@ -160,10 +147,10 @@ async function saveCategory() {
     return
   }
 
-  await safelyRun(async () => {
+  await runSafely(async () => {
     await inventory.updateCategory(editingCategory.id, { name })
     stopEditCategory()
-    appToast.setSuccess('data.toast.updated')
+    appToast.setSuccess(inventoryLang.updated())
   })
 }
 
@@ -174,10 +161,10 @@ async function saveLocation() {
     return
   }
 
-  await safelyRun(async () => {
+  await runSafely(async () => {
     await inventory.updateLocation(editingLocation.id, { name })
     stopEditLocation()
-    appToast.setSuccess('data.toast.updated')
+    appToast.setSuccess(inventoryLang.updated())
   })
 }
 
@@ -188,13 +175,13 @@ async function saveGroup() {
     return
   }
 
-  await safelyRun(async () => {
+  await runSafely(async () => {
     await inventory.updateGroup(editingGroup.id, {
       name,
       category_id: selectToNull(editingGroup.category_id),
     })
     stopEditGroup()
-    appToast.setSuccess('data.toast.updated')
+    appToast.setSuccess(inventoryLang.updated())
   })
 }
 
@@ -204,7 +191,7 @@ async function deleteCategory(id: string) {
     return
   }
 
-  showDeleteDialog('category', id)
+  showDeleteDialog(InventoryDeleteTarget.Category, id)
 }
 
 async function deleteLocation(id: string) {
@@ -213,7 +200,7 @@ async function deleteLocation(id: string) {
     return
   }
 
-  showDeleteDialog('location', id)
+  showDeleteDialog(InventoryDeleteTarget.Location, id)
 }
 
 async function deleteGroup(id: string) {
@@ -222,7 +209,7 @@ async function deleteGroup(id: string) {
     return
   }
 
-  showDeleteDialog('group', id)
+  showDeleteDialog(InventoryDeleteTarget.Group, id)
 }
 
 async function confirmDelete() {
@@ -233,20 +220,20 @@ async function confirmDelete() {
   const { id, type } = pendingDelete
   deletingId.value = id
 
-  await safelyRun(async () => {
-    if (type === 'category') {
+  await runSafely(async () => {
+    if (type === InventoryDeleteTarget.Category) {
       await inventory.deleteCategory(id)
     }
 
-    if (type === 'location') {
+    if (type === InventoryDeleteTarget.Location) {
       await inventory.deleteLocation(id)
     }
 
-    if (type === 'group') {
+    if (type === InventoryDeleteTarget.Group) {
       await inventory.deleteGroup(id)
     }
 
-    appToast.setSuccess('data.toast.deleted')
+    appToast.setSuccess(inventoryLang.deleted())
   })
 
   deletingId.value = undefined
@@ -262,10 +249,12 @@ async function submitMainCategory() {
 
   creating.mainCategory = true
 
-  await safelyRun(async () => {
-    await inventory.createCategory(name)
+  await runSafely(async () => {
+    await inventory.createCategory({
+      name,
+    })
     mainCategoryName.value = ''
-    appToast.setSuccess('data.toast.created')
+    appToast.setSuccess(inventoryLang.created())
   })
 
   creating.mainCategory = false
@@ -280,10 +269,13 @@ async function submitSubCategory() {
 
   creating.subCategory = true
 
-  await safelyRun(async () => {
-    await inventory.createCategory(name, selectedMainCategoryId.value)
+  await runSafely(async () => {
+    await inventory.createCategory({
+      name,
+      parent_id: selectedMainCategoryId.value,
+    })
     subCategoryName.value = ''
-    appToast.setSuccess('data.toast.created')
+    appToast.setSuccess(inventoryLang.created())
   })
 
   creating.subCategory = false
@@ -298,10 +290,12 @@ async function submitLocation() {
 
   creating.location = true
 
-  await safelyRun(async () => {
-    await inventory.createLocation(name)
+  await runSafely(async () => {
+    await inventory.createLocation({
+      name,
+    })
     locationName.value = ''
-    appToast.setSuccess('data.toast.created')
+    appToast.setSuccess(inventoryLang.created())
   })
 
   creating.location = false
@@ -316,17 +310,20 @@ async function submitGroup() {
 
   creating.group = true
 
-  await safelyRun(async () => {
-    await inventory.createGroup(name, selectToNull(selectedGroupCategoryId.value))
+  await runSafely(async () => {
+    await inventory.createGroup({
+      name,
+      category_id: selectToNull(selectedGroupCategoryId.value),
+    })
     groupName.value = ''
-    appToast.setSuccess('data.toast.created')
+    appToast.setSuccess(inventoryLang.created())
   })
 
   creating.group = false
 }
 
 onMounted(() => {
-  void safelyRun(inventory.fetchAll)
+  void runSafely(inventory.fetchAll)
 })
 </script>
 
@@ -435,7 +432,7 @@ onMounted(() => {
               <USelect
                 v-model="selectedGroupCategoryId"
                 class="w-full"
-                :items="groupCategoryOptions"
+                :items="optionalSubCategoryOptions"
               />
             </UFormField>
             <UFormField :label="t('data.form.group')">
@@ -696,7 +693,7 @@ onMounted(() => {
                   <USelect
                     v-model="editingGroup.category_id"
                     class="w-full"
-                    :items="groupCategoryOptions"
+                    :items="optionalSubCategoryOptions"
                   />
                 </div>
                 <div class="flex shrink-0 items-center gap-1">

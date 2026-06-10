@@ -7,19 +7,11 @@ const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
 const barcodeScanner = useBarcodeScanner()
+const { runSafely } = useSafeRun()
 
 const barcode = ref('')
 const imageLoading = ref(false)
 const searching = ref(false)
-
-async function safelyRun(action: () => Promise<void>) {
-  try {
-    await action()
-  }
-  catch (error) {
-    appToast.setError(error)
-  }
-}
 
 async function routeByBarcode(value: string) {
   const currentBarcode = value.trim()
@@ -30,24 +22,27 @@ async function routeByBarcode(value: string) {
 
   searching.value = true
 
-  await safelyRun(async () => {
-    await inventory.fetchAll()
-    const item = inventory.findItemByBarcode(currentBarcode)
+  try {
+    await runSafely(async () => {
+      await inventory.fetchAll()
+      const item = inventory.findItemByBarcode(currentBarcode)
 
-    if (item !== undefined) {
-      await navigateTo(`/dashboard/item-edit/${item.id}`)
-      return
-    }
+      if (item !== undefined) {
+        await navigateTo(`/dashboard/item-edit/${item.id}`)
+        return
+      }
 
-    await navigateTo({
-      path: '/dashboard/create-item',
-      query: {
-        barcode: currentBarcode,
-      },
+      await navigateTo({
+        path: '/dashboard/create-item',
+        query: {
+          barcode: currentBarcode,
+        },
+      })
     })
-  })
-
-  searching.value = false
+  }
+  finally {
+    searching.value = false
+  }
 }
 
 async function searchBarcode() {
@@ -64,25 +59,28 @@ async function decodeBarcodeImage(event: Event) {
 
   imageLoading.value = true
 
-  await safelyRun(async () => {
-    const result = await barcodeScanner.decodeImage(file)
+  try {
+    await runSafely(async () => {
+      const result = await barcodeScanner.decodeImage(file)
 
-    if (result === null) {
-      appToast.setError(t('quickUse.noBarcodeFound'))
-      return
-    }
+      if (result === null) {
+        appToast.setError(t('quickUse.noBarcodeFound'))
+        return
+      }
 
-    barcode.value = result
-    appToast.setSuccess('quickUse.barcodeDetected')
-    await routeByBarcode(result)
-  })
-
-  imageLoading.value = false
-  input.value = ''
+      barcode.value = result
+      appToast.setSuccess('quickUse.barcodeDetected')
+      await routeByBarcode(result)
+    })
+  }
+  finally {
+    imageLoading.value = false
+    input.value = ''
+  }
 }
 
 onMounted(() => {
-  void safelyRun(inventory.fetchAll)
+  void runSafely(inventory.fetchAll)
 })
 </script>
 

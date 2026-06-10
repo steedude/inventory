@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import type { InventoryItemFormState } from '~~/types/inventoryTypes'
+import {
+  InventorySelectValue,
+  selectToNull,
+} from '~~/config/inventorySelectConfig'
+
 definePageMeta({
   layout: 'dashboard',
 })
@@ -7,66 +13,26 @@ const { t } = useI18n()
 const route = useRoute()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const emptySelectValue = '__none__'
+const inventoryLang = useInventoryLang()
+const { runSafely } = useSafeRun()
+const {
+  groupOptions,
+  locationOptions,
+  subCategoryOptions,
+} = useInventorySelectOptions(inventory)
 
 const creating = ref(false)
 
-const itemForm = reactive({
+const itemForm = reactive<InventoryItemFormState>({
   name: '',
   quantity: 0,
   image_url: '',
-  location_id: emptySelectValue,
+  location_id: InventorySelectValue.None,
   note: '',
   barcode: '',
-  category_id: emptySelectValue,
-  group_id: emptySelectValue,
+  category_id: InventorySelectValue.None,
+  group_id: InventorySelectValue.None,
 })
-
-const subCategoryOptions = computed(() => [
-  {
-    label: t('data.form.noCategory'),
-    value: emptySelectValue,
-  },
-  ...inventory.subCategories.value.map(category => ({
-    label: category.name,
-    value: category.id,
-  })),
-])
-
-const locationOptions = computed(() => [
-  {
-    label: t('data.form.noLocation'),
-    value: emptySelectValue,
-  },
-  ...inventory.locations.value.map(location => ({
-    label: location.name,
-    value: location.id,
-  })),
-])
-
-const groupOptions = computed(() => [
-  {
-    label: t('data.form.noGroup'),
-    value: emptySelectValue,
-  },
-  ...inventory.groups.value.map(group => ({
-    label: group.name,
-    value: group.id,
-  })),
-])
-
-function selectToNull(value: string | undefined) {
-  return value !== undefined && value !== emptySelectValue ? value : null
-}
-
-async function safelyRun(action: () => Promise<void>) {
-  try {
-    await action()
-  }
-  catch (error) {
-    appToast.setError(error)
-  }
-}
 
 async function submitItem() {
   const name = itemForm.name.trim()
@@ -77,7 +43,7 @@ async function submitItem() {
 
   creating.value = true
 
-  await safelyRun(async () => {
+  await runSafely(async () => {
     await inventory.createItem({
       name,
       quantity: itemForm.quantity,
@@ -92,12 +58,12 @@ async function submitItem() {
     itemForm.name = ''
     itemForm.quantity = 0
     itemForm.image_url = ''
-    itemForm.location_id = emptySelectValue
+    itemForm.location_id = InventorySelectValue.None
     itemForm.note = ''
     itemForm.barcode = ''
-    itemForm.category_id = emptySelectValue
-    itemForm.group_id = emptySelectValue
-    appToast.setSuccess('data.toast.created')
+    itemForm.category_id = InventorySelectValue.None
+    itemForm.group_id = InventorySelectValue.None
+    appToast.setSuccess(inventoryLang.created())
   })
 
   creating.value = false
@@ -110,7 +76,7 @@ onMounted(() => {
     itemForm.barcode = barcodeQuery
   }
 
-  void safelyRun(inventory.fetchAll)
+  void runSafely(inventory.fetchAll)
 })
 </script>
 

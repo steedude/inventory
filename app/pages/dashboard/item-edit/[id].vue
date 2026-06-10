@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import type { InventoryItemFormState } from '~~/types/inventoryTypes'
+import {
+  InventorySelectValue,
+  nullToSelect,
+  selectToNull,
+} from '~~/config/inventorySelectConfig'
+
 definePageMeta({
   layout: 'dashboard',
 })
@@ -7,77 +14,33 @@ const route = useRoute()
 const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const emptySelectValue = '__none__'
+const inventoryLang = useInventoryLang()
+const { runSafely } = useSafeRun()
+const {
+  groupOptions,
+  locationOptions,
+  subCategoryOptions,
+} = useInventorySelectOptions(inventory)
 
 const loading = ref(false)
 const saving = ref(false)
 const itemId = computed(() => String(route.params.id))
 
-const itemForm = reactive({
+const itemForm = reactive<InventoryItemFormState>({
   name: '',
   quantity: 0,
   image_url: '',
-  location_id: emptySelectValue,
+  location_id: InventorySelectValue.None,
   note: '',
   barcode: '',
-  category_id: emptySelectValue,
-  group_id: emptySelectValue,
+  category_id: InventorySelectValue.None,
+  group_id: InventorySelectValue.None,
 })
-
-const subCategoryOptions = computed(() => [
-  {
-    label: t('data.form.noCategory'),
-    value: emptySelectValue,
-  },
-  ...inventory.subCategories.value.map(category => ({
-    label: category.name,
-    value: category.id,
-  })),
-])
-
-const locationOptions = computed(() => [
-  {
-    label: t('data.form.noLocation'),
-    value: emptySelectValue,
-  },
-  ...inventory.locations.value.map(location => ({
-    label: location.name,
-    value: location.id,
-  })),
-])
-
-const groupOptions = computed(() => [
-  {
-    label: t('data.form.noGroup'),
-    value: emptySelectValue,
-  },
-  ...inventory.groups.value.map(group => ({
-    label: group.name,
-    value: group.id,
-  })),
-])
-
-function nullToSelect(value: string | null) {
-  return value ?? emptySelectValue
-}
-
-function selectToNull(value: string | undefined) {
-  return value !== undefined && value !== emptySelectValue ? value : null
-}
-
-async function safelyRun(action: () => Promise<void>) {
-  try {
-    await action()
-  }
-  catch (error) {
-    appToast.setError(error)
-  }
-}
 
 async function loadItem() {
   loading.value = true
 
-  await safelyRun(async () => {
+  await runSafely(async () => {
     await inventory.fetchAll()
     const item = await inventory.fetchItem(itemId.value)
 
@@ -103,7 +66,7 @@ async function submitItem() {
 
   saving.value = true
 
-  await safelyRun(async () => {
+  await runSafely(async () => {
     await inventory.updateItem(itemId.value, {
       name,
       quantity: itemForm.quantity,
@@ -115,7 +78,7 @@ async function submitItem() {
       group_id: selectToNull(itemForm.group_id),
     })
 
-    appToast.setSuccess('data.toast.updated')
+    appToast.setSuccess(inventoryLang.updated())
   })
 
   saving.value = false

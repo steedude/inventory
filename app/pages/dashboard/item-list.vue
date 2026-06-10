@@ -6,17 +6,10 @@ definePageMeta({
 const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
+const inventoryLang = useInventoryLang()
+const { runSafely } = useSafeRun()
 const deletingId = ref<string>()
 const pendingDeleteId = ref<string>()
-
-async function safelyRun(action: () => Promise<void>) {
-  try {
-    await action()
-  }
-  catch (error) {
-    appToast.setError(error)
-  }
-}
 
 async function deleteItem(id: string) {
   pendingDeleteId.value = id
@@ -34,9 +27,9 @@ async function confirmDelete() {
   const id = pendingDeleteId.value
   deletingId.value = id
 
-  await safelyRun(async () => {
+  await runSafely(async () => {
     await inventory.deleteItem(id)
-    appToast.setSuccess('data.toast.deleted')
+    appToast.setSuccess(inventoryLang.deleted())
   })
 
   deletingId.value = undefined
@@ -44,7 +37,7 @@ async function confirmDelete() {
 }
 
 onMounted(() => {
-  void safelyRun(inventory.fetchAll)
+  void runSafely(inventory.fetchAll)
 })
 </script>
 

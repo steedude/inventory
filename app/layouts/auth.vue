@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toasterConfig } from '../../config/toast'
+import { toasterConfig } from '~~/config/toastConfig'
 </script>
 
 <template>
