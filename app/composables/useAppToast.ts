@@ -21,7 +21,7 @@ export function useAppToast() {
     }
 
     if (isMessageObject(message)) {
-      return message.message
+      return resolveMessage(message.message)
     }
 
     return ''

@@ -4,24 +4,20 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const inventory = useInventoryData()
+const { runSafely } = useSafeRun()
 
 const summaryCards = computed(() => [
   {
     label: t('dashboard.summary.items'),
-    value: '0',
+    value: String(inventory.items.value.length),
     icon: 'i-lucide-package',
   },
-  {
-    label: t('dashboard.summary.sheets'),
-    value: '0',
-    icon: 'i-lucide-table-2',
-  },
-  {
-    label: t('dashboard.summary.sync'),
-    value: t('dashboard.summary.notConfigured'),
-    icon: 'i-lucide-refresh-cw',
-  },
 ])
+
+onMounted(() => {
+  void runSafely(inventory.fetchAll)
+})
 </script>
 
 <template>

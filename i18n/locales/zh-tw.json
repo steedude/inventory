@@ -12,15 +12,15 @@
   },
   "home": {
     "badge": "庫存管理",
-    "title": "把庫存、試算表與資料庫整理成同一個工作區",
-    "description": "首頁先簡短介紹系統。登入後可以進入主控台，管理庫存資料、Google Sheet 串接與同步狀態。",
+    "title": "把庫存資料整理成清楚好用的管理工作區",
+    "description": "首頁先簡短介紹系統。登入後可以進入主控台，管理庫存資料、分類、位置與物品清單。",
     "language": "選擇語言",
     "start": "開始使用",
     "dashboardPreview": "前往主控台",
     "features": {
       "googleSheets": {
-        "title": "Google Sheet 串接",
-        "description": "規劃從既有試算表同步資料，讓團隊能保留熟悉的流程，同時逐步導入庫存系統。"
+        "title": "多種登入方式",
+        "description": "支援 Email 密碼與 Google 登入，讓使用者可以用熟悉的帳號快速進入系統。"
       },
       "database": {
         "title": "Supabase 資料庫",
@@ -34,12 +34,9 @@
   },
   "dashboard": {
     "title": "主控台",
-    "description": "登入後的工作區會整理庫存概況、Google Sheet 連線狀態與近期同步紀錄。",
+    "description": "登入後的工作區會整理庫存概況與近期管理狀態。",
     "summary": {
-      "items": "庫存物品",
-      "sheets": "已連接試算表",
-      "sync": "同步狀態",
-      "notConfigured": "尚未設定"
+      "items": "庫存物品"
     }
   },
   "profile": {
@@ -74,7 +71,7 @@
   },
   "data": {
     "title": "資料頁面",
-    "description": "先建立庫存管理需要的分類、位置、群組與物品資料，之後再接上 Google Sheet 同步。",
+    "description": "先建立庫存管理需要的分類、位置、群組與物品資料。",
     "empty": "目前還沒有物品資料",
     "loading": "資料載入中...",
     "sections": {
@@ -171,6 +168,10 @@
     "loginSuccess": "登入成功",
     "logoutSuccess": "已登出",
     "signupSignedIn": "註冊成功，已登入",
-    "signupSuccess": "註冊成功，請到 Email 信箱確認後再登入。"
+    "signupSuccess": "註冊成功，請直接登入。",
+    "emailAlreadyExists": "這個 Email 已經註冊過，請直接登入。",
+    "googleLogin": "使用 Google 登入",
+    "showPassword": "顯示密碼",
+    "hidePassword": "隱藏密碼"
   }
 }

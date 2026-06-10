@@ -12,15 +12,15 @@
   },
   "home": {
     "badge": "Inventory Management",
-    "title": "Turn inventory, spreadsheets, and database records into one workspace",
-    "description": "The public home page explains the product at a glance. After signing in, users enter the dashboard to manage inventory data, Google Sheets connections, and sync status.",
+    "title": "Turn inventory records into a clear management workspace",
+    "description": "The public home page explains the product at a glance. After signing in, users enter the dashboard to manage inventory data, categories, locations, and item lists.",
     "language": "Select language",
     "start": "Start using",
     "dashboardPreview": "Go to dashboard",
     "features": {
       "googleSheets": {
-        "title": "Google Sheets connection",
-        "description": "Plan synchronization from existing spreadsheets so teams can adopt the system while keeping familiar data workflows."
+        "title": "Flexible sign-in options",
+        "description": "Support email-password sign-in and Google sign-in so users can access the system with a familiar account."
       },
       "database": {
         "title": "Supabase database",
@@ -34,12 +34,9 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "description": "The signed-in workspace will summarize inventory, Google Sheets connection status, and recent sync activity.",
+    "description": "The signed-in workspace summarizes inventory status and recent management activity.",
     "summary": {
-      "items": "Inventory items",
-      "sheets": "Connected sheets",
-      "sync": "Sync status",
-      "notConfigured": "Not configured"
+      "items": "Inventory items"
     }
   },
   "profile": {
@@ -74,7 +71,7 @@
   },
   "data": {
     "title": "Data",
-    "description": "Start by creating the categories, locations, groups, and items needed for inventory management. Google Sheets sync can be connected later.",
+    "description": "Start by creating the categories, locations, groups, and items needed for inventory management.",
     "empty": "No inventory items yet",
     "loading": "Loading data...",
     "sections": {
@@ -171,6 +168,10 @@
     "loginSuccess": "Signed in",
     "logoutSuccess": "Signed out",
     "signupSignedIn": "Account created and signed in",
-    "signupSuccess": "Account created. Check your inbox to confirm your email, then sign in."
+    "signupSuccess": "Account created. Please sign in.",
+    "emailAlreadyExists": "This email is already registered. Please sign in instead.",
+    "googleLogin": "Sign in with Google",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   }
 }

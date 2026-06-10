@@ -3,6 +3,7 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 export function useAuth() {
   const auth = useAuthStore()
   const { $supabase } = useNuxtApp()
+  const { t } = useI18n()
 
   const initialize = async () => {
     if (auth.initialized) {
@@ -48,11 +49,37 @@ export function useAuth() {
       password,
     })
 
+    if (data.user?.identities?.length === 0) {
+      auth.setLoading(false)
+
+      return {
+        data,
+        error: new Error(t('auth.emailAlreadyExists')),
+      }
+    }
+
     if (!error) {
       auth.setSession(data.session)
     }
 
     auth.setLoading(false)
+    return { data, error }
+  }
+
+  const signInWithGoogle = async () => {
+    auth.setLoading(true)
+
+    const { data, error } = await $supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: import.meta.client ? `${globalThis.location.origin}/dashboard` : undefined,
+      },
+    })
+
+    if (error !== null) {
+      auth.setLoading(false)
+    }
+
     return { data, error }
   }
 
@@ -72,6 +99,7 @@ export function useAuth() {
   return {
     initialize,
     signIn,
+    signInWithGoogle,
     signUp,
     signOut,
   }

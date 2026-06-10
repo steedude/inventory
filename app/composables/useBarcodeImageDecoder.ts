@@ -23,7 +23,7 @@ export function useBarcodeImageDecoder() {
 
     try {
       await runSafely(async () => {
-        if (!isSupportedBarcodeImage(file)) {
+        if (!await isSupportedBarcodeImage(file)) {
           appToast.setError(t('quickUse.unsupportedImageType'))
           return
         }

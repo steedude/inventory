@@ -11,6 +11,10 @@ const { t } = useI18n()
 const email = ref('')
 const password = ref('')
 const isLoginMode = ref(true)
+const passwordVisible = ref(false)
+
+const passwordInputType = computed(() => passwordVisible.value ? 'text' : 'password')
+const passwordIcon = computed(() => passwordVisible.value ? 'i-lucide-eye-off' : 'i-lucide-eye')
 
 async function submit() {
   const result = isLoginMode.value
@@ -32,6 +36,18 @@ async function submit() {
 
 function toggleMode() {
   isLoginMode.value = !isLoginMode.value
+}
+
+function togglePasswordVisible() {
+  passwordVisible.value = !passwordVisible.value
+}
+
+async function signInWithGoogle() {
+  const { error } = await authService.signInWithGoogle()
+
+  if (error !== null) {
+    appToast.setError(error)
+  }
 }
 </script>
 
@@ -55,13 +71,37 @@ function toggleMode() {
       <UFormField :label="t('auth.password')">
         <UInput
           v-model="password"
-          type="password"
+          :type="passwordInputType"
           autocomplete="current-password"
           required
           minlength="6"
           class="w-full"
-        />
+        >
+          <template #trailing>
+            <UButton
+              type="button"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              :icon="passwordIcon"
+              :aria-label="passwordVisible ? t('auth.hidePassword') : t('auth.showPassword')"
+              @click="togglePasswordVisible"
+            />
+          </template>
+        </UInput>
       </UFormField>
+
+      <UButton
+        type="button"
+        color="neutral"
+        variant="soft"
+        icon="i-simple-icons-google"
+        block
+        :loading="auth.loading"
+        @click="signInWithGoogle"
+      >
+        {{ t('auth.googleLogin') }}
+      </UButton>
 
       <div class="flex items-center gap-3">
         <UButton type="submit" :loading="auth.loading">
