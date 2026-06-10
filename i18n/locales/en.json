@@ -3,7 +3,9 @@
     "name": "Inventory Management System"
   },
   "common": {
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "missingSignedInUser": "Missing signed-in user. Please sign in again.",
+    "missingSupabaseConfig": "Missing Supabase config. Check the environment variables."
   },
   "navigation": {
     "home": "Home",

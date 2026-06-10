@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { AppError } from '~~/config/errorConfig'
+
 definePageMeta({
   layout: 'auth',
 })
@@ -22,6 +24,11 @@ async function submit() {
     : await authService.signUp(email.value, password.value)
 
   if (result.error) {
+    if (result.error.message === AppError.EmailAlreadyExists) {
+      appToast.setError(t(AppError.EmailAlreadyExists))
+      return
+    }
+
     appToast.setError(result.error)
     return
   }

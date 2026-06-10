@@ -1,5 +1,6 @@
 import type { Database } from '~~/types/databaseTypes'
 import { createClient } from '@supabase/supabase-js'
+import { AppError } from '~~/config/errorConfig'
 
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig()
@@ -7,7 +8,7 @@ export default defineNuxtPlugin(() => {
   const supabaseKey = config.public.supabaseKey
 
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase runtime config. Check SUPABASE_URL and SUPABASE_KEY.')
+    throw new Error(AppError.MissingSupabaseConfig)
   }
 
   const supabase = createClient<Database>(supabaseUrl, supabaseKey)

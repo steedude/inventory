@@ -1,9 +1,9 @@
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+import { AppError } from '~~/config/errorConfig'
 
 export function useAuth() {
   const auth = useAuthStore()
   const { $supabase } = useNuxtApp()
-  const { t } = useI18n()
 
   const initialize = async () => {
     if (auth.initialized) {
@@ -54,7 +54,7 @@ export function useAuth() {
 
       return {
         data,
-        error: new Error(t('auth.emailAlreadyExists')),
+        error: new Error(AppError.EmailAlreadyExists),
       }
     }
 

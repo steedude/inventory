@@ -13,6 +13,7 @@ import type {
   UpdateInventoryItemPayload,
   UpdateInventoryLocationPayload,
 } from '~~/types/inventoryTypes'
+import { AppError } from '~~/config/errorConfig'
 
 export function useInventoryData() {
   const auth = useAuthStore()
@@ -31,7 +32,7 @@ export function useInventoryData() {
     const userId = auth.user?.id
 
     if (userId === undefined) {
-      throw new Error('Missing signed-in user.')
+      throw new Error(AppError.MissingSignedInUser)
     }
 
     return userId

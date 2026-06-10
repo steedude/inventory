@@ -3,7 +3,9 @@
     "name": "庫存管理系統"
   },
   "common": {
-    "error": "發生錯誤"
+    "error": "發生錯誤",
+    "missingSignedInUser": "找不到登入使用者，請重新登入。",
+    "missingSupabaseConfig": "Supabase 設定不完整，請檢查環境變數。"
   },
   "navigation": {
     "home": "首頁",
