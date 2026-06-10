@@ -6,7 +6,6 @@ definePageMeta({
 const auth = useAuthStore()
 const authService = useAuth()
 const appToast = useAppToast()
-const authLang = useAuthLang()
 const { t } = useI18n()
 
 const email = ref('')
@@ -24,11 +23,11 @@ async function submit() {
   }
 
   if (auth.isLogin) {
-    appToast.setSuccess(isLoginMode.value ? authLang.loginSuccess() : authLang.signupSignedIn())
+    appToast.setSuccess(isLoginMode.value ? t('auth.loginSuccess') : t('auth.signupSignedIn'))
     return navigateTo('/dashboard')
   }
 
-  appToast.setSuccess(authLang.signupSuccess())
+  appToast.setSuccess(t('auth.signupSuccess'))
 }
 
 function toggleMode() {

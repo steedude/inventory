@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { InventoryItemFormState } from '~~/types/inventoryTypes'
 import {
+  barcodeImageAccept,
+} from '~~/config/barcodeConfig'
+import {
   InventorySelectValue,
   selectToNull,
 } from '~~/config/inventorySelectConfig'
@@ -13,7 +16,8 @@ const { t } = useI18n()
 const route = useRoute()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const inventoryLang = useInventoryLang()
+const barcodeScanner = useBarcodeScanner()
+const barcodeImageDecoder = useBarcodeImageDecoder()
 const { runSafely } = useSafeRun()
 const {
   groupOptions,
@@ -22,6 +26,9 @@ const {
 } = useInventorySelectOptions(inventory)
 
 const creating = ref(false)
+const barcodeImageLoading = ref(false)
+const scannerVideo = ref<HTMLVideoElement>()
+const cameraOpen = ref(false)
 
 const itemForm = reactive<InventoryItemFormState>({
   name: '',
@@ -63,10 +70,38 @@ async function submitItem() {
     itemForm.barcode = ''
     itemForm.category_id = InventorySelectValue.None
     itemForm.group_id = InventorySelectValue.None
-    appToast.setSuccess(inventoryLang.created())
+    appToast.setSuccess(t('data.toast.created'))
   })
 
   creating.value = false
+}
+
+async function decodeBarcodeImage(event: Event) {
+  await barcodeImageDecoder.decodeBarcodeImage(event, barcodeImageLoading, (result) => {
+    itemForm.barcode = result
+  })
+}
+
+async function startCameraScan() {
+  cameraOpen.value = true
+  await nextTick()
+
+  await runSafely(async () => {
+    await barcodeScanner.startCameraScan(scannerVideo.value, (result) => {
+      itemForm.barcode = result
+      cameraOpen.value = false
+      appToast.setSuccess(t('quickUse.barcodeDetected'))
+    })
+  })
+
+  if (!barcodeScanner.scanning.value) {
+    cameraOpen.value = false
+  }
+}
+
+function stopCameraScan() {
+  barcodeScanner.stopCameraScan()
+  cameraOpen.value = false
 }
 
 onMounted(() => {
@@ -77,6 +112,10 @@ onMounted(() => {
   }
 
   void runSafely(inventory.fetchAll)
+})
+
+onBeforeUnmount(() => {
+  stopCameraScan()
 })
 </script>
 
@@ -105,12 +144,57 @@ onMounted(() => {
         <UFormField :label="t('data.form.quantity')">
           <UInputNumber v-model="itemForm.quantity" class="w-full" :min="0" />
         </UFormField>
-        <UFormField :label="t('data.form.barcode')">
-          <UInput
-            v-model="itemForm.barcode"
-            class="w-full"
-            :placeholder="t('data.form.barcodePlaceholder')"
-          />
+        <UFormField :label="t('data.form.barcode')" class="lg:col-span-2">
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <UInput
+              v-model="itemForm.barcode"
+              class="min-w-0 flex-1"
+              icon="i-lucide-scan-barcode"
+              :placeholder="t('data.form.barcodePlaceholder')"
+            />
+            <UButton
+              as="label"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-image-up"
+              :loading="barcodeImageLoading"
+            >
+              {{ t('quickUse.uploadImage') }}
+              <input
+                class="sr-only"
+                type="file"
+                :accept="barcodeImageAccept"
+                @change="decodeBarcodeImage"
+              >
+            </UButton>
+            <UButton
+              v-if="!cameraOpen"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-camera"
+              @click="startCameraScan"
+            >
+              {{ t('quickUse.scanLive') }}
+            </UButton>
+            <UButton
+              v-else
+              color="error"
+              variant="soft"
+              icon="i-lucide-camera-off"
+              @click="stopCameraScan"
+            >
+              {{ t('quickUse.stopScan') }}
+            </UButton>
+          </div>
+          <div v-if="cameraOpen" class="overflow-hidden rounded-md border border-default bg-black">
+            <video
+              ref="scannerVideo"
+              class="h-64 w-full object-cover"
+              autoplay
+              muted
+              playsinline
+            />
+          </div>
         </UFormField>
         <UFormField :label="t('data.form.subCategory')">
           <USelect v-model="itemForm.category_id" class="w-full" :items="subCategoryOptions" />

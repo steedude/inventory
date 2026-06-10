@@ -6,7 +6,6 @@ definePageMeta({
 const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const inventoryLang = useInventoryLang()
 const { runSafely } = useSafeRun()
 const deletingId = ref<string>()
 const pendingDeleteId = ref<string>()
@@ -29,7 +28,7 @@ async function confirmDelete() {
 
   await runSafely(async () => {
     await inventory.deleteItem(id)
-    appToast.setSuccess(inventoryLang.deleted())
+    appToast.setSuccess(t('data.toast.deleted'))
   })
 
   deletingId.value = undefined

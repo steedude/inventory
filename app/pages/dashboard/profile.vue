@@ -6,7 +6,6 @@ definePageMeta({
 const auth = useAuthStore()
 const authService = useAuth()
 const appToast = useAppToast()
-const authLang = useAuthLang()
 const { t } = useI18n()
 
 async function signOut() {
@@ -17,7 +16,7 @@ async function signOut() {
     return
   }
 
-  appToast.setSuccess(authLang.logoutSuccess())
+  appToast.setSuccess(t('auth.logoutSuccess'))
   await navigateTo('/')
 }
 </script>

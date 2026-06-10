@@ -14,7 +14,6 @@ definePageMeta({
 const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const inventoryLang = useInventoryLang()
 const { runSafely } = useSafeRun()
 const { optionalSubCategoryOptions } = useInventorySelectOptions(inventory)
 
@@ -150,7 +149,7 @@ async function saveCategory() {
   await runSafely(async () => {
     await inventory.updateCategory(editingCategory.id, { name })
     stopEditCategory()
-    appToast.setSuccess(inventoryLang.updated())
+    appToast.setSuccess(t('data.toast.updated'))
   })
 }
 
@@ -164,7 +163,7 @@ async function saveLocation() {
   await runSafely(async () => {
     await inventory.updateLocation(editingLocation.id, { name })
     stopEditLocation()
-    appToast.setSuccess(inventoryLang.updated())
+    appToast.setSuccess(t('data.toast.updated'))
   })
 }
 
@@ -181,7 +180,7 @@ async function saveGroup() {
       category_id: selectToNull(editingGroup.category_id),
     })
     stopEditGroup()
-    appToast.setSuccess(inventoryLang.updated())
+    appToast.setSuccess(t('data.toast.updated'))
   })
 }
 
@@ -233,7 +232,7 @@ async function confirmDelete() {
       await inventory.deleteGroup(id)
     }
 
-    appToast.setSuccess(inventoryLang.deleted())
+    appToast.setSuccess(t('data.toast.deleted'))
   })
 
   deletingId.value = undefined
@@ -254,7 +253,7 @@ async function submitMainCategory() {
       name,
     })
     mainCategoryName.value = ''
-    appToast.setSuccess(inventoryLang.created())
+    appToast.setSuccess(t('data.toast.created'))
   })
 
   creating.mainCategory = false
@@ -275,7 +274,7 @@ async function submitSubCategory() {
       parent_id: selectedMainCategoryId.value,
     })
     subCategoryName.value = ''
-    appToast.setSuccess(inventoryLang.created())
+    appToast.setSuccess(t('data.toast.created'))
   })
 
   creating.subCategory = false
@@ -295,7 +294,7 @@ async function submitLocation() {
       name,
     })
     locationName.value = ''
-    appToast.setSuccess(inventoryLang.created())
+    appToast.setSuccess(t('data.toast.created'))
   })
 
   creating.location = false
@@ -316,7 +315,7 @@ async function submitGroup() {
       category_id: selectToNull(selectedGroupCategoryId.value),
     })
     groupName.value = ''
-    appToast.setSuccess(inventoryLang.created())
+    appToast.setSuccess(t('data.toast.created'))
   })
 
   creating.group = false

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {
+  barcodeImageAccept,
+} from '~~/config/barcodeConfig'
+
 definePageMeta({
   layout: 'dashboard',
 })
@@ -7,9 +11,12 @@ const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
 const barcodeScanner = useBarcodeScanner()
+const barcodeImageDecoder = useBarcodeImageDecoder()
 const { runSafely } = useSafeRun()
 
 const barcode = ref('')
+const scannerVideo = ref<HTMLVideoElement>()
+const cameraOpen = ref(false)
 const imageLoading = ref(false)
 const searching = ref(false)
 
@@ -50,37 +57,41 @@ async function searchBarcode() {
 }
 
 async function decodeBarcodeImage(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
+  await barcodeImageDecoder.decodeBarcodeImage(event, imageLoading, async (result) => {
+    barcode.value = result
+    await routeByBarcode(result)
+  })
+}
 
-  if (file === undefined) {
-    return
-  }
+async function startCameraScan() {
+  cameraOpen.value = true
+  await nextTick()
 
-  imageLoading.value = true
-
-  try {
-    await runSafely(async () => {
-      const result = await barcodeScanner.decodeImage(file)
-
-      if (result === null) {
-        appToast.setError(t('quickUse.noBarcodeFound'))
-        return
-      }
-
+  await runSafely(async () => {
+    await barcodeScanner.startCameraScan(scannerVideo.value, async (result) => {
       barcode.value = result
-      appToast.setSuccess('quickUse.barcodeDetected')
+      cameraOpen.value = false
+      appToast.setSuccess(t('quickUse.barcodeDetected'))
       await routeByBarcode(result)
     })
+  })
+
+  if (!barcodeScanner.scanning.value) {
+    cameraOpen.value = false
   }
-  finally {
-    imageLoading.value = false
-    input.value = ''
-  }
+}
+
+function stopCameraScan() {
+  barcodeScanner.stopCameraScan()
+  cameraOpen.value = false
 }
 
 onMounted(() => {
   void runSafely(inventory.fetchAll)
+})
+
+onBeforeUnmount(() => {
+  stopCameraScan()
 })
 </script>
 
@@ -122,12 +133,39 @@ onMounted(() => {
               <input
                 class="sr-only"
                 type="file"
-                accept="image/*"
-                capture="environment"
+                :accept="barcodeImageAccept"
                 @change="decodeBarcodeImage"
               >
             </UButton>
+            <UButton
+              v-if="!cameraOpen"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-camera"
+              @click="startCameraScan"
+            >
+              {{ t('quickUse.scanLive') }}
+            </UButton>
+            <UButton
+              v-else
+              color="error"
+              variant="soft"
+              icon="i-lucide-camera-off"
+              @click="stopCameraScan"
+            >
+              {{ t('quickUse.stopScan') }}
+            </UButton>
           </div>
+        </div>
+
+        <div v-if="cameraOpen" class="overflow-hidden rounded-md border border-default bg-black">
+          <video
+            ref="scannerVideo"
+            class="h-64 w-full object-cover"
+            autoplay
+            muted
+            playsinline
+          />
         </div>
 
         <p class="text-sm leading-6 text-muted">

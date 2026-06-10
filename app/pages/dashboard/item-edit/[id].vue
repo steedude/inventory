@@ -14,7 +14,6 @@ const route = useRoute()
 const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const inventoryLang = useInventoryLang()
 const { runSafely } = useSafeRun()
 const {
   groupOptions,
@@ -78,7 +77,7 @@ async function submitItem() {
       group_id: selectToNull(itemForm.group_id),
     })
 
-    appToast.setSuccess(inventoryLang.updated())
+    appToast.setSuccess(t('data.toast.updated'))
   })
 
   saving.value = false
