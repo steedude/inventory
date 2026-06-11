@@ -108,7 +108,7 @@ onBeforeUnmount(() => {
 
     <UCard>
       <div class="space-y-4">
-        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
+        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto]">
           <UFormField :label="t('quickUse.barcode')">
             <UInput
               v-model="barcode"
@@ -118,8 +118,13 @@ onBeforeUnmount(() => {
               @keyup.enter="searchBarcode"
             />
           </UFormField>
-          <div class="flex items-end gap-2">
-            <UButton icon="i-lucide-search" :loading="searching" @click="searchBarcode">
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:flex xl:items-end">
+            <UButton
+              icon="i-lucide-search"
+              class="justify-center whitespace-nowrap"
+              :loading="searching"
+              @click="searchBarcode"
+            >
               {{ t('quickUse.search') }}
             </UButton>
             <UButton
@@ -127,6 +132,7 @@ onBeforeUnmount(() => {
               color="neutral"
               variant="soft"
               icon="i-lucide-image-up"
+              class="justify-center whitespace-nowrap"
               :loading="imageLoading"
             >
               {{ t('quickUse.uploadImage') }}
@@ -142,6 +148,7 @@ onBeforeUnmount(() => {
               color="neutral"
               variant="soft"
               icon="i-lucide-camera"
+              class="justify-center whitespace-nowrap"
               @click="startCameraScan"
             >
               {{ t('quickUse.scanLive') }}
@@ -151,6 +158,7 @@ onBeforeUnmount(() => {
               color="error"
               variant="soft"
               icon="i-lucide-camera-off"
+              class="justify-center whitespace-nowrap"
               @click="stopCameraScan"
             >
               {{ t('quickUse.stopScan') }}

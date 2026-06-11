@@ -121,7 +121,8 @@
       "noGroup": "No group",
       "noLocation": "No location",
       "noNote": "No note",
-      "image": "Image"
+      "image": "Image",
+      "noMainCategory": "No main category"
     },
     "actions": {
       "createMainCategory": "Create main category",
@@ -139,7 +140,8 @@
       "refresh": "Refresh",
       "backToSettings": "Back to settings",
       "uploadImage": "Upload image",
-      "removeImage": "Remove image"
+      "removeImage": "Remove image",
+      "backToList": "Back to list"
     },
     "dialog": {
       "confirmDeleteTitle": "Delete data",
@@ -158,6 +160,10 @@
       "deleted": "Data deleted",
       "updated": "Data updated",
       "imageUploaded": "Image uploaded"
+    },
+    "viewMode": {
+      "card": "Card",
+      "list": "List"
     }
   },
   "auth": {

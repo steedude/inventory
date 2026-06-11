@@ -121,7 +121,8 @@
       "noGroup": "不指定群組",
       "noLocation": "不指定位置",
       "noNote": "沒有備註",
-      "image": "圖片"
+      "image": "圖片",
+      "noMainCategory": "不指定大類別"
     },
     "actions": {
       "createMainCategory": "新增大類別",
@@ -139,7 +140,8 @@
       "refresh": "重新整理",
       "backToSettings": "回到資料設定",
       "uploadImage": "上傳圖片",
-      "removeImage": "移除圖片"
+      "removeImage": "移除圖片",
+      "backToList": "返回清單"
     },
     "dialog": {
       "confirmDeleteTitle": "刪除資料",
@@ -158,6 +160,10 @@
       "deleted": "已刪除資料",
       "updated": "已更新資料",
       "imageUploaded": "圖片已上傳"
+    },
+    "viewMode": {
+      "card": "卡片",
+      "list": "列表"
     }
   },
   "auth": {

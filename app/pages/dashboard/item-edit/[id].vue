@@ -14,17 +14,10 @@ const route = useRoute()
 const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
-const itemImageUpload = useItemImageUpload()
 const { runSafely } = useSafeRun()
-const {
-  groupOptions,
-  locationOptions,
-  subCategoryOptions,
-} = useInventorySelectOptions(inventory)
 
 const loading = ref(false)
 const saving = ref(false)
-const imageUploading = ref(false)
 const itemId = computed(() => String(route.params.id))
 
 const itemForm = reactive<InventoryItemFormState>({
@@ -42,7 +35,6 @@ async function loadItem() {
   loading.value = true
 
   await runSafely(async () => {
-    await inventory.fetchAll()
     const item = await inventory.fetchItem(itemId.value)
 
     itemForm.name = item.name
@@ -80,35 +72,10 @@ async function submitItem() {
     })
 
     appToast.setSuccess(t('data.toast.updated'))
+    await navigateTo('/dashboard/item-list')
   })
 
   saving.value = false
-}
-
-async function uploadImage(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-
-  if (file === undefined) {
-    return
-  }
-
-  imageUploading.value = true
-
-  try {
-    await runSafely(async () => {
-      itemForm.image_url = await itemImageUpload.uploadItemImage(file)
-      appToast.setSuccess(t('data.toast.imageUploaded'))
-    })
-  }
-  finally {
-    imageUploading.value = false
-    input.value = ''
-  }
-}
-
-function removeImage() {
-  itemForm.image_url = ''
 }
 
 onMounted(() => {
@@ -118,13 +85,24 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <div class="space-y-2">
-      <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
-        {{ t('data.pages.editItem') }}
-      </h1>
-      <p class="text-sm leading-6 text-muted">
-        {{ t('data.pages.editItemDescription') }}
-      </p>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div class="space-y-2">
+        <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
+          {{ t('data.pages.editItem') }}
+        </h1>
+        <p class="text-sm leading-6 text-muted">
+          {{ t('data.pages.editItemDescription') }}
+        </p>
+      </div>
+      <UButton
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-arrow-left"
+        class="justify-center whitespace-nowrap"
+        to="/dashboard/item-list"
+      >
+        {{ t('data.actions.backToList') }}
+      </UButton>
     </div>
 
     <UCard>
@@ -132,90 +110,14 @@ onMounted(() => {
         {{ t('data.loading') }}
       </div>
 
-      <form v-else class="grid gap-4 lg:grid-cols-4" @submit.prevent="submitItem">
-        <UFormField :label="t('data.form.itemName')" class="lg:col-span-2">
-          <UInput
-            v-model="itemForm.name"
-            class="w-full"
-            :placeholder="t('data.form.itemNamePlaceholder')"
-          />
-        </UFormField>
-        <UFormField :label="t('data.form.quantity')">
-          <UInputNumber v-model="itemForm.quantity" class="w-full" :min="0" />
-        </UFormField>
-        <UFormField :label="t('data.form.barcode')">
-          <UInput
-            v-model="itemForm.barcode"
-            class="w-full"
-            :placeholder="t('data.form.barcodePlaceholder')"
-          />
-        </UFormField>
-        <UFormField :label="t('data.form.subCategory')">
-          <USelect v-model="itemForm.category_id" class="w-full" :items="subCategoryOptions" />
-        </UFormField>
-        <UFormField :label="t('data.form.group')">
-          <USelect v-model="itemForm.group_id" class="w-full" :items="groupOptions" />
-        </UFormField>
-        <UFormField :label="t('data.form.location')">
-          <USelect v-model="itemForm.location_id" class="w-full" :items="locationOptions" />
-        </UFormField>
-        <UFormField :label="t('data.form.image')" class="lg:col-span-2">
-          <div class="space-y-3">
-            <div
-              v-if="itemForm.image_url.length > 0"
-              class="overflow-hidden rounded-md border border-default"
-            >
-              <img
-                :src="itemForm.image_url"
-                :alt="itemForm.name || t('data.form.image')"
-                class="h-44 w-full object-cover"
-              >
-            </div>
-            <div class="flex flex-col gap-2 sm:flex-row">
-              <UButton
-                as="label"
-                color="neutral"
-                variant="soft"
-                icon="i-lucide-image-up"
-                :loading="imageUploading"
-              >
-                {{ t('data.actions.uploadImage') }}
-                <input
-                  class="sr-only"
-                  type="file"
-                  :accept="itemImageUpload.imageUploadAccept"
-                  @change="uploadImage"
-                >
-              </UButton>
-              <UButton
-                v-if="itemForm.image_url.length > 0"
-                color="neutral"
-                variant="ghost"
-                icon="i-lucide-x"
-                @click="removeImage"
-              >
-                {{ t('data.actions.removeImage') }}
-              </UButton>
-            </div>
-          </div>
-        </UFormField>
-        <UFormField :label="t('data.form.note')" class="lg:col-span-3">
-          <UTextarea
-            v-model="itemForm.note"
-            class="w-full"
-            :placeholder="t('data.form.notePlaceholder')"
-          />
-        </UFormField>
-        <div class="flex items-end">
-          <UButton
-            type="submit"
-            icon="i-lucide-save"
-            :loading="saving"
-          >
-            {{ t('data.actions.saveItem') }}
-          </UButton>
-        </div>
-      </form>
+      <InventoryItemForm
+        v-else
+        v-model="itemForm"
+        submit-icon="i-lucide-save"
+        :submit-label="t('data.actions.saveItem')"
+        :submitting="saving"
+        @submit="submitItem"
+      />
     </UCard>
   </div>
 </template>

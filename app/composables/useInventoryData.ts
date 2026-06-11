@@ -52,6 +52,21 @@ export function useInventoryData() {
   }
 
   const getCategoryName = (id: string | null) => findName(categories.value, id)
+  const getMainCategoryName = (id: string | null) => {
+    if (id === null) {
+      return '-'
+    }
+
+    const category = categories.value.find(record => record.id === id)
+
+    if (category === undefined) {
+      return '-'
+    }
+
+    return category.parent_id === null
+      ? category.name
+      : getCategoryName(category.parent_id)
+  }
   const getGroupName = (id: string | null) => findName(groups.value, id)
   const getLocationName = (id: string | null) => findName(locations.value, id)
   const findItemByBarcode = (barcode: string) => {
@@ -331,6 +346,7 @@ export function useInventoryData() {
     fetchItem,
     findItemByBarcode,
     getCategoryName,
+    getMainCategoryName,
     getGroupName,
     getLocationName,
     updateItem,
