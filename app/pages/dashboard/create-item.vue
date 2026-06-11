@@ -18,6 +18,7 @@ const inventory = useInventoryData()
 const appToast = useAppToast()
 const barcodeScanner = useBarcodeScanner()
 const barcodeImageDecoder = useBarcodeImageDecoder()
+const itemImageUpload = useItemImageUpload()
 const { runSafely } = useSafeRun()
 const {
   groupOptions,
@@ -27,6 +28,7 @@ const {
 
 const creating = ref(false)
 const barcodeImageLoading = ref(false)
+const imageUploading = ref(false)
 const scannerVideo = ref<HTMLVideoElement>()
 const cameraOpen = ref(false)
 
@@ -80,6 +82,32 @@ async function decodeBarcodeImage(event: Event) {
   await barcodeImageDecoder.decodeBarcodeImage(event, barcodeImageLoading, (result) => {
     itemForm.barcode = result
   })
+}
+
+async function uploadImage(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (file === undefined) {
+    return
+  }
+
+  imageUploading.value = true
+
+  try {
+    await runSafely(async () => {
+      itemForm.image_url = await itemImageUpload.uploadItemImage(file)
+      appToast.setSuccess(t('data.toast.imageUploaded'))
+    })
+  }
+  finally {
+    imageUploading.value = false
+    input.value = ''
+  }
+}
+
+function removeImage() {
+  itemForm.image_url = ''
 }
 
 async function startCameraScan() {
@@ -205,12 +233,45 @@ onBeforeUnmount(() => {
         <UFormField :label="t('data.form.location')">
           <USelect v-model="itemForm.location_id" class="w-full" :items="locationOptions" />
         </UFormField>
-        <UFormField :label="t('data.form.imageUrl')">
-          <UInput
-            v-model="itemForm.image_url"
-            class="w-full"
-            :placeholder="t('data.form.imageUrlPlaceholder')"
-          />
+        <UFormField :label="t('data.form.image')" class="lg:col-span-2">
+          <div class="space-y-3">
+            <div
+              v-if="itemForm.image_url.length > 0"
+              class="overflow-hidden rounded-md border border-default"
+            >
+              <img
+                :src="itemForm.image_url"
+                :alt="itemForm.name || t('data.form.image')"
+                class="h-44 w-full object-cover"
+              >
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row">
+              <UButton
+                as="label"
+                color="neutral"
+                variant="soft"
+                icon="i-lucide-image-up"
+                :loading="imageUploading"
+              >
+                {{ t('data.actions.uploadImage') }}
+                <input
+                  class="sr-only"
+                  type="file"
+                  :accept="itemImageUpload.imageUploadAccept"
+                  @change="uploadImage"
+                >
+              </UButton>
+              <UButton
+                v-if="itemForm.image_url.length > 0"
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                @click="removeImage"
+              >
+                {{ t('data.actions.removeImage') }}
+              </UButton>
+            </div>
+          </div>
         </UFormField>
         <UFormField :label="t('data.form.note')" class="lg:col-span-3">
           <UTextarea

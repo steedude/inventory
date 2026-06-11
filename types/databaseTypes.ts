@@ -35,7 +35,6 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          category_id: string | null
           name: string
           note: string | null
           created_at: string
@@ -44,7 +43,6 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          category_id?: string | null
           name: string
           note?: string | null
           created_at?: string
@@ -53,7 +51,6 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          category_id?: string | null
           name?: string
           note?: string | null
           created_at?: string

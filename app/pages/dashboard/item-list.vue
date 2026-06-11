@@ -83,8 +83,16 @@ onMounted(() => {
         <div
           v-for="item in inventory.items.value"
           :key="item.id"
-          class="grid gap-3 rounded-md border border-default p-4 lg:grid-cols-[minmax(0,1fr)_120px_160px_160px_auto]"
+          class="grid gap-3 rounded-md border border-default p-4 lg:grid-cols-[64px_minmax(0,1fr)_120px_160px_160px_auto]"
         >
+          <div class="h-16 w-16 overflow-hidden rounded-md border border-default bg-muted/40">
+            <img
+              v-if="item.image_url !== null"
+              :src="item.image_url"
+              :alt="item.name"
+              class="h-full w-full object-cover"
+            >
+          </div>
           <div class="space-y-1">
             <div class="font-medium text-highlighted">
               {{ item.name }}
@@ -117,7 +125,7 @@ onMounted(() => {
               {{ inventory.getGroupName(item.group_id) }}
             </div>
           </div>
-          <div class="space-y-1 text-sm lg:col-start-3">
+          <div class="space-y-1 text-sm lg:col-start-4">
             <div class="text-muted">
               {{ t('data.form.location') }}
             </div>

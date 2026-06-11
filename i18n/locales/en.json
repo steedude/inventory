@@ -120,7 +120,8 @@
       "noCategory": "No subcategory",
       "noGroup": "No group",
       "noLocation": "No location",
-      "noNote": "No note"
+      "noNote": "No note",
+      "image": "Image"
     },
     "actions": {
       "createMainCategory": "Create main category",
@@ -136,7 +137,9 @@
       "save": "Save",
       "saveItem": "Save item",
       "refresh": "Refresh",
-      "backToSettings": "Back to settings"
+      "backToSettings": "Back to settings",
+      "uploadImage": "Upload image",
+      "removeImage": "Remove image"
     },
     "dialog": {
       "confirmDeleteTitle": "Delete data",
@@ -153,7 +156,8 @@
     "toast": {
       "created": "Data created",
       "deleted": "Data deleted",
-      "updated": "Data updated"
+      "updated": "Data updated",
+      "imageUploaded": "Image uploaded"
     }
   },
   "auth": {

@@ -32,7 +32,6 @@ create table if not exists public.locations (
 create table if not exists public.item_groups (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  category_id uuid references public.categories(id) on delete set null,
   name text not null,
   note text,
   created_at timestamptz not null default now(),
@@ -59,7 +58,6 @@ create index if not exists categories_user_id_idx on public.categories(user_id);
 create index if not exists categories_parent_id_idx on public.categories(parent_id);
 create index if not exists locations_user_id_idx on public.locations(user_id);
 create index if not exists item_groups_user_id_idx on public.item_groups(user_id);
-create index if not exists item_groups_category_id_idx on public.item_groups(category_id);
 create index if not exists items_user_id_idx on public.items(user_id);
 create index if not exists items_category_id_idx on public.items(category_id);
 create index if not exists items_group_id_idx on public.items(group_id);

@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import type { InventorySelectModelValue } from '~~/types/inventoryTypes'
 import {
   createCategoryOptions,
   InventoryDeleteTarget,
-  InventorySelectValue,
-  selectToNull,
 } from '~~/config/inventorySelectConfig'
 
 definePageMeta({
@@ -15,14 +12,12 @@ const { t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
 const { runSafely } = useSafeRun()
-const { optionalSubCategoryOptions } = useInventorySelectOptions(inventory)
 
 const mainCategoryName = ref('')
 const subCategoryName = ref('')
 const selectedMainCategoryId = ref<string>()
 const locationName = ref('')
 const groupName = ref('')
-const selectedGroupCategoryId = ref<InventorySelectModelValue>(InventorySelectValue.None)
 const deletingId = ref<string>()
 const inUseDialogOpen = ref(false)
 const pendingDelete = reactive<{
@@ -43,14 +38,9 @@ const editingLocation = reactive({
   name: '',
 })
 
-const editingGroup = reactive<{
-  id: string
-  name: string
-  category_id: InventorySelectModelValue
-}>({
+const editingGroup = reactive({
   id: '',
   name: '',
-  category_id: InventorySelectValue.None,
 })
 
 const creating = reactive({
@@ -89,10 +79,9 @@ function startEditLocation(id: string, name: string) {
   editingLocation.name = name
 }
 
-function startEditGroup(id: string, name: string, categoryId: string | null) {
+function startEditGroup(id: string, name: string) {
   editingGroup.id = id
   editingGroup.name = name
-  editingGroup.category_id = categoryId ?? InventorySelectValue.None
 }
 
 function stopEditCategory() {
@@ -108,12 +97,10 @@ function stopEditLocation() {
 function stopEditGroup() {
   editingGroup.id = ''
   editingGroup.name = ''
-  editingGroup.category_id = InventorySelectValue.None
 }
 
 function categoryIsUsed(id: string) {
   return inventory.categories.value.some(category => category.parent_id === id)
-    || inventory.groups.value.some(group => group.category_id === id)
     || inventory.items.value.some(item => item.category_id === id)
 }
 
@@ -177,7 +164,6 @@ async function saveGroup() {
   await runSafely(async () => {
     await inventory.updateGroup(editingGroup.id, {
       name,
-      category_id: selectToNull(editingGroup.category_id),
     })
     stopEditGroup()
     appToast.setSuccess(t('data.toast.updated'))
@@ -312,7 +298,6 @@ async function submitGroup() {
   await runSafely(async () => {
     await inventory.createGroup({
       name,
-      category_id: selectToNull(selectedGroupCategoryId.value),
     })
     groupName.value = ''
     appToast.setSuccess(t('data.toast.created'))
@@ -427,13 +412,6 @@ onMounted(() => {
           </form>
 
           <form class="space-y-3" @submit.prevent="submitGroup">
-            <UFormField :label="t('data.form.groupCategory')">
-              <USelect
-                v-model="selectedGroupCategoryId"
-                class="w-full"
-                :items="optionalSubCategoryOptions"
-              />
-            </UFormField>
             <UFormField :label="t('data.form.group')">
               <UInput
                 v-model="groupName"
@@ -679,21 +657,13 @@ onMounted(() => {
               class="space-y-2 rounded-md border border-default px-3 py-2"
             >
               <div class="flex items-start justify-between gap-2">
-                <div v-if="!isEditingGroup(group.id)" class="min-w-0 space-y-1">
+                <div v-if="!isEditingGroup(group.id)" class="min-w-0">
                   <div class="text-sm font-medium text-highlighted">
                     {{ group.name }}
                   </div>
-                  <div class="text-xs text-muted">
-                    {{ inventory.getCategoryName(group.category_id) }}
-                  </div>
                 </div>
-                <div v-else class="min-w-0 flex-1 space-y-2">
+                <div v-else class="min-w-0 flex-1">
                   <UInput v-model="editingGroup.name" class="w-full" />
-                  <USelect
-                    v-model="editingGroup.category_id"
-                    class="w-full"
-                    :items="optionalSubCategoryOptions"
-                  />
                 </div>
                 <div class="flex shrink-0 items-center gap-1">
                   <template v-if="isEditingGroup(group.id)">
@@ -718,7 +688,7 @@ onMounted(() => {
                       variant="ghost"
                       icon="i-lucide-pencil"
                       :aria-label="t('data.actions.edit')"
-                      @click="startEditGroup(group.id, group.name, group.category_id)"
+                      @click="startEditGroup(group.id, group.name)"
                     />
                     <UButton
                       color="error"

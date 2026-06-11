@@ -4,6 +4,7 @@ import { isSupportedBarcodeImage } from '~~/config/barcodeConfig'
 export function useBarcodeImageDecoder() {
   const appToast = useAppToast()
   const barcodeScanner = useBarcodeScanner()
+  const imageProcessor = useImageProcessor()
   const { t } = useI18n()
   const { runSafely } = useSafeRun()
 
@@ -28,7 +29,8 @@ export function useBarcodeImageDecoder() {
           return
         }
 
-        const result = await barcodeScanner.decodeImage(file)
+        const image = await imageProcessor.prepareImage(file)
+        const result = await barcodeScanner.decodeImage(image)
 
         if (result === null) {
           appToast.setError(t('quickUse.noBarcodeFound'))
