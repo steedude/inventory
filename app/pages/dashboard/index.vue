@@ -6,6 +6,18 @@ definePageMeta({
 const { t } = useI18n()
 const inventory = useInventoryData()
 const { runSafely } = useSafeRun()
+const appToast = useAppToast()
+
+interface WorkerCronResult {
+  ok?: boolean
+  result?: {
+    checkedAt?: string
+    count?: number
+  }
+}
+
+const isTestingWorker = ref(false)
+const workerCronResult = ref<WorkerCronResult | null>(null)
 
 const recentMovements = computed(() => inventory.movements.value.slice(0, 5))
 const categoryStats = computed(() => {
@@ -51,6 +63,20 @@ function formatDate(value: string) {
   }).format(new Date(value))
 }
 
+async function testWorkerCron() {
+  isTestingWorker.value = true
+
+  await runSafely(async () => {
+    workerCronResult.value = await $fetch<WorkerCronResult>('/api/inventory/test-worker', {
+      method: 'POST',
+    })
+    appToast.setSuccess(t('dashboard.workerTest.success'))
+    await inventory.fetchAll()
+  })
+
+  isTestingWorker.value = false
+}
+
 onMounted(() => {
   void runSafely(inventory.fetchAll)
 })
@@ -58,13 +84,30 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <div class="space-y-2">
-      <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
-        {{ t('dashboard.title') }}
-      </h1>
-      <p class="text-sm leading-6 text-muted">
-        {{ t('dashboard.description') }}
-      </p>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="space-y-2">
+        <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
+          {{ t('dashboard.title') }}
+        </h1>
+        <p class="text-sm leading-6 text-muted">
+          {{ t('dashboard.description') }}
+        </p>
+        <p v-if="workerCronResult?.result" class="text-xs text-muted">
+          {{ t('dashboard.workerTest.result') }}
+          {{ t('dashboard.workerTest.count', { count: workerCronResult.result.count ?? 0 }) }}
+          {{ t('common.separator') }}
+          {{ t('dashboard.workerTest.checkedAt', { time: workerCronResult.result.checkedAt ? formatDate(workerCronResult.result.checkedAt) : '-' }) }}
+        </p>
+      </div>
+      <UButton
+        icon="i-lucide-play"
+        variant="soft"
+        :loading="isTestingWorker"
+        class="self-start"
+        @click="testWorkerCron"
+      >
+        {{ t('dashboard.workerTest.run') }}
+      </UButton>
     </div>
 
     <section class="grid gap-4 md:grid-cols-3">

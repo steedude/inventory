@@ -13,6 +13,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
     inventoryCronSecret: process.env.INVENTORY_CRON_SECRET ?? '',
+    inventoryCronWorkerUrl: process.env.INVENTORY_CRON_WORKER_URL ?? '',
     public: {
       supabaseUrl: process.env.SUPABASE_URL ?? '',
       supabaseKey: process.env.SUPABASE_KEY ?? '',

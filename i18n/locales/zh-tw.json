@@ -60,6 +60,13 @@
     "recentMovements": {
       "title": "近期異動",
       "description": "系統最近記錄的庫存變更。"
+    },
+    "workerTest": {
+      "run": "測試正式排程",
+      "success": "Worker 排程執行完成",
+      "result": "上次排程結果：",
+      "count": "{count} 個低庫存物品",
+      "checkedAt": "檢查時間 {time}"
     }
   },
   "profile": {

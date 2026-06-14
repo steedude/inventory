@@ -60,6 +60,13 @@
     "recentMovements": {
       "title": "Recent movements",
       "description": "Latest inventory changes recorded by the system."
+    },
+    "workerTest": {
+      "run": "Run cron test",
+      "success": "Worker cron completed",
+      "result": "Last cron result:",
+      "count": "{count} low stock items",
+      "checkedAt": "checked at {time}"
     }
   },
   "profile": {
