@@ -144,7 +144,7 @@ onMounted(() => {
 
     <UCard>
       <template #header>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div class="space-y-1">
             <h2 class="text-base font-semibold text-highlighted">
               {{ t('data.sections.list') }}
@@ -153,7 +153,7 @@ onMounted(() => {
               {{ t('data.sections.listDescription') }}
             </p>
           </div>
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
             <div class="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
               <UButton
                 v-for="option in viewModeOptions"
@@ -195,7 +195,7 @@ onMounted(() => {
 
       <div
         v-else-if="viewMode === InventoryListViewMode.Card"
-        class="grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+        class="grid gap-3 lg:grid-cols-3"
       >
         <article
           v-for="item in inventory.items.value"

@@ -322,7 +322,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <div class="grid gap-4 xl:grid-cols-2">
+    <div class="grid gap-4 lg:grid-cols-2">
       <UCard>
         <template #header>
           <div class="space-y-1">
@@ -335,7 +335,7 @@ onMounted(() => {
           </div>
         </template>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 lg:grid-cols-2">
           <form class="space-y-3" @submit.prevent="submitMainCategory">
             <UFormField :label="t('data.form.mainCategory')">
               <UInput
@@ -393,7 +393,7 @@ onMounted(() => {
           </div>
         </template>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 lg:grid-cols-2">
           <form class="space-y-3" @submit.prevent="submitLocation">
             <UFormField :label="t('data.form.location')">
               <UInput
@@ -432,7 +432,7 @@ onMounted(() => {
     </div>
 
     <div class="space-y-3">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div class="space-y-1">
           <h2 class="text-lg font-semibold tracking-normal text-highlighted">
             {{ t('data.sections.currentData') }}
@@ -451,7 +451,7 @@ onMounted(() => {
         </UButton>
       </div>
 
-      <div class="grid gap-4 xl:grid-cols-3">
+      <div class="grid gap-4 lg:grid-cols-3">
         <UCard>
           <template #header>
             <h3 class="text-base font-semibold text-highlighted">

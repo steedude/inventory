@@ -33,7 +33,7 @@ async function signOut() {
     </div>
 
     <div class="rounded-md border border-default bg-default p-5">
-      <dl class="grid gap-4 sm:grid-cols-[140px_minmax(0,1fr)]">
+      <dl class="grid gap-4 lg:grid-cols-[140px_minmax(0,1fr)]">
         <dt class="text-sm font-medium text-muted">
           {{ t('profile.email') }}
         </dt>

@@ -1,6 +1,11 @@
+export const appToastDuration = 3000
+
 export function useAppToast() {
   const toast = useToast()
   const i18n = useI18n()
+  const toastOptions = {
+    duration: appToastDuration,
+  }
 
   const resolveMessage = (message: string) => i18n.te(message) === true ? i18n.t(message) : message
 
@@ -29,6 +34,7 @@ export function useAppToast() {
 
   const setSuccess = (message: string, description?: string) => {
     toast.add({
+      ...toastOptions,
       title: resolveMessage(message),
       description: description !== undefined && description.length > 0 ? resolveMessage(description) : undefined,
       color: 'success',
@@ -40,6 +46,7 @@ export function useAppToast() {
     const title = getMessage(message)
 
     toast.add({
+      ...toastOptions,
       title: title.length > 0 ? title : resolveMessage('common.error'),
       color: 'error',
       icon: 'i-lucide-circle-alert',
@@ -48,6 +55,7 @@ export function useAppToast() {
 
   const setInfo = (message: string, description?: string) => {
     toast.add({
+      ...toastOptions,
       title: resolveMessage(message),
       description: description !== undefined && description.length > 0 ? resolveMessage(description) : undefined,
       color: 'info',
@@ -57,6 +65,7 @@ export function useAppToast() {
 
   const setWarning = (message: string, description?: string) => {
     toast.add({
+      ...toastOptions,
       title: resolveMessage(message),
       description: description !== undefined && description.length > 0 ? resolveMessage(description) : undefined,
       color: 'warning',

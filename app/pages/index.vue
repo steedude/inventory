@@ -24,13 +24,13 @@ const features = computed(() => [
 </script>
 
 <template>
-  <UContainer class="py-10 sm:py-14">
+  <UContainer class="py-10 lg:py-14">
     <section class="grid min-h-[calc(100dvh-9rem)] content-center gap-8">
       <div class="max-w-3xl space-y-5">
         <UBadge color="primary" variant="soft">
           {{ t('home.badge') }}
         </UBadge>
-        <h1 class="text-4xl font-semibold tracking-normal text-highlighted sm:text-5xl">
+        <h1 class="text-4xl font-semibold tracking-normal text-highlighted lg:text-5xl">
           {{ t('home.title') }}
         </h1>
         <p class="max-w-2xl text-base leading-7 text-muted">
@@ -43,7 +43,7 @@ const features = computed(() => [
         </div>
       </div>
 
-      <section class="grid gap-4 md:grid-cols-3">
+      <section class="grid gap-4 lg:grid-cols-3">
         <div
           v-for="feature in features"
           :key="feature.title"

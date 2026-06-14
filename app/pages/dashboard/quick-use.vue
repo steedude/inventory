@@ -108,7 +108,7 @@ onBeforeUnmount(() => {
 
     <UCard>
       <div class="space-y-4">
-        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto]">
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto]">
           <UFormField :label="t('quickUse.barcode')">
             <UInput
               v-model="barcode"
@@ -118,7 +118,7 @@ onBeforeUnmount(() => {
               @keyup.enter="searchBarcode"
             />
           </UFormField>
-          <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:flex xl:items-end">
+          <div class="grid grid-cols-1 gap-2 lg:flex lg:items-end">
             <UButton
               icon="i-lucide-search"
               class="justify-center whitespace-nowrap"

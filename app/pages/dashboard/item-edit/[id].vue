@@ -91,7 +91,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div class="space-y-2">
         <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
           {{ t('data.pages.editItem') }}

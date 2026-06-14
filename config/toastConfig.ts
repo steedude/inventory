@@ -1,9 +1,9 @@
-export const toastDuration = 3000
+import { appToastDuration } from '~~/app/composables/useAppToast'
 
 export const toasterConfig = {
   position: 'top-right' as const,
   expand: true,
   progress: false,
-  duration: toastDuration,
+  duration: appToastDuration,
   max: 5,
 }

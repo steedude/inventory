@@ -84,7 +84,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div class="space-y-2">
         <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
           {{ t('dashboard.title') }}
@@ -110,7 +110,7 @@ onMounted(() => {
       </UButton>
     </div>
 
-    <section class="grid gap-4 md:grid-cols-3">
+    <section class="grid gap-4 lg:grid-cols-3">
       <div
         v-for="card in summaryCards"
         :key="card.label"
@@ -126,7 +126,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <section class="grid gap-4 xl:grid-cols-2">
+    <section class="grid gap-4 lg:grid-cols-2">
       <UCard>
         <template #header>
           <div class="space-y-1">
@@ -219,7 +219,7 @@ onMounted(() => {
         <div
           v-for="movement in recentMovements"
           :key="movement.id"
-          class="flex flex-col gap-1 rounded-md border border-default px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col gap-1 rounded-md border border-default px-3 py-2 lg:flex-row lg:items-center lg:justify-between"
         >
           <div class="font-medium text-highlighted">
             {{ movement.item_name }}
