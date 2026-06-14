@@ -5,12 +5,17 @@
   "common": {
     "error": "Something went wrong",
     "missingSignedInUser": "Missing signed-in user. Please sign in again.",
-    "missingSupabaseConfig": "Missing Supabase config. Check the environment variables."
+    "missingSupabaseConfig": "Missing Supabase config. Check the environment variables.",
+    "yes": "Yes",
+    "no": "No",
+    "arrow": "to",
+    "separator": "/"
   },
   "navigation": {
     "home": "Home",
     "profile": "Profile",
-    "data": "Data"
+    "data": "Data",
+    "logs": "Logs"
   },
   "home": {
     "badge": "Inventory Management",
@@ -38,7 +43,23 @@
     "title": "Dashboard",
     "description": "The signed-in workspace summarizes inventory status and recent management activity.",
     "summary": {
-      "items": "Inventory items"
+      "items": "Inventory items",
+      "lowStock": "Low stock items",
+      "movements": "Recent movements"
+    },
+    "lowStock": {
+      "title": "Low stock alerts",
+      "description": "Items whose quantity is at or below their custom threshold.",
+      "empty": "No low stock items"
+    },
+    "categoryChart": {
+      "title": "Items by main category",
+      "description": "A simple distribution chart for current inventory items.",
+      "empty": "No category data yet"
+    },
+    "recentMovements": {
+      "title": "Recent movements",
+      "description": "Latest inventory changes recorded by the system."
     }
   },
   "profile": {
@@ -122,7 +143,10 @@
       "noLocation": "No location",
       "noNote": "No note",
       "image": "Image",
-      "noMainCategory": "No main category"
+      "noMainCategory": "No main category",
+      "lowStock": "Low stock alert",
+      "lowStockEnabled": "Enabled",
+      "lowStockThreshold": "Threshold"
     },
     "actions": {
       "createMainCategory": "Create main category",
@@ -141,7 +165,8 @@
       "backToSettings": "Back to settings",
       "uploadImage": "Upload image",
       "removeImage": "Remove image",
-      "backToList": "Back to list"
+      "backToList": "Back to list",
+      "exportExcel": "Export Excel"
     },
     "dialog": {
       "confirmDeleteTitle": "Delete data",
@@ -164,6 +189,10 @@
     "viewMode": {
       "card": "Card",
       "list": "List"
+    },
+    "lowStock": {
+      "badge": "Low stock",
+      "threshold": "Threshold"
     }
   },
   "auth": {
@@ -185,5 +214,22 @@
     "googleLogin": "Sign in with Google",
     "showPassword": "Show password",
     "hidePassword": "Hide password"
+  },
+  "logs": {
+    "title": "Inventory logs",
+    "description": "Review item creation, edits, deletes, and quantity changes.",
+    "recent": "Recent logs",
+    "recentDescription": "The latest inventory movement records.",
+    "empty": "No movement logs yet",
+    "quantityChange": "Quantity change",
+    "createdAt": "Created at",
+    "types": {
+      "create": "Created",
+      "update": "Updated",
+      "delete": "Deleted",
+      "quantityIncrease": "Increased",
+      "quantityDecrease": "Decreased",
+      "quantitySet": "Set"
+    }
   }
 }

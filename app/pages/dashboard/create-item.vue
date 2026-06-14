@@ -19,6 +19,8 @@ const creating = ref(false)
 const itemForm = reactive<InventoryItemFormState>({
   name: '',
   quantity: 0,
+  min_quantity: 0,
+  low_stock_enabled: false,
   image_url: '',
   location_id: InventorySelectValue.None,
   note: '',
@@ -30,6 +32,8 @@ const itemForm = reactive<InventoryItemFormState>({
 function resetForm() {
   itemForm.name = ''
   itemForm.quantity = 0
+  itemForm.min_quantity = 0
+  itemForm.low_stock_enabled = false
   itemForm.image_url = ''
   itemForm.location_id = InventorySelectValue.None
   itemForm.note = ''
@@ -51,6 +55,8 @@ async function submitItem() {
     await inventory.createItem({
       name,
       quantity: itemForm.quantity,
+      min_quantity: itemForm.min_quantity,
+      low_stock_enabled: itemForm.low_stock_enabled,
       image_url: inventory.emptyToNull(itemForm.image_url),
       location_id: selectToNull(itemForm.location_id),
       note: inventory.emptyToNull(itemForm.note),

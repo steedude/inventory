@@ -5,12 +5,17 @@
   "common": {
     "error": "發生錯誤",
     "missingSignedInUser": "找不到登入使用者，請重新登入。",
-    "missingSupabaseConfig": "Supabase 設定不完整，請檢查環境變數。"
+    "missingSupabaseConfig": "Supabase 設定不完整，請檢查環境變數。",
+    "yes": "是",
+    "no": "否",
+    "arrow": "→",
+    "separator": "·"
   },
   "navigation": {
     "home": "首頁",
     "profile": "個人資料",
-    "data": "資料頁面"
+    "data": "資料頁面",
+    "logs": "異動紀錄"
   },
   "home": {
     "badge": "庫存管理",
@@ -38,7 +43,23 @@
     "title": "主控台",
     "description": "登入後的工作區會整理庫存概況與近期管理狀態。",
     "summary": {
-      "items": "庫存物品"
+      "items": "庫存物品",
+      "lowStock": "低庫存物品",
+      "movements": "近期異動"
+    },
+    "lowStock": {
+      "title": "低庫存警示",
+      "description": "數量已低於或等於自訂門檻的物品。",
+      "empty": "目前沒有低庫存物品"
+    },
+    "categoryChart": {
+      "title": "大類別物品分布",
+      "description": "目前庫存物品的分類分布圖。",
+      "empty": "目前沒有分類資料"
+    },
+    "recentMovements": {
+      "title": "近期異動",
+      "description": "系統最近記錄的庫存變更。"
     }
   },
   "profile": {
@@ -122,7 +143,10 @@
       "noLocation": "不指定位置",
       "noNote": "沒有備註",
       "image": "圖片",
-      "noMainCategory": "不指定大類別"
+      "noMainCategory": "不指定大類別",
+      "lowStock": "低庫存警示",
+      "lowStockEnabled": "啟用",
+      "lowStockThreshold": "警示數量"
     },
     "actions": {
       "createMainCategory": "新增大類別",
@@ -141,7 +165,8 @@
       "backToSettings": "回到資料設定",
       "uploadImage": "上傳圖片",
       "removeImage": "移除圖片",
-      "backToList": "返回清單"
+      "backToList": "返回清單",
+      "exportExcel": "Excel 匯出"
     },
     "dialog": {
       "confirmDeleteTitle": "刪除資料",
@@ -164,6 +189,10 @@
     "viewMode": {
       "card": "卡片",
       "list": "列表"
+    },
+    "lowStock": {
+      "badge": "低庫存",
+      "threshold": "門檻"
     }
   },
   "auth": {
@@ -185,5 +214,22 @@
     "googleLogin": "使用 Google 登入",
     "showPassword": "顯示密碼",
     "hidePassword": "隱藏密碼"
+  },
+  "logs": {
+    "title": "庫存異動紀錄",
+    "description": "查看物品建立、編輯、刪除與數量變化。",
+    "recent": "近期紀錄",
+    "recentDescription": "最新的庫存異動資料。",
+    "empty": "目前沒有異動紀錄",
+    "quantityChange": "數量變化",
+    "createdAt": "建立時間",
+    "types": {
+      "create": "建立",
+      "update": "更新",
+      "delete": "刪除",
+      "quantityIncrease": "增加",
+      "quantityDecrease": "減少",
+      "quantitySet": "設定"
+    }
   }
 }

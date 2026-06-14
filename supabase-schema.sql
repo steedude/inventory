@@ -46,12 +46,28 @@ create table if not exists public.items (
   location_id uuid references public.locations(id) on delete set null,
   name text not null,
   quantity integer not null default 0,
+  min_quantity integer not null default 0,
+  low_stock_enabled boolean not null default false,
   image_url text,
   barcode text,
   note text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint items_quantity_check check (quantity >= 0)
+  constraint items_quantity_check check (quantity >= 0),
+  constraint items_min_quantity_check check (min_quantity >= 0)
+);
+
+create table if not exists public.inventory_movements (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  item_id uuid references public.items(id) on delete set null,
+  item_name text not null,
+  type text not null,
+  quantity_before integer,
+  quantity_after integer,
+  quantity_delta integer,
+  note text,
+  created_at timestamptz not null default now()
 );
 
 create index if not exists categories_user_id_idx on public.categories(user_id);
@@ -63,6 +79,10 @@ create index if not exists items_category_id_idx on public.items(category_id);
 create index if not exists items_group_id_idx on public.items(group_id);
 create index if not exists items_location_id_idx on public.items(location_id);
 create index if not exists items_barcode_idx on public.items(barcode);
+create index if not exists items_low_stock_idx on public.items(user_id, low_stock_enabled, quantity, min_quantity);
+create index if not exists inventory_movements_user_id_idx on public.inventory_movements(user_id);
+create index if not exists inventory_movements_item_id_idx on public.inventory_movements(item_id);
+create index if not exists inventory_movements_created_at_idx on public.inventory_movements(created_at);
 
 drop trigger if exists set_categories_updated_at on public.categories;
 create trigger set_categories_updated_at
@@ -88,6 +108,7 @@ alter table public.categories enable row level security;
 alter table public.locations enable row level security;
 alter table public.item_groups enable row level security;
 alter table public.items enable row level security;
+alter table public.inventory_movements enable row level security;
 
 drop policy if exists "Users can read own categories" on public.categories;
 create policy "Users can read own categories"
@@ -204,3 +225,17 @@ on public.items
 for delete
 to authenticated
 using (auth.uid() = user_id);
+
+drop policy if exists "Users can read own inventory movements" on public.inventory_movements;
+create policy "Users can read own inventory movements"
+on public.inventory_movements
+for select
+to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists "Users can insert own inventory movements" on public.inventory_movements;
+create policy "Users can insert own inventory movements"
+on public.inventory_movements
+for insert
+to authenticated
+with check (auth.uid() = user_id);

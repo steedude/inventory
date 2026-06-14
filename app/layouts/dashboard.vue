@@ -45,6 +45,13 @@ const navigationItems = computed(() => [
     value: 'data-item-list',
   },
   {
+    label: t('logs.title'),
+    icon: 'i-lucide-history',
+    to: '/dashboard/logs',
+    exact: true,
+    value: 'inventory-logs',
+  },
+  {
     label: t('data.sections.category'),
     icon: 'i-lucide-tags',
     to: '/dashboard/category-settings',

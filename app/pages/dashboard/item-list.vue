@@ -35,6 +35,10 @@ function hasImage(item: InventoryItem) {
   return item.image_url !== null && item.image_url.length > 0
 }
 
+function isLowStock(item: InventoryItem) {
+  return item.low_stock_enabled && item.quantity <= item.min_quantity
+}
+
 function openImagePreview(item: InventoryItem) {
   if (!hasImage(item)) {
     return
@@ -48,6 +52,53 @@ function openImagePreview(item: InventoryItem) {
 
 function closeImagePreview() {
   previewImage.value = undefined
+}
+
+function formatCsvValue(value: string | number | null) {
+  const text = String(value ?? '')
+  return `"${text.replaceAll('"', '""')}"`
+}
+
+function exportItemsCsv() {
+  if (!import.meta.client) {
+    return
+  }
+
+  const rows = [
+    [
+      t('data.form.itemName'),
+      t('data.form.quantity'),
+      t('data.form.lowStockEnabled'),
+      t('data.form.lowStockThreshold'),
+      t('data.form.mainCategory'),
+      t('data.form.subCategory'),
+      t('data.form.group'),
+      t('data.form.location'),
+      t('data.form.barcode'),
+      t('data.form.note'),
+    ],
+    ...inventory.items.value.map(item => [
+      item.name,
+      item.quantity,
+      item.low_stock_enabled ? t('common.yes') : t('common.no'),
+      item.min_quantity,
+      inventory.getMainCategoryName(item.category_id),
+      inventory.getCategoryName(item.category_id),
+      inventory.getGroupName(item.group_id),
+      inventory.getLocationName(item.location_id),
+      item.barcode ?? '',
+      item.note ?? '',
+    ]),
+  ]
+  const csv = `\uFEFF${rows.map(row => row.map(formatCsvValue).join(',')).join('\n')}`
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = url
+  link.download = `inventory-items-${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 async function deleteItem(id: string) {
@@ -126,6 +177,14 @@ onMounted(() => {
             >
               {{ t('data.actions.refresh') }}
             </UButton>
+            <UButton
+              variant="soft"
+              icon="i-lucide-file-spreadsheet"
+              class="justify-center whitespace-nowrap"
+              @click="exportItemsCsv"
+            >
+              {{ t('data.actions.exportExcel') }}
+            </UButton>
           </div>
         </div>
       </template>
@@ -163,8 +222,13 @@ onMounted(() => {
           </div>
 
           <div class="min-w-0 space-y-1">
-            <div class="break-words font-medium text-highlighted">
-              {{ item.name }}
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="break-words font-medium text-highlighted">
+                {{ item.name }}
+              </div>
+              <UBadge v-if="isLowStock(item)" color="warning" variant="soft">
+                {{ t('data.lowStock.badge') }}
+              </UBadge>
             </div>
             <div class="break-words text-sm text-muted">
               {{ item.note ?? t('data.form.noNote') }}
@@ -178,6 +242,9 @@ onMounted(() => {
               </div>
               <div class="font-medium text-highlighted">
                 {{ item.quantity }}
+              </div>
+              <div v-if="item.low_stock_enabled" class="text-xs text-warning">
+                {{ t('data.lowStock.threshold') }}: {{ item.min_quantity }}
               </div>
             </div>
             <div class="rounded-md bg-muted/40 p-2">
@@ -270,8 +337,13 @@ onMounted(() => {
           </div>
 
           <div class="min-w-0 flex-1">
-            <div class="truncate font-medium text-highlighted">
-              {{ item.name }}
+            <div class="flex min-w-0 flex-wrap items-center gap-2">
+              <div class="truncate font-medium text-highlighted">
+                {{ item.name }}
+              </div>
+              <UBadge v-if="isLowStock(item)" color="warning" variant="soft">
+                {{ t('data.lowStock.badge') }}
+              </UBadge>
             </div>
             <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
               <span>{{ t('data.form.quantity') }}: {{ item.quantity }}</span>

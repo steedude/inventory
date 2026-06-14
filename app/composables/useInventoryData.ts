@@ -3,10 +3,12 @@ import type {
   CreateInventoryGroupPayload,
   CreateInventoryItemPayload,
   CreateInventoryLocationPayload,
+  CreateInventoryMovementPayload,
   InventoryCategory,
   InventoryGroup,
   InventoryItem,
   InventoryLocation,
+  InventoryMovement,
   InventoryNameRecord,
   UpdateInventoryCategoryPayload,
   UpdateInventoryGroupPayload,
@@ -14,6 +16,7 @@ import type {
   UpdateInventoryLocationPayload,
 } from '~~/types/inventoryTypes'
 import { AppError } from '~~/config/errorConfig'
+import { InventoryMovementType } from '~~/config/inventoryLogConfig'
 
 export function useInventoryData() {
   const auth = useAuthStore()
@@ -23,10 +26,14 @@ export function useInventoryData() {
   const groups = ref<InventoryGroup[]>([])
   const items = ref<InventoryItem[]>([])
   const locations = ref<InventoryLocation[]>([])
+  const movements = ref<InventoryMovement[]>([])
   const loading = ref(false)
 
   const mainCategories = computed(() => categories.value.filter(category => category.parent_id === null))
   const subCategories = computed(() => categories.value.filter(category => category.parent_id !== null))
+  const lowStockItems = computed(() => items.value.filter(item =>
+    item.low_stock_enabled && item.quantity <= item.min_quantity,
+  ))
 
   const requireUserId = () => {
     const userId = auth.user?.id
@@ -79,6 +86,31 @@ export function useInventoryData() {
     return items.value.find(item => item.barcode === trimmedBarcode)
   }
 
+  const getMovementType = (beforeQuantity: number, afterQuantity: number) => {
+    if (afterQuantity > beforeQuantity) {
+      return InventoryMovementType.QuantityIncrease
+    }
+
+    if (afterQuantity < beforeQuantity) {
+      return InventoryMovementType.QuantityDecrease
+    }
+
+    return InventoryMovementType.Update
+  }
+
+  const createMovement = async (payload: CreateInventoryMovementPayload) => {
+    const { error } = await $supabase
+      .from('inventory_movements')
+      .insert({
+        ...payload,
+        user_id: requireUserId(),
+      })
+
+    if (error !== null) {
+      throw error
+    }
+  }
+
   const fetchCategories = async () => {
     const { data, error } = await $supabase
       .from('categories')
@@ -118,6 +150,20 @@ export function useInventoryData() {
     items.value = data ?? []
   }
 
+  const fetchMovements = async () => {
+    const { data, error } = await $supabase
+      .from('inventory_movements')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100)
+
+    if (error !== null) {
+      throw error
+    }
+
+    movements.value = data ?? []
+  }
+
   const fetchItem = async (id: string) => {
     const { data, error } = await $supabase
       .from('items')
@@ -154,6 +200,7 @@ export function useInventoryData() {
         fetchGroups(),
         fetchItems(),
         fetchLocations(),
+        fetchMovements(),
       ])
     }
     finally {
@@ -244,34 +291,62 @@ export function useInventoryData() {
   }
 
   const createItem = async (payload: CreateInventoryItemPayload) => {
-    const { error } = await $supabase
+    const { data, error } = await $supabase
       .from('items')
       .insert({
         ...payload,
         user_id: requireUserId(),
       })
+      .select('*')
+      .single()
 
     if (error !== null) {
       throw error
     }
 
+    await createMovement({
+      item_id: data.id,
+      item_name: data.name,
+      type: InventoryMovementType.Create,
+      quantity_before: null,
+      quantity_after: data.quantity,
+      quantity_delta: data.quantity,
+      note: data.note,
+    })
     await fetchItems()
+    await fetchMovements()
   }
 
   const updateItem = async (id: string, payload: UpdateInventoryItemPayload) => {
-    const { error } = await $supabase
+    const beforeItem = await fetchItem(id)
+    const { data, error } = await $supabase
       .from('items')
       .update(payload)
       .eq('id', id)
+      .select('*')
+      .single()
 
     if (error !== null) {
       throw error
     }
 
+    const quantityBefore = beforeItem.quantity
+    const quantityAfter = data.quantity
+    await createMovement({
+      item_id: data.id,
+      item_name: data.name,
+      type: getMovementType(quantityBefore, quantityAfter),
+      quantity_before: quantityBefore,
+      quantity_after: quantityAfter,
+      quantity_delta: quantityAfter - quantityBefore,
+      note: data.note,
+    })
     await fetchItems()
+    await fetchMovements()
   }
 
   const deleteItem = async (id: string) => {
+    const item = await fetchItem(id)
     const { error } = await $supabase
       .from('items')
       .delete()
@@ -281,7 +356,17 @@ export function useInventoryData() {
       throw error
     }
 
+    await createMovement({
+      item_id: null,
+      item_name: item.name,
+      type: InventoryMovementType.Delete,
+      quantity_before: item.quantity,
+      quantity_after: null,
+      quantity_delta: -item.quantity,
+      note: item.note,
+    })
     await fetchItems()
+    await fetchMovements()
   }
 
   const createLocation = async (payload: CreateInventoryLocationPayload) => {
@@ -330,7 +415,9 @@ export function useInventoryData() {
     groups,
     items,
     locations,
+    movements,
     loading,
+    lowStockItems,
     mainCategories,
     subCategories,
     createCategory,
@@ -344,6 +431,7 @@ export function useInventoryData() {
     emptyToNull,
     fetchAll,
     fetchItem,
+    fetchMovements,
     findItemByBarcode,
     getCategoryName,
     getMainCategoryName,

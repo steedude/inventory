@@ -6,6 +6,8 @@ export type InventoryCategoryUpdate = Database['public']['Tables']['categories']
 export type InventoryGroup = Database['public']['Tables']['item_groups']['Row']
 export type InventoryGroupInsert = Database['public']['Tables']['item_groups']['Insert']
 export type InventoryGroupUpdate = Database['public']['Tables']['item_groups']['Update']
+export type InventoryMovement = Database['public']['Tables']['inventory_movements']['Row']
+export type InventoryMovementInsert = Database['public']['Tables']['inventory_movements']['Insert']
 export type InventoryItem = Database['public']['Tables']['items']['Row']
 export type InventoryItemInsert = Database['public']['Tables']['items']['Insert']
 export type InventoryItemUpdate = Database['public']['Tables']['items']['Update']
@@ -25,6 +27,8 @@ export type InventorySelectModelValue = string
 export interface InventoryItemFormState {
   name: string
   quantity: number
+  min_quantity: number
+  low_stock_enabled: boolean
   image_url: string
   location_id: InventorySelectModelValue
   note: string
@@ -37,6 +41,7 @@ export type CreateInventoryCategoryPayload = Omit<InventoryCategoryInsert, 'user
 export type UpdateInventoryCategoryPayload = InventoryCategoryUpdate
 export type CreateInventoryGroupPayload = Omit<InventoryGroupInsert, 'user_id'>
 export type UpdateInventoryGroupPayload = InventoryGroupUpdate
+export type CreateInventoryMovementPayload = Omit<InventoryMovementInsert, 'user_id'>
 export type CreateInventoryItemPayload = Omit<InventoryItemInsert, 'user_id'>
 export type UpdateInventoryItemPayload = InventoryItemUpdate
 export type CreateInventoryLocationPayload = Omit<InventoryLocationInsert, 'user_id'>

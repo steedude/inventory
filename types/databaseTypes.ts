@@ -58,6 +58,45 @@ export interface Database {
         }
         Relationships: []
       }
+      inventory_movements: {
+        Row: {
+          id: string
+          user_id: string
+          item_id: string | null
+          item_name: string
+          type: string
+          quantity_before: number | null
+          quantity_after: number | null
+          quantity_delta: number | null
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          item_id?: string | null
+          item_name: string
+          type: string
+          quantity_before?: number | null
+          quantity_after?: number | null
+          quantity_delta?: number | null
+          note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          item_id?: string | null
+          item_name?: string
+          type?: string
+          quantity_before?: number | null
+          quantity_after?: number | null
+          quantity_delta?: number | null
+          note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           id: string
@@ -67,6 +106,8 @@ export interface Database {
           location_id: string | null
           name: string
           quantity: number
+          min_quantity: number
+          low_stock_enabled: boolean
           image_url: string | null
           barcode: string | null
           note: string | null
@@ -81,6 +122,8 @@ export interface Database {
           location_id?: string | null
           name: string
           quantity?: number
+          min_quantity?: number
+          low_stock_enabled?: boolean
           image_url?: string | null
           barcode?: string | null
           note?: string | null
@@ -95,6 +138,8 @@ export interface Database {
           location_id?: string | null
           name?: string
           quantity?: number
+          min_quantity?: number
+          low_stock_enabled?: boolean
           image_url?: string | null
           barcode?: string | null
           note?: string | null

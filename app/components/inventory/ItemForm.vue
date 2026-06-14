@@ -136,144 +136,171 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
 </script>
 
 <template>
-  <form class="grid gap-5 lg:grid-cols-12" @submit.prevent="submitForm">
-    <UFormField :label="t('data.form.itemName')" class="lg:col-span-6">
-      <UInput
-        v-model="itemForm.name"
-        class="w-full"
-        :placeholder="t('data.form.itemNamePlaceholder')"
-      />
-    </UFormField>
-    <UFormField :label="t('data.form.quantity')" class="lg:col-span-3">
-      <UInputNumber v-model="itemForm.quantity" class="w-full" :min="0" />
-    </UFormField>
-    <UFormField :label="t('data.form.mainCategory')" class="lg:col-span-3">
-      <USelect
-        v-model="selectedMainCategoryId"
-        class="w-full"
-        :items="mainCategoryOptions"
-      />
-    </UFormField>
-    <UFormField :label="t('data.form.subCategory')" class="lg:col-span-3">
-      <USelect
-        v-model="itemForm.category_id"
-        class="w-full"
-        :items="subCategoryOptions"
-        :disabled="selectedMainCategoryId === InventorySelectValue.None"
-      />
-    </UFormField>
-    <UFormField :label="t('data.form.group')" class="lg:col-span-3">
-      <USelect v-model="itemForm.group_id" class="w-full" :items="groupOptions" />
-    </UFormField>
-    <UFormField :label="t('data.form.location')" class="lg:col-span-3">
-      <USelect v-model="itemForm.location_id" class="w-full" :items="locationOptions" />
-    </UFormField>
-    <UFormField :label="t('data.form.barcode')" class="lg:col-span-9">
-      <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+  <form class="space-y-5" @submit.prevent="submitForm">
+    <div class="grid gap-4 lg:grid-cols-12">
+      <UFormField :label="t('data.form.itemName')" class="lg:col-span-6">
         <UInput
-          v-model="itemForm.barcode"
-          class="min-w-0 flex-1"
-          icon="i-lucide-scan-barcode"
-          :placeholder="t('data.form.barcodePlaceholder')"
+          v-model="itemForm.name"
+          class="w-full"
+          :placeholder="t('data.form.itemNamePlaceholder')"
         />
-        <UButton
-          as="label"
-          color="neutral"
-          variant="soft"
-          icon="i-lucide-image-up"
-          class="justify-center whitespace-nowrap"
-          :loading="barcodeImageLoading"
-        >
-          {{ t('quickUse.uploadImage') }}
-          <input
-            class="sr-only"
-            type="file"
-            :accept="barcodeImageAccept"
-            @change="decodeBarcodeImage"
-          >
-        </UButton>
-        <UButton
-          v-if="!cameraOpen"
-          color="neutral"
-          variant="soft"
-          icon="i-lucide-camera"
-          class="justify-center whitespace-nowrap"
-          @click="startCameraScan"
-        >
-          {{ t('quickUse.scanLive') }}
-        </UButton>
-        <UButton
-          v-else
-          color="error"
-          variant="soft"
-          icon="i-lucide-camera-off"
-          class="justify-center whitespace-nowrap"
-          @click="stopCameraScan"
-        >
-          {{ t('quickUse.stopScan') }}
-        </UButton>
-      </div>
-      <div v-if="cameraOpen" class="overflow-hidden rounded-md border border-default bg-black">
-        <video
-          ref="scannerVideo"
-          class="h-64 w-full object-cover"
-          autoplay
-          muted
-          playsinline
-        />
-      </div>
-    </UFormField>
-    <UFormField :label="t('data.form.image')" class="lg:col-span-3 lg:row-span-2">
-      <div class="grid gap-3">
-        <div
-          class="grid aspect-[4/3] place-items-center overflow-hidden rounded-md border border-default bg-muted/30 text-muted"
-        >
-          <img
-            v-if="itemForm.image_url.length > 0"
-            :src="itemForm.image_url"
-            :alt="itemForm.name || t('data.form.image')"
-            class="h-full w-full object-cover"
-          >
-          <UIcon v-else name="i-lucide-image" class="size-8" />
+      </UFormField>
+      <UFormField :label="t('data.form.quantity')" class="lg:col-span-3">
+        <UInputNumber v-model="itemForm.quantity" class="w-full" :min="0" />
+      </UFormField>
+      <UFormField :label="t('data.form.lowStock')" class="lg:col-span-3">
+        <div class="grid gap-2 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+          <UCheckbox
+            v-model="itemForm.low_stock_enabled"
+            :label="t('data.form.lowStockEnabled')"
+          />
+          <UInputNumber
+            v-model="itemForm.min_quantity"
+            class="w-full"
+            :min="0"
+            :disabled="!itemForm.low_stock_enabled"
+          />
         </div>
-        <div class="flex flex-col gap-2">
-          <UButton
-            as="label"
-            color="neutral"
-            variant="soft"
-            icon="i-lucide-image-up"
-            class="justify-center whitespace-nowrap"
-            :loading="imageUploading"
-          >
-            {{ t('data.actions.uploadImage') }}
-            <input
-              class="sr-only"
-              type="file"
-              :accept="itemImageUpload.imageUploadAccept"
-              @change="uploadImage"
+      </UFormField>
+    </div>
+
+    <div class="grid gap-4 lg:grid-cols-4">
+      <UFormField :label="t('data.form.mainCategory')">
+        <USelect
+          v-model="selectedMainCategoryId"
+          class="w-full"
+          :items="mainCategoryOptions"
+        />
+      </UFormField>
+      <UFormField :label="t('data.form.subCategory')">
+        <USelect
+          v-model="itemForm.category_id"
+          class="w-full"
+          :items="subCategoryOptions"
+          :disabled="selectedMainCategoryId === InventorySelectValue.None"
+        />
+      </UFormField>
+      <UFormField :label="t('data.form.group')">
+        <USelect v-model="itemForm.group_id" class="w-full" :items="groupOptions" />
+      </UFormField>
+      <UFormField :label="t('data.form.location')">
+        <USelect v-model="itemForm.location_id" class="w-full" :items="locationOptions" />
+      </UFormField>
+    </div>
+
+    <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_220px] xl:grid-cols-[minmax(0,1fr)_240px]">
+      <div class="grid gap-5">
+        <UFormField :label="t('data.form.barcode')">
+          <div class="grid gap-2 xl:grid-cols-[minmax(0,1fr)_auto_auto]">
+            <UInput
+              v-model="itemForm.barcode"
+              class="min-w-0"
+              icon="i-lucide-scan-barcode"
+              :placeholder="t('data.form.barcodePlaceholder')"
+            />
+            <UButton
+              as="label"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-image-up"
+              class="justify-center whitespace-nowrap"
+              :loading="barcodeImageLoading"
             >
-          </UButton>
-          <UButton
-            v-if="itemForm.image_url.length > 0"
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-x"
-            class="justify-center whitespace-nowrap"
-            @click="removeImage"
-          >
-            {{ t('data.actions.removeImage') }}
-          </UButton>
-        </div>
+              {{ t('quickUse.uploadImage') }}
+              <input
+                class="sr-only"
+                type="file"
+                :accept="barcodeImageAccept"
+                @change="decodeBarcodeImage"
+              >
+            </UButton>
+            <UButton
+              v-if="!cameraOpen"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-camera"
+              class="justify-center whitespace-nowrap"
+              @click="startCameraScan"
+            >
+              {{ t('quickUse.scanLive') }}
+            </UButton>
+            <UButton
+              v-else
+              color="error"
+              variant="soft"
+              icon="i-lucide-camera-off"
+              class="justify-center whitespace-nowrap"
+              @click="stopCameraScan"
+            >
+              {{ t('quickUse.stopScan') }}
+            </UButton>
+          </div>
+          <div v-if="cameraOpen" class="overflow-hidden rounded-md border border-default bg-black">
+            <video
+              ref="scannerVideo"
+              class="h-64 w-full object-cover"
+              autoplay
+              muted
+              playsinline
+            />
+          </div>
+        </UFormField>
+
+        <UFormField :label="t('data.form.note')">
+          <UTextarea
+            v-model="itemForm.note"
+            class="w-full"
+            :placeholder="t('data.form.notePlaceholder')"
+          />
+        </UFormField>
       </div>
-    </UFormField>
-    <UFormField :label="t('data.form.note')" class="lg:col-span-9">
-      <UTextarea
-        v-model="itemForm.note"
-        class="w-full"
-        :placeholder="t('data.form.notePlaceholder')"
-      />
-    </UFormField>
-    <div class="flex items-end justify-end lg:col-span-3">
+
+      <UFormField :label="t('data.form.image')">
+        <div class="grid gap-3">
+          <div
+            class="grid aspect-[4/3] place-items-center overflow-hidden rounded-md border border-default bg-muted/30 text-muted"
+          >
+            <img
+              v-if="itemForm.image_url.length > 0"
+              :src="itemForm.image_url"
+              :alt="itemForm.name || t('data.form.image')"
+              class="h-full w-full object-cover"
+            >
+            <UIcon v-else name="i-lucide-image" class="size-8" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <UButton
+              as="label"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-image-up"
+              class="justify-center whitespace-nowrap"
+              :loading="imageUploading"
+            >
+              {{ t('data.actions.uploadImage') }}
+              <input
+                class="sr-only"
+                type="file"
+                :accept="itemImageUpload.imageUploadAccept"
+                @change="uploadImage"
+              >
+            </UButton>
+            <UButton
+              v-if="itemForm.image_url.length > 0"
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              class="justify-center whitespace-nowrap"
+              @click="removeImage"
+            >
+              {{ t('data.actions.removeImage') }}
+            </UButton>
+          </div>
+        </div>
+      </UFormField>
+    </div>
+
+    <div class="flex justify-end border-t border-default pt-5">
       <UButton
         type="submit"
         :icon="submitIcon"

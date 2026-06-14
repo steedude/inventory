@@ -23,6 +23,8 @@ const itemId = computed(() => String(route.params.id))
 const itemForm = reactive<InventoryItemFormState>({
   name: '',
   quantity: 0,
+  min_quantity: 0,
+  low_stock_enabled: false,
   image_url: '',
   location_id: InventorySelectValue.None,
   note: '',
@@ -39,6 +41,8 @@ async function loadItem() {
 
     itemForm.name = item.name
     itemForm.quantity = item.quantity
+    itemForm.min_quantity = item.min_quantity
+    itemForm.low_stock_enabled = item.low_stock_enabled
     itemForm.image_url = item.image_url ?? ''
     itemForm.location_id = nullToSelect(item.location_id)
     itemForm.note = item.note ?? ''
@@ -63,6 +67,8 @@ async function submitItem() {
     await inventory.updateItem(itemId.value, {
       name,
       quantity: itemForm.quantity,
+      min_quantity: itemForm.min_quantity,
+      low_stock_enabled: itemForm.low_stock_enabled,
       image_url: inventory.emptyToNull(itemForm.image_url),
       location_id: selectToNull(itemForm.location_id),
       note: inventory.emptyToNull(itemForm.note),

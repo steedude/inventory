@@ -4,6 +4,7 @@
     ".nuxt/**/*.d.ts",
     "app/**/*",
     "config/**/*",
+    "server/**/*",
     "nuxt.config.ts",
     "types/**/*"
   ],
