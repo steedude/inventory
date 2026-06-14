@@ -1,64 +1,64 @@
 <script setup lang="ts">
-import type { InventoryItemFormState } from "~~/types/inventoryTypes";
-import { barcodeImageAccept } from "~~/config/barcodeConfig";
+import type { InventoryItemFormState } from '~~/types/inventoryTypes'
+import { barcodeImageAccept } from '~~/config/barcodeConfig'
 import {
   createCategoryOptions,
   createSubCategoryOptions,
   InventorySelectValue,
-} from "~~/config/inventorySelectConfig";
+} from '~~/config/inventorySelectConfig'
 
 defineProps<{
-  submitIcon: string;
-  submitLabel: string;
-  submitting: boolean;
-}>();
+  submitIcon: string
+  submitLabel: string
+  submitting: boolean
+}>()
 
 const emit = defineEmits<{
-  submit: [];
-}>();
+  submit: []
+}>()
 
 const itemForm = defineModel<InventoryItemFormState>({
   required: true,
-});
+})
 
-const { t } = useI18n();
-const inventory = useInventoryData();
-const appToast = useAppToast();
-const barcodeScanner = useBarcodeScanner();
-const barcodeImageDecoder = useBarcodeImageDecoder();
-const itemImageUpload = useItemImageUpload();
-const { runSafely } = useSafeRun();
-const { groupOptions, locationOptions } = useInventorySelectOptions(inventory);
+const { t } = useI18n()
+const inventory = useInventoryData()
+const appToast = useAppToast()
+const barcodeScanner = useBarcodeScanner()
+const barcodeImageDecoder = useBarcodeImageDecoder()
+const itemImageUpload = useItemImageUpload()
+const { runSafely } = useSafeRun()
+const { groupOptions, locationOptions } = useInventorySelectOptions(inventory)
 
-const barcodeImageLoading = ref(false);
-const imageUploading = ref(false);
-const scannerVideo = ref<HTMLVideoElement>();
-const cameraOpen = ref(false);
-const selectedMainCategoryId = ref<string>(InventorySelectValue.None);
+const barcodeImageLoading = ref(false)
+const imageUploading = ref(false)
+const scannerVideo = ref<HTMLVideoElement>()
+const cameraOpen = ref(false)
+const selectedMainCategoryId = ref<string>(InventorySelectValue.None)
 
 const mainCategoryOptions = computed(() => [
   {
-    label: t("data.form.noMainCategory"),
+    label: t('data.form.noMainCategory'),
     value: InventorySelectValue.None,
   },
   ...createCategoryOptions(inventory.mainCategories.value),
-]);
+])
 const subCategoryOptions = computed(() =>
   createSubCategoryOptions(
-    t("data.form.noCategory"),
+    t('data.form.noCategory'),
     inventory.subCategories.value.filter(
-      (category) => category.parent_id === selectedMainCategoryId.value,
+      category => category.parent_id === selectedMainCategoryId.value,
     ),
   ),
-);
+)
 
 function syncMainCategoryFromSubCategory() {
   const category = inventory.categories.value.find(
-    (record) => record.id === itemForm.value.category_id,
-  );
+    record => record.id === itemForm.value.category_id,
+  )
 
-  selectedMainCategoryId.value =
-    category?.parent_id ?? InventorySelectValue.None;
+  selectedMainCategoryId.value
+    = category?.parent_id ?? InventorySelectValue.None
 }
 
 async function decodeBarcodeImage(event: Event) {
@@ -66,82 +66,83 @@ async function decodeBarcodeImage(event: Event) {
     event,
     barcodeImageLoading,
     (result) => {
-      itemForm.value.barcode = result;
+      itemForm.value.barcode = result
     },
-  );
+  )
 }
 
 async function uploadImage(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
 
   if (file === undefined) {
-    return;
+    return
   }
 
-  imageUploading.value = true;
+  imageUploading.value = true
 
   try {
     await runSafely(async () => {
-      itemForm.value.image_url = await itemImageUpload.uploadItemImage(file);
-      appToast.setSuccess(t("data.toast.imageUploaded"));
-    });
-  } finally {
-    imageUploading.value = false;
-    input.value = "";
+      itemForm.value.image_url = await itemImageUpload.uploadItemImage(file)
+      appToast.setSuccess(t('data.toast.imageUploaded'))
+    })
+  }
+  finally {
+    imageUploading.value = false
+    input.value = ''
   }
 }
 
 function removeImage() {
-  itemForm.value.image_url = "";
+  itemForm.value.image_url = ''
 }
 
 async function startCameraScan() {
-  cameraOpen.value = true;
-  await nextTick();
+  cameraOpen.value = true
+  await nextTick()
 
   await runSafely(async () => {
     await barcodeScanner.startCameraScan(scannerVideo.value, (result) => {
-      itemForm.value.barcode = result;
-      cameraOpen.value = false;
-      appToast.setSuccess(t("quickUse.barcodeDetected"));
-    });
-  });
+      itemForm.value.barcode = result
+      cameraOpen.value = false
+      appToast.setSuccess(t('quickUse.barcodeDetected'))
+    })
+  })
 
   if (!barcodeScanner.scanning.value) {
-    cameraOpen.value = false;
+    cameraOpen.value = false
   }
 }
 
 function stopCameraScan() {
-  barcodeScanner.stopCameraScan();
-  cameraOpen.value = false;
+  barcodeScanner.stopCameraScan()
+  cameraOpen.value = false
 }
 
 function submitForm() {
-  emit("submit");
+  emit('submit')
 }
 
 onMounted(async () => {
-  await runSafely(inventory.fetchAll);
-  syncMainCategoryFromSubCategory();
-});
+  await runSafely(inventory.fetchAll)
+  syncMainCategoryFromSubCategory()
+})
 
 onBeforeUnmount(() => {
-  stopCameraScan();
-});
+  stopCameraScan()
+})
 
 watch(selectedMainCategoryId, () => {
   const category = inventory.categories.value.find(
-    (record) => record.id === itemForm.value.category_id,
-  );
+    record => record.id === itemForm.value.category_id,
+  )
 
   if (category?.parent_id !== selectedMainCategoryId.value) {
-    itemForm.value.category_id = InventorySelectValue.None;
+    itemForm.value.category_id = InventorySelectValue.None
   }
-});
+})
 
-watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory);
+watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
 </script>
 
 <template>
@@ -231,7 +232,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory);
                 type="file"
                 :accept="barcodeImageAccept"
                 @change="decodeBarcodeImage"
-              />
+              >
             </UButton>
             <UButton
               v-if="!cameraOpen"
@@ -287,7 +288,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory);
               :src="itemForm.image_url"
               :alt="itemForm.name || t('data.form.image')"
               class="h-full w-full object-cover"
-            />
+            >
             <UIcon v-else name="i-lucide-image" class="size-8" />
           </div>
           <div class="flex flex-col gap-2">
@@ -305,7 +306,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory);
                 type="file"
                 :accept="itemImageUpload.imageUploadAccept"
                 @change="uploadImage"
-              />
+              >
             </UButton>
             <UButton
               v-if="itemForm.image_url.length > 0"
