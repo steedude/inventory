@@ -1,0 +1,10 @@
+languageIds:
+  - javascript
+  - typescript
+  - javascriptreact
+  - typescriptreact
+  - vue
+
+usageMatchRegex:
+  - "[^\\w\\d]t\\(['\"`]({key})['\"`]"
+  - "appToast\\.set(?:Success|Error|Info|Warning)\\(['\"`]({key})['\"`]"
