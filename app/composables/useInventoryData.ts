@@ -3,12 +3,13 @@ import type {
   CreateInventoryGroupPayload,
   CreateInventoryItemPayload,
   CreateInventoryLocationPayload,
-  CreateInventoryMovementPayload,
+  CreateInventoryLogPayload,
   InventoryCategory,
+  InventoryChangedField,
   InventoryGroup,
   InventoryItem,
   InventoryLocation,
-  InventoryMovement,
+  InventoryLog,
   InventoryNameRecord,
   UpdateInventoryCategoryPayload,
   UpdateInventoryGroupPayload,
@@ -16,7 +17,7 @@ import type {
   UpdateInventoryLocationPayload,
 } from '~~/types/inventoryTypes'
 import { AppError } from '~~/config/errorConfig'
-import { InventoryMovementType } from '~~/config/inventoryLogConfig'
+import { InventoryLogType } from '~~/config/inventoryLogConfig'
 
 export function useInventoryData() {
   const auth = useAuthStore()
@@ -26,7 +27,7 @@ export function useInventoryData() {
   const groups = ref<InventoryGroup[]>([])
   const items = ref<InventoryItem[]>([])
   const locations = ref<InventoryLocation[]>([])
-  const movements = ref<InventoryMovement[]>([])
+  const logs = ref<InventoryLog[]>([])
   const loading = ref(false)
 
   const mainCategories = computed(() => categories.value.filter(category => category.parent_id === null))
@@ -86,21 +87,42 @@ export function useInventoryData() {
     return items.value.find(item => item.barcode === trimmedBarcode)
   }
 
-  const getMovementType = (beforeQuantity: number, afterQuantity: number) => {
-    if (afterQuantity > beforeQuantity) {
-      return InventoryMovementType.QuantityIncrease
-    }
+  const logFields = [
+    'name',
+    'quantity',
+    'min_quantity',
+    'low_stock_enabled',
+    'image_url',
+    'barcode',
+    'note',
+    'category_id',
+    'group_id',
+    'location_id',
+  ] as const
 
-    if (afterQuantity < beforeQuantity) {
-      return InventoryMovementType.QuantityDecrease
-    }
+  const createChangedFields = (
+    beforeItem: Partial<InventoryItem> | null,
+    afterItem: Partial<InventoryItem> | null,
+  ): InventoryChangedField[] => {
+    return logFields.flatMap((field) => {
+      const before = beforeItem?.[field] ?? null
+      const after = afterItem?.[field] ?? null
 
-    return InventoryMovementType.Update
+      if (before === after) {
+        return []
+      }
+
+      return [{
+        field,
+        before,
+        after,
+      }]
+    })
   }
 
-  const createMovement = async (payload: CreateInventoryMovementPayload) => {
+  const createLog = async (payload: CreateInventoryLogPayload) => {
     const { error } = await $supabase
-      .from('inventory_movements')
+      .from('inventory_logs')
       .insert({
         ...payload,
         user_id: requireUserId(),
@@ -150,9 +172,9 @@ export function useInventoryData() {
     items.value = data ?? []
   }
 
-  const fetchMovements = async () => {
+  const fetchLogs = async () => {
     const { data, error } = await $supabase
-      .from('inventory_movements')
+      .from('inventory_logs')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(100)
@@ -161,7 +183,7 @@ export function useInventoryData() {
       throw error
     }
 
-    movements.value = data ?? []
+    logs.value = (data ?? []) as unknown as InventoryLog[]
   }
 
   const fetchItem = async (id: string) => {
@@ -200,7 +222,7 @@ export function useInventoryData() {
         fetchGroups(),
         fetchItems(),
         fetchLocations(),
-        fetchMovements(),
+        fetchLogs(),
       ])
     }
     finally {
@@ -304,17 +326,14 @@ export function useInventoryData() {
       throw error
     }
 
-    await createMovement({
+    await createLog({
       item_id: data.id,
       item_name: data.name,
-      type: InventoryMovementType.Create,
-      quantity_before: null,
-      quantity_after: data.quantity,
-      quantity_delta: data.quantity,
-      note: data.note,
+      type: InventoryLogType.Create,
+      changed_fields: createChangedFields(null, data),
     })
     await fetchItems()
-    await fetchMovements()
+    await fetchLogs()
   }
 
   const updateItem = async (id: string, payload: UpdateInventoryItemPayload) => {
@@ -330,19 +349,19 @@ export function useInventoryData() {
       throw error
     }
 
-    const quantityBefore = beforeItem.quantity
-    const quantityAfter = data.quantity
-    await createMovement({
-      item_id: data.id,
-      item_name: data.name,
-      type: getMovementType(quantityBefore, quantityAfter),
-      quantity_before: quantityBefore,
-      quantity_after: quantityAfter,
-      quantity_delta: quantityAfter - quantityBefore,
-      note: data.note,
-    })
+    const changedFields = createChangedFields(beforeItem, data)
+
+    if (changedFields.length > 0) {
+      await createLog({
+        item_id: data.id,
+        item_name: data.name,
+        type: InventoryLogType.Update,
+        changed_fields: changedFields,
+      })
+    }
+
     await fetchItems()
-    await fetchMovements()
+    await fetchLogs()
   }
 
   const deleteItem = async (id: string) => {
@@ -356,17 +375,14 @@ export function useInventoryData() {
       throw error
     }
 
-    await createMovement({
+    await createLog({
       item_id: null,
       item_name: item.name,
-      type: InventoryMovementType.Delete,
-      quantity_before: item.quantity,
-      quantity_after: null,
-      quantity_delta: -item.quantity,
-      note: item.note,
+      type: InventoryLogType.Delete,
+      changed_fields: createChangedFields(item, null),
     })
     await fetchItems()
-    await fetchMovements()
+    await fetchLogs()
   }
 
   const createLocation = async (payload: CreateInventoryLocationPayload) => {
@@ -415,7 +431,7 @@ export function useInventoryData() {
     groups,
     items,
     locations,
-    movements,
+    logs,
     loading,
     lowStockItems,
     mainCategories,
@@ -431,7 +447,7 @@ export function useInventoryData() {
     emptyToNull,
     fetchAll,
     fetchItem,
-    fetchMovements,
+    fetchLogs,
     findItemByBarcode,
     getCategoryName,
     getMainCategoryName,

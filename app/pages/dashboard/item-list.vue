@@ -205,7 +205,7 @@ onMounted(() => {
           <button
             v-if="hasImage(item)"
             type="button"
-            class="aspect-[4/3] overflow-hidden rounded-md border border-default"
+            class="overflow-hidden rounded-md border border-default"
             @click="openImagePreview(item)"
           >
             <img
@@ -216,21 +216,21 @@ onMounted(() => {
           </button>
           <div
             v-else
-            class="grid aspect-[4/3] place-items-center rounded-md border border-dashed border-default bg-muted/30 text-muted"
+            class="grid place-items-center rounded-md border border-dashed border-default bg-muted/30 text-muted"
           >
             <UIcon name="i-lucide-image" class="size-8" />
           </div>
 
           <div class="min-w-0 space-y-1">
             <div class="flex flex-wrap items-center gap-2">
-              <div class="break-words font-medium text-highlighted">
+              <div class="wrap-break-word font-medium text-highlighted">
                 {{ item.name }}
               </div>
               <UBadge v-if="isLowStock(item)" color="warning" variant="soft">
                 {{ t('data.lowStock.badge') }}
               </UBadge>
             </div>
-            <div class="break-words text-sm text-muted">
+            <div class="wrap-break-word text-sm text-muted">
               {{ item.note ?? t('data.form.noNote') }}
             </div>
           </div>
@@ -251,7 +251,7 @@ onMounted(() => {
               <div class="text-xs text-muted">
                 {{ t('data.form.location') }}
               </div>
-              <div class="break-words font-medium text-highlighted">
+              <div class="wrap-break-word font-medium text-highlighted">
                 {{ inventory.getLocationName(item.location_id) }}
               </div>
             </div>
@@ -259,7 +259,7 @@ onMounted(() => {
               <div class="text-xs text-muted">
                 {{ t('data.form.mainCategory') }}
               </div>
-              <div class="break-words font-medium text-highlighted">
+              <div class="wrap-break-word font-medium text-highlighted">
                 {{ inventory.getMainCategoryName(item.category_id) }}
               </div>
             </div>
@@ -267,7 +267,7 @@ onMounted(() => {
               <div class="text-xs text-muted">
                 {{ t('data.form.subCategory') }}
               </div>
-              <div class="break-words font-medium text-highlighted">
+              <div class="wrap-break-word font-medium text-highlighted">
                 {{ inventory.getCategoryName(item.category_id) }}
               </div>
             </div>
@@ -275,7 +275,7 @@ onMounted(() => {
               <div class="text-xs text-muted">
                 {{ t('data.form.group') }}
               </div>
-              <div class="break-words font-medium text-highlighted">
+              <div class="wrap-break-word font-medium text-highlighted">
                 {{ inventory.getGroupName(item.group_id) }}
               </div>
             </div>
@@ -283,7 +283,7 @@ onMounted(() => {
               <div class="text-xs text-muted">
                 {{ t('data.form.barcode') }}
               </div>
-              <div class="break-words font-medium text-highlighted">
+              <div class="wrap-break-word font-medium text-highlighted">
                 {{ item.barcode ?? '-' }}
               </div>
             </div>

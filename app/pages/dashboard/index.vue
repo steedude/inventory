@@ -1,7 +1,18 @@
 <script setup lang="ts">
+import type { InventoryChangedField } from '~~/types/inventoryTypes'
+import {
+  ArcElement,
+  Chart as ChartJS,
+  Legend,
+  Tooltip,
+} from 'chart.js'
+import { Doughnut } from 'vue-chartjs'
+
 definePageMeta({
   layout: 'dashboard',
 })
+
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 const { t } = useI18n()
 const inventory = useInventoryData()
@@ -18,8 +29,18 @@ interface WorkerCronResult {
 
 const isTestingWorker = ref(false)
 const workerCronResult = ref<WorkerCronResult | null>(null)
+const categoryChartColors = [
+  '#2563eb',
+  '#16a34a',
+  '#f59e0b',
+  '#dc2626',
+  '#7c3aed',
+  '#0891b2',
+  '#db2777',
+  '#4f46e5',
+]
 
-const recentMovements = computed(() => inventory.movements.value.slice(0, 5))
+const recentLogs = computed(() => inventory.logs.value.slice(0, 5))
 const categoryStats = computed(() => {
   const stats = inventory.mainCategories.value.map(category => ({
     id: category.id,
@@ -28,15 +49,38 @@ const categoryStats = computed(() => {
       inventory.getMainCategoryName(item.category_id) === category.name,
     ).length,
   }))
-  const maxValue = Math.max(...stats.map(item => item.value), 1)
 
-  return stats
-    .filter(item => item.value > 0)
-    .map(item => ({
-      ...item,
-      percent: Math.round((item.value / maxValue) * 100),
-    }))
+  return stats.filter(item => item.value > 0)
 })
+const categoryChartData = computed(() => ({
+  labels: categoryStats.value.map(category => category.label),
+  datasets: [
+    {
+      data: categoryStats.value.map(category => category.value),
+      backgroundColor: categoryStats.value.map((_, index) => categoryChartColors[index % categoryChartColors.length]),
+      borderColor: '#ffffff',
+      borderWidth: 2,
+      hoverOffset: 6,
+    },
+  ],
+}))
+const categoryChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  cutout: '62%',
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label(context: { label: string, parsed: number }) {
+          return `${context.label}: ${context.parsed}`
+        },
+      },
+    },
+  },
+}
 
 const summaryCards = computed(() => [
   {
@@ -51,10 +95,22 @@ const summaryCards = computed(() => [
   },
   {
     label: t('dashboard.summary.movements'),
-    value: String(inventory.movements.value.length),
+    value: String(inventory.logs.value.length),
     icon: 'i-lucide-history',
   },
 ])
+
+function getFieldLabel(field: InventoryChangedField['field']) {
+  return t(`logs.fields.${field}`)
+}
+
+function formatChangedFields(fields: InventoryChangedField[]) {
+  if (fields.length === 0) {
+    return t('logs.noChangedFields')
+  }
+
+  return fields.map(field => getFieldLabel(field.field)).join(t('common.separator'))
+}
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat('zh-TW', {
@@ -180,14 +236,35 @@ onMounted(() => {
           {{ t('dashboard.categoryChart.empty') }}
         </div>
 
-        <div v-else class="space-y-3">
-          <div v-for="category in categoryStats" :key="category.id" class="space-y-1">
-            <div class="flex items-center justify-between gap-3 text-sm">
-              <span class="font-medium text-highlighted">{{ category.label }}</span>
-              <span class="text-muted">{{ category.value }}</span>
+        <div v-else class="grid items-center gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+          <div class="relative mx-auto aspect-square w-full max-w-56">
+            <Doughnut :data="categoryChartData" :options="categoryChartOptions" />
+            <div class="pointer-events-none absolute inset-0 grid place-items-center text-center">
+              <div>
+                <div class="text-xs text-muted">
+                  {{ t('dashboard.summary.items') }}
+                </div>
+                <div class="text-2xl font-semibold text-highlighted">
+                  {{ inventory.items.value.length }}
+                </div>
+              </div>
             </div>
-            <div class="h-2 overflow-hidden rounded-full bg-muted">
-              <div class="h-full rounded-full bg-primary" :style="{ width: `${category.percent}%` }" />
+          </div>
+
+          <div class="space-y-2">
+            <div
+              v-for="(category, index) in categoryStats"
+              :key="category.id"
+              class="flex items-center justify-between gap-3 rounded-md border border-default px-3 py-2 text-sm"
+            >
+              <div class="flex min-w-0 items-center gap-2">
+                <span
+                  class="size-3 shrink-0 rounded-full"
+                  :style="{ backgroundColor: categoryChartColors[index % categoryChartColors.length] }"
+                />
+                <span class="truncate font-medium text-highlighted">{{ category.label }}</span>
+              </div>
+              <span class="shrink-0 text-muted">{{ category.value }}</span>
             </div>
           </div>
         </div>
@@ -211,22 +288,22 @@ onMounted(() => {
         </div>
       </template>
 
-      <div v-if="recentMovements.length === 0" class="py-6 text-center text-sm text-muted">
+      <div v-if="recentLogs.length === 0" class="py-6 text-center text-sm text-muted">
         {{ t('logs.empty') }}
       </div>
 
       <div v-else class="grid gap-2">
         <div
-          v-for="movement in recentMovements"
-          :key="movement.id"
+          v-for="log in recentLogs"
+          :key="log.id"
           class="flex flex-col gap-1 rounded-md border border-default px-3 py-2 lg:flex-row lg:items-center lg:justify-between"
         >
           <div class="font-medium text-highlighted">
-            {{ movement.item_name }}
+            {{ log.item_name }}
           </div>
           <div class="text-sm text-muted">
-            {{ movement.quantity_before ?? '-' }} {{ t('common.arrow') }} {{ movement.quantity_after ?? '-' }}
-            {{ t('common.separator') }} {{ formatDate(movement.created_at) }}
+            {{ formatChangedFields(log.changed_fields) }}
+            {{ t('common.separator') }} {{ formatDate(log.created_at) }}
           </div>
         </div>
       </div>

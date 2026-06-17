@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { InventoryMovementType } from '~~/config/inventoryLogConfig'
+import type { InventoryChangedField } from '~~/types/inventoryTypes'
+import { InventoryLogType } from '~~/config/inventoryLogConfig'
 
 definePageMeta({
   layout: 'dashboard',
@@ -9,17 +10,59 @@ const { t } = useI18n()
 const inventory = useInventoryData()
 const { runSafely } = useSafeRun()
 
-function getMovementLabel(type: string) {
+function getLogLabel(type: string) {
   const labelMap: Record<string, string> = {
-    [InventoryMovementType.Create]: t('logs.types.create'),
-    [InventoryMovementType.Update]: t('logs.types.update'),
-    [InventoryMovementType.Delete]: t('logs.types.delete'),
-    [InventoryMovementType.QuantityIncrease]: t('logs.types.quantityIncrease'),
-    [InventoryMovementType.QuantityDecrease]: t('logs.types.quantityDecrease'),
-    [InventoryMovementType.QuantitySet]: t('logs.types.quantitySet'),
+    [InventoryLogType.Create]: t('logs.types.create'),
+    [InventoryLogType.Update]: t('logs.types.update'),
+    [InventoryLogType.Delete]: t('logs.types.delete'),
   }
 
   return labelMap[type] ?? type
+}
+
+function getFieldLabel(field: InventoryChangedField['field']) {
+  return t(`logs.fields.${field}`)
+}
+
+function formatChangedValue(value: InventoryChangedField['before'], field: InventoryChangedField['field']) {
+  if (field === 'image_url') {
+    return value === null ? t('logs.emptyValue') : t('logs.imageValue')
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? t('common.yes') : t('common.no')
+  }
+
+  if (value === null || value === '') {
+    return t('logs.emptyValue')
+  }
+
+  if (field === 'category_id') {
+    return inventory.getCategoryName(String(value))
+  }
+
+  if (field === 'group_id') {
+    return inventory.getGroupName(String(value))
+  }
+
+  if (field === 'location_id') {
+    return inventory.getLocationName(String(value))
+  }
+
+  return String(value)
+}
+
+function formatChangedField(changedField: InventoryChangedField) {
+  if (changedField.field === 'image_url') {
+    return `${getFieldLabel(changedField.field)}: ${t('logs.changed')}`
+  }
+
+  return [
+    `${getFieldLabel(changedField.field)}:`,
+    formatChangedValue(changedField.before, changedField.field),
+    t('common.arrow'),
+    formatChangedValue(changedField.after, changedField.field),
+  ].join(' ')
 }
 
 function formatDate(value: string) {
@@ -68,48 +111,50 @@ onMounted(() => {
         </div>
       </template>
 
-      <div v-if="inventory.movements.value.length === 0" class="py-8 text-center text-sm text-muted">
+      <div v-if="inventory.logs.value.length === 0" class="py-8 text-center text-sm text-muted">
         {{ t('logs.empty') }}
       </div>
 
       <div v-else class="space-y-3">
         <article
-          v-for="movement in inventory.movements.value"
-          :key="movement.id"
-          class="grid gap-3 rounded-md border border-default p-3 lg:grid-cols-[minmax(0,1fr)_160px_160px]"
+          v-for="log in inventory.logs.value"
+          :key="log.id"
+          class="grid gap-3 rounded-md border border-default p-3 lg:grid-cols-[minmax(0,1fr)_180px]"
         >
           <div class="min-w-0 space-y-1">
             <div class="flex flex-wrap items-center gap-2">
               <div class="font-medium text-highlighted">
-                {{ movement.item_name }}
+                {{ log.item_name }}
               </div>
               <UBadge color="neutral" variant="soft">
-                {{ getMovementLabel(movement.type) }}
+                {{ getLogLabel(log.type) }}
               </UBadge>
             </div>
-            <p class="text-sm text-muted">
-              {{ movement.note ?? t('data.form.noNote') }}
-            </p>
+            <div class="space-y-1 text-sm">
+              <div class="text-muted">
+                {{ t('logs.changedFields') }}
+              </div>
+              <div v-if="log.changed_fields.length === 0" class="text-muted">
+                {{ t('logs.noChangedFields') }}
+              </div>
+              <div v-else class="flex flex-wrap gap-2">
+                <UBadge
+                  v-for="changedField in log.changed_fields"
+                  :key="`${log.id}-${changedField.field}`"
+                  color="neutral"
+                  variant="soft"
+                >
+                  {{ formatChangedField(changedField) }}
+                </UBadge>
+              </div>
+            </div>
           </div>
           <div class="text-sm">
             <div class="text-muted">
-              {{ t('logs.quantityChange') }}
+              {{ t('logs.updatedAt') }}
             </div>
             <div class="font-medium text-highlighted">
-              {{ movement.quantity_before ?? '-' }}
-              {{ t('common.arrow') }}
-              {{ movement.quantity_after ?? '-' }}
-              <span v-if="movement.quantity_delta !== null" class="text-muted">
-                ({{ movement.quantity_delta > 0 ? '+' : '' }}{{ movement.quantity_delta }})
-              </span>
-            </div>
-          </div>
-          <div class="text-sm">
-            <div class="text-muted">
-              {{ t('logs.createdAt') }}
-            </div>
-            <div class="font-medium text-highlighted">
-              {{ formatDate(movement.created_at) }}
+              {{ formatDate(log.created_at) }}
             </div>
           </div>
         </article>

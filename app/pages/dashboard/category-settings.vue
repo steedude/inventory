@@ -50,6 +50,12 @@ const creating = reactive({
   group: false,
 })
 
+const saving = reactive({
+  categoryId: '',
+  locationId: '',
+  groupId: '',
+})
+
 const categoryOptions = computed(() => createCategoryOptions(inventory.mainCategories.value))
 
 const groupedCategories = computed(() => inventory.mainCategories.value.map(category => ({
@@ -67,6 +73,18 @@ function isEditingLocation(id: string) {
 
 function isEditingGroup(id: string) {
   return editingGroup.id === id
+}
+
+function isSavingCategory(id: string) {
+  return saving.categoryId === id
+}
+
+function isSavingLocation(id: string) {
+  return saving.locationId === id
+}
+
+function isSavingGroup(id: string) {
+  return saving.groupId === id
 }
 
 function startEditCategory(id: string, name: string) {
@@ -129,45 +147,66 @@ function closeDeleteDialog() {
 async function saveCategory() {
   const name = editingCategory.name.trim()
 
-  if (editingCategory.id.length === 0 || name.length === 0) {
+  if (editingCategory.id.length === 0 || name.length === 0 || saving.categoryId.length > 0) {
     return
   }
 
-  await runSafely(async () => {
-    await inventory.updateCategory(editingCategory.id, { name })
-    stopEditCategory()
-    appToast.setSuccess(t('data.toast.updated'))
-  })
+  saving.categoryId = editingCategory.id
+
+  try {
+    await runSafely(async () => {
+      await inventory.updateCategory(editingCategory.id, { name })
+      stopEditCategory()
+      appToast.setSuccess(t('data.toast.updated'))
+    })
+  }
+  finally {
+    saving.categoryId = ''
+  }
 }
 
 async function saveLocation() {
   const name = editingLocation.name.trim()
 
-  if (editingLocation.id.length === 0 || name.length === 0) {
+  if (editingLocation.id.length === 0 || name.length === 0 || saving.locationId.length > 0) {
     return
   }
 
-  await runSafely(async () => {
-    await inventory.updateLocation(editingLocation.id, { name })
-    stopEditLocation()
-    appToast.setSuccess(t('data.toast.updated'))
-  })
+  saving.locationId = editingLocation.id
+
+  try {
+    await runSafely(async () => {
+      await inventory.updateLocation(editingLocation.id, { name })
+      stopEditLocation()
+      appToast.setSuccess(t('data.toast.updated'))
+    })
+  }
+  finally {
+    saving.locationId = ''
+  }
 }
 
 async function saveGroup() {
   const name = editingGroup.name.trim()
 
-  if (editingGroup.id.length === 0 || name.length === 0) {
+  if (editingGroup.id.length === 0 || name.length === 0 || saving.groupId.length > 0) {
     return
   }
 
-  await runSafely(async () => {
-    await inventory.updateGroup(editingGroup.id, {
-      name,
+  saving.groupId = editingGroup.id
+
+  try {
+    await runSafely(async () => {
+      await inventory.updateGroup(editingGroup.id, {
+        name,
+      })
+      stopEditGroup()
+      appToast.setSuccess(t('data.toast.updated'))
     })
-    stopEditGroup()
-    appToast.setSuccess(t('data.toast.updated'))
-  })
+  }
+  finally {
+    saving.groupId = ''
+  }
 }
 
 async function deleteCategory(id: string) {
@@ -480,6 +519,7 @@ onMounted(() => {
                   v-else
                   v-model="editingCategory.name"
                   class="min-w-0 flex-1"
+                  :disabled="isSavingCategory(category.id)"
                 />
                 <div class="flex shrink-0 items-center gap-1">
                   <template v-if="isEditingCategory(category.id)">
@@ -487,6 +527,7 @@ onMounted(() => {
                       color="success"
                       variant="ghost"
                       icon="i-lucide-check"
+                      :loading="isSavingCategory(category.id)"
                       :aria-label="t('data.actions.save')"
                       @click="saveCategory"
                     />
@@ -494,6 +535,7 @@ onMounted(() => {
                       color="neutral"
                       variant="ghost"
                       icon="i-lucide-x"
+                      :disabled="isSavingCategory(category.id)"
                       :aria-label="t('data.actions.cancel')"
                       @click="stopEditCategory"
                     />
@@ -530,6 +572,7 @@ onMounted(() => {
                     v-else
                     v-model="editingCategory.name"
                     class="min-w-0 flex-1"
+                    :disabled="isSavingCategory(subCategory.id)"
                   />
                   <div class="flex shrink-0 items-center gap-1">
                     <template v-if="isEditingCategory(subCategory.id)">
@@ -537,6 +580,7 @@ onMounted(() => {
                         color="success"
                         variant="ghost"
                         icon="i-lucide-check"
+                        :loading="isSavingCategory(subCategory.id)"
                         :aria-label="t('data.actions.save')"
                         @click="saveCategory"
                       />
@@ -544,6 +588,7 @@ onMounted(() => {
                         color="neutral"
                         variant="ghost"
                         icon="i-lucide-x"
+                        :disabled="isSavingCategory(subCategory.id)"
                         :aria-label="t('data.actions.cancel')"
                         @click="stopEditCategory"
                       />
@@ -599,6 +644,7 @@ onMounted(() => {
                 v-else
                 v-model="editingLocation.name"
                 class="min-w-0 flex-1"
+                :disabled="isSavingLocation(location.id)"
               />
               <div class="flex shrink-0 items-center gap-1">
                 <template v-if="isEditingLocation(location.id)">
@@ -606,6 +652,7 @@ onMounted(() => {
                     color="success"
                     variant="ghost"
                     icon="i-lucide-check"
+                    :loading="isSavingLocation(location.id)"
                     :aria-label="t('data.actions.save')"
                     @click="saveLocation"
                   />
@@ -613,6 +660,7 @@ onMounted(() => {
                     color="neutral"
                     variant="ghost"
                     icon="i-lucide-x"
+                    :disabled="isSavingLocation(location.id)"
                     :aria-label="t('data.actions.cancel')"
                     @click="stopEditLocation"
                   />
@@ -663,7 +711,11 @@ onMounted(() => {
                   </div>
                 </div>
                 <div v-else class="min-w-0 flex-1">
-                  <UInput v-model="editingGroup.name" class="w-full" />
+                  <UInput
+                    v-model="editingGroup.name"
+                    class="w-full"
+                    :disabled="isSavingGroup(group.id)"
+                  />
                 </div>
                 <div class="flex shrink-0 items-center gap-1">
                   <template v-if="isEditingGroup(group.id)">
@@ -671,6 +723,7 @@ onMounted(() => {
                       color="success"
                       variant="ghost"
                       icon="i-lucide-check"
+                      :loading="isSavingGroup(group.id)"
                       :aria-label="t('data.actions.save')"
                       @click="saveGroup"
                     />
@@ -678,6 +731,7 @@ onMounted(() => {
                       color="neutral"
                       variant="ghost"
                       icon="i-lucide-x"
+                      :disabled="isSavingGroup(group.id)"
                       :aria-label="t('data.actions.cancel')"
                       @click="stopEditGroup"
                     />

@@ -45,7 +45,7 @@
     "summary": {
       "items": "庫存物品",
       "lowStock": "低庫存物品",
-      "movements": "近期異動"
+      "movements": "近期紀錄"
     },
     "lowStock": {
       "title": "低庫存警示",
@@ -58,8 +58,8 @@
       "empty": "目前沒有分類資料"
     },
     "recentMovements": {
-      "title": "近期異動",
-      "description": "系統最近記錄的庫存變更。"
+      "title": "近期紀錄",
+      "description": "系統最近記錄的物品更新。"
     },
     "workerTest": {
       "run": "測試正式排程",
@@ -224,19 +224,34 @@
   },
   "logs": {
     "title": "庫存異動紀錄",
-    "description": "查看物品建立、編輯、刪除與數量變化。",
+    "description": "查看物品建立、更新、刪除與欄位變更。",
     "recent": "近期紀錄",
-    "recentDescription": "最新的庫存異動資料。",
-    "empty": "目前沒有異動紀錄",
-    "quantityChange": "數量變化",
-    "createdAt": "建立時間",
+    "recentDescription": "最新的庫存紀錄資料。",
+    "empty": "目前沒有庫存紀錄",
+    "changedFields": "變更欄位",
+    "noChangedFields": "沒有欄位細節",
+    "emptyValue": "-",
+    "imageValue": "圖片",
+    "changed": "已更新",
+    "updatedAt": "更新時間",
     "types": {
       "create": "建立",
       "update": "更新",
-      "delete": "刪除",
-      "quantityIncrease": "增加",
-      "quantityDecrease": "減少",
-      "quantitySet": "設定"
+      "delete": "刪除"
+    },
+    "fields": {
+      "name": "名稱",
+      "quantity": "數量",
+      "min_quantity": "低庫存門檻",
+      "low_stock_enabled": "低庫存提醒",
+      "image_url": "圖片",
+      "barcode": "條碼",
+      "note": "備註",
+      "category_id": "分類",
+      "group_id": "群組",
+      "location_id": "位置",
+      "created_at": "建立時間",
+      "updated_at": "更新時間"
     }
   }
 }

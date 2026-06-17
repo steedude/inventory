@@ -22,11 +22,13 @@
     "@zxing/browser": "^0.2.0",
     "@zxing/library": "^0.22.0",
     "browser-image-compression": "^2.0.2",
+    "chart.js": "^4.5.1",
     "nuxt": "^4.4.8",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "tailwindcss": "^4.3.0",
     "vue": "^3.5.35",
+    "vue-chartjs": "^5.3.3",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {

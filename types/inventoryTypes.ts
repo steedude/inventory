@@ -6,8 +6,7 @@ export type InventoryCategoryUpdate = Database['public']['Tables']['categories']
 export type InventoryGroup = Database['public']['Tables']['item_groups']['Row']
 export type InventoryGroupInsert = Database['public']['Tables']['item_groups']['Insert']
 export type InventoryGroupUpdate = Database['public']['Tables']['item_groups']['Update']
-export type InventoryMovement = Database['public']['Tables']['inventory_movements']['Row']
-export type InventoryMovementInsert = Database['public']['Tables']['inventory_movements']['Insert']
+export type InventoryLogInsert = Database['public']['Tables']['inventory_logs']['Insert']
 export type InventoryItem = Database['public']['Tables']['items']['Row']
 export type InventoryItemInsert = Database['public']['Tables']['items']['Insert']
 export type InventoryItemUpdate = Database['public']['Tables']['items']['Update']
@@ -41,7 +40,20 @@ export type CreateInventoryCategoryPayload = Omit<InventoryCategoryInsert, 'user
 export type UpdateInventoryCategoryPayload = InventoryCategoryUpdate
 export type CreateInventoryGroupPayload = Omit<InventoryGroupInsert, 'user_id'>
 export type UpdateInventoryGroupPayload = InventoryGroupUpdate
-export type CreateInventoryMovementPayload = Omit<InventoryMovementInsert, 'user_id'>
+export interface InventoryChangedField {
+  [key: string]: string | number | boolean | null | undefined
+  field: keyof InventoryItemFormState | 'created_at' | 'updated_at'
+  before: string | number | boolean | null
+  after: string | number | boolean | null
+}
+
+export type InventoryLog = Omit<Database['public']['Tables']['inventory_logs']['Row'], 'changed_fields'> & {
+  changed_fields: InventoryChangedField[]
+}
+
+export type CreateInventoryLogPayload = Omit<InventoryLogInsert, 'user_id' | 'changed_fields'> & {
+  changed_fields: InventoryChangedField[]
+}
 export type CreateInventoryItemPayload = Omit<InventoryItemInsert, 'user_id'>
 export type UpdateInventoryItemPayload = InventoryItemUpdate
 export type CreateInventoryLocationPayload = Omit<InventoryLocationInsert, 'user_id'>

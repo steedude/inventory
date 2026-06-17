@@ -281,7 +281,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
       <UFormField :label="t('data.form.image')">
         <div class="grid gap-3">
           <div
-            class="grid aspect-4/3 place-items-center overflow-hidden rounded-md border border-default bg-muted/30 text-muted"
+            class="grid place-items-center overflow-hidden rounded-md border border-default bg-muted/30 text-muted"
           >
             <img
               v-if="itemForm.image_url.length > 0"

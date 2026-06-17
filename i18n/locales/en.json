@@ -31,7 +31,7 @@
       },
       "database": {
         "title": "Supabase database",
-        "description": "Use Supabase PostgreSQL for inventory items, stock movements, user data, and Supabase Auth for sign-in."
+        "description": "Use Supabase PostgreSQL for inventory items, inventory logs, user data, and Supabase Auth for sign-in."
       },
       "stack": {
         "title": "Modern frontend stack",
@@ -45,7 +45,7 @@
     "summary": {
       "items": "Inventory items",
       "lowStock": "Low stock items",
-      "movements": "Recent movements"
+      "movements": "Recent logs"
     },
     "lowStock": {
       "title": "Low stock alerts",
@@ -58,8 +58,8 @@
       "empty": "No category data yet"
     },
     "recentMovements": {
-      "title": "Recent movements",
-      "description": "Latest inventory changes recorded by the system."
+      "title": "Recent logs",
+      "description": "Latest inventory updates recorded by the system."
     },
     "workerTest": {
       "run": "Run cron test",
@@ -224,19 +224,34 @@
   },
   "logs": {
     "title": "Inventory logs",
-    "description": "Review item creation, edits, deletes, and quantity changes.",
+    "description": "Review item creation, updates, deletes, and field changes.",
     "recent": "Recent logs",
-    "recentDescription": "The latest inventory movement records.",
-    "empty": "No movement logs yet",
-    "quantityChange": "Quantity change",
-    "createdAt": "Created at",
+    "recentDescription": "The latest inventory log records.",
+    "empty": "No inventory logs yet",
+    "changedFields": "Changed fields",
+    "noChangedFields": "No field details",
+    "emptyValue": "-",
+    "imageValue": "Image",
+    "changed": "Changed",
+    "updatedAt": "Updated at",
     "types": {
       "create": "Created",
       "update": "Updated",
-      "delete": "Deleted",
-      "quantityIncrease": "Increased",
-      "quantityDecrease": "Decreased",
-      "quantitySet": "Set"
+      "delete": "Deleted"
+    },
+    "fields": {
+      "name": "Name",
+      "quantity": "Quantity",
+      "min_quantity": "Low stock threshold",
+      "low_stock_enabled": "Low stock alert",
+      "image_url": "Image",
+      "barcode": "Barcode",
+      "note": "Note",
+      "category_id": "Category",
+      "group_id": "Group",
+      "location_id": "Location",
+      "created_at": "Created at",
+      "updated_at": "Updated at"
     }
   }
 }

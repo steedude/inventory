@@ -1,3 +1,5 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
 export interface Database {
   public: {
     Tables: {
@@ -58,17 +60,14 @@ export interface Database {
         }
         Relationships: []
       }
-      inventory_movements: {
+      inventory_logs: {
         Row: {
           id: string
           user_id: string
           item_id: string | null
           item_name: string
           type: string
-          quantity_before: number | null
-          quantity_after: number | null
-          quantity_delta: number | null
-          note: string | null
+          changed_fields: Json
           created_at: string
         }
         Insert: {
@@ -77,10 +76,7 @@ export interface Database {
           item_id?: string | null
           item_name: string
           type: string
-          quantity_before?: number | null
-          quantity_after?: number | null
-          quantity_delta?: number | null
-          note?: string | null
+          changed_fields?: Json
           created_at?: string
         }
         Update: {
@@ -89,10 +85,7 @@ export interface Database {
           item_id?: string | null
           item_name?: string
           type?: string
-          quantity_before?: number | null
-          quantity_after?: number | null
-          quantity_delta?: number | null
-          note?: string | null
+          changed_fields?: Json
           created_at?: string
         }
         Relationships: []
