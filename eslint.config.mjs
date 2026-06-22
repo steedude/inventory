@@ -11,23 +11,10 @@ export default withNuxt(
     },
     formatters: {
       css: true,
-      html: true,
       markdown: true,
     },
-    ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.nuxt/**',
-      '**/.output/**',
-      '**/coverage/**',
-      '**/*.yml',
-      '**/*.yaml',
-      '**/*.css',
-      '**/*.md',
-      '**/*.d.ts',
-    ],
     rules: {
-      'style/semi': ['error', 'never'],
+      'pnpm/yaml-enforce-settings': 'off',
     },
   }, {
     files: ['**/*.vue'],
