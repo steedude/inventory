@@ -162,7 +162,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
         <div
           class="grid gap-2 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center"
         >
-          <UCheckbox
+          <USwitch
             v-model="itemForm.low_stock_enabled"
             :label="t('data.form.lowStockEnabled')"
           />
@@ -281,13 +281,13 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
       <UFormField :label="t('data.form.image')">
         <div class="grid gap-3">
           <div
-            class="grid place-items-center overflow-hidden rounded-md border border-default bg-muted/30 text-muted"
+            class="grid aspect-square w-full place-items-center overflow-hidden rounded-md border border-default bg-muted/30 text-muted"
           >
             <img
               v-if="itemForm.image_url.length > 0"
               :src="itemForm.image_url"
               :alt="itemForm.name || t('data.form.image')"
-              class="h-full w-full object-cover"
+              class="h-full w-full object-contain"
             >
             <UIcon v-else name="i-lucide-image" class="size-8" />
           </div>

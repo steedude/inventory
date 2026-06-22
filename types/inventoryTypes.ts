@@ -14,14 +14,15 @@ export type InventoryLocation = Database['public']['Tables']['locations']['Row']
 export type InventoryLocationInsert = Database['public']['Tables']['locations']['Insert']
 export type InventoryLocationUpdate = Database['public']['Tables']['locations']['Update']
 
-export type InventoryNameRecord = Pick<InventoryCategory, 'id' | 'name'>
+export interface InventoryNameRecord {
+  id: string
+  name: string
+}
 
 export interface InventorySelectOption {
   label: string
   value: string
 }
-
-export type InventorySelectModelValue = string
 
 export interface InventoryItemFormState {
   name: string
@@ -29,11 +30,11 @@ export interface InventoryItemFormState {
   min_quantity: number
   low_stock_enabled: boolean
   image_url: string
-  location_id: InventorySelectModelValue
+  location_id: string
   note: string
   barcode: string
-  category_id: InventorySelectModelValue
-  group_id: InventorySelectModelValue
+  category_id: string
+  group_id: string
 }
 
 export type CreateInventoryCategoryPayload = Omit<InventoryCategoryInsert, 'user_id'>
@@ -47,8 +48,14 @@ export interface InventoryChangedField {
   after: string | number | boolean | null
 }
 
-export type InventoryLog = Omit<Database['public']['Tables']['inventory_logs']['Row'], 'changed_fields'> & {
+export interface InventoryLog {
+  id: string
+  user_id: string
+  item_id: string | null
+  item_name: string
+  type: string
   changed_fields: InventoryChangedField[]
+  created_at: string
 }
 
 export type CreateInventoryLogPayload = Omit<InventoryLogInsert, 'user_id' | 'changed_fields'> & {

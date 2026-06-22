@@ -3,4 +3,21 @@
 
 :root {
   --ui-radius: 0.5rem;
+  color-scheme: light;
+
+  --ui-bg: #f2f6fb;
+  --ui-bg-muted: #e3ebf5;
+  --ui-bg-elevated: #e7eef8;
+  --ui-bg-accented: #d3dfed;
+  --ui-bg-inverted: #172033;
+  --ui-text: #263244;
+  --ui-text-muted: #5c6b80;
+  --ui-text-toned: #3f4f63;
+  --ui-text-highlighted: #111827;
+  --ui-text-inverted: #ffffff;
+  --ui-border: #c3cedc;
+  --ui-primary: #2563eb;
+  --ui-warning: #b45309;
+  --ui-error: #dc2626;
+  --ui-success: #15803d;
 }

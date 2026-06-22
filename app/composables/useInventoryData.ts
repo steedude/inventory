@@ -10,6 +10,7 @@ import type {
   InventoryItem,
   InventoryLocation,
   InventoryLog,
+  InventoryLogInsert,
   InventoryNameRecord,
   UpdateInventoryCategoryPayload,
   UpdateInventoryGroupPayload,
@@ -17,7 +18,8 @@ import type {
   UpdateInventoryLocationPayload,
 } from '~~/types/inventoryTypes'
 import { AppError } from '~~/config/errorConfig'
-import { InventoryLogType } from '~~/config/inventoryLogConfig'
+import { inventoryLogFields, InventoryLogType } from '~~/config/inventoryLogConfig'
+import { toInventoryChangedFields } from '~~/utils/inventoryLogUtils'
 
 export function useInventoryData() {
   const auth = useAuthStore()
@@ -87,24 +89,11 @@ export function useInventoryData() {
     return items.value.find(item => item.barcode === trimmedBarcode)
   }
 
-  const logFields = [
-    'name',
-    'quantity',
-    'min_quantity',
-    'low_stock_enabled',
-    'image_url',
-    'barcode',
-    'note',
-    'category_id',
-    'group_id',
-    'location_id',
-  ] as const
-
   const createChangedFields = (
     beforeItem: Partial<InventoryItem> | null,
     afterItem: Partial<InventoryItem> | null,
   ): InventoryChangedField[] => {
-    return logFields.flatMap((field) => {
+    return inventoryLogFields.flatMap((field) => {
       const before = beforeItem?.[field] ?? null
       const after = afterItem?.[field] ?? null
 
@@ -121,12 +110,15 @@ export function useInventoryData() {
   }
 
   const createLog = async (payload: CreateInventoryLogPayload) => {
+    const logPayload: InventoryLogInsert = {
+      ...payload,
+      changed_fields: payload.changed_fields,
+      user_id: requireUserId(),
+    }
+
     const { error } = await $supabase
       .from('inventory_logs')
-      .insert({
-        ...payload,
-        user_id: requireUserId(),
-      })
+      .insert(logPayload)
 
     if (error !== null) {
       throw error
@@ -183,7 +175,10 @@ export function useInventoryData() {
       throw error
     }
 
-    logs.value = (data ?? []) as unknown as InventoryLog[]
+    logs.value = (data ?? []).map(log => ({
+      ...log,
+      changed_fields: toInventoryChangedFields(log.changed_fields),
+    }))
   }
 
   const fetchItem = async (id: string) => {

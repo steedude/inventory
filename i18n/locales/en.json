@@ -59,14 +59,11 @@
     },
     "recentMovements": {
       "title": "Recent logs",
-      "description": "Latest inventory updates recorded by the system."
+      "description": "Inventory updates from the last 7 days."
     },
-    "workerTest": {
-      "run": "Run cron test",
-      "success": "Worker cron completed",
-      "result": "Last cron result:",
-      "count": "{count} low stock items",
-      "checkedAt": "checked at {time}"
+    "lowStockNotification": {
+      "run": "Send low stock notification",
+      "success": "Low stock notification sent"
     }
   },
   "profile": {
@@ -74,7 +71,12 @@
     "description": "This page shows basic information for the signed-in account. Name, role, and permissions can be added later.",
     "email": "Email",
     "userId": "User ID",
-    "empty": "No data yet"
+    "empty": "No data yet",
+    "lowStockNotification": {
+      "title": "Low stock notification",
+      "description": "Automatically send low stock items to your email every day at midnight.",
+      "dailyEmail": "Receive every day at midnight"
+    }
   },
   "quickUse": {
     "title": "Quick use",
@@ -226,7 +228,7 @@
     "title": "Inventory logs",
     "description": "Review item creation, updates, deletes, and field changes.",
     "recent": "Recent logs",
-    "recentDescription": "The latest inventory log records.",
+    "recentDescription": "Inventory log records from the last 7 days.",
     "empty": "No inventory logs yet",
     "changedFields": "Changed fields",
     "noChangedFields": "No field details",

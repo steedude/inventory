@@ -7,6 +7,9 @@ import {
   Tooltip,
 } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
+import { categoryChartColors, categoryChartOptions } from '~~/config/dashboardConfig'
+import { InventoryLogType } from '~~/config/inventoryLogConfig'
+import { formatDateTime } from '~~/utils/dateUtils'
 
 definePageMeta({
   layout: 'dashboard',
@@ -16,31 +19,21 @@ ChartJS.register(ArcElement, Tooltip, Legend)
 
 const { t } = useI18n()
 const inventory = useInventoryData()
+const auth = useAuthStore()
 const { runSafely } = useSafeRun()
 const appToast = useAppToast()
 
-interface WorkerCronResult {
-  ok?: boolean
-  result?: {
-    checkedAt?: string
-    count?: number
-  }
-}
+const isSendingLowStockNotification = ref(false)
+const recentLogCutoff = computed(() => {
+  const date = new Date()
 
-const isTestingWorker = ref(false)
-const workerCronResult = ref<WorkerCronResult | null>(null)
-const categoryChartColors = [
-  '#2563eb',
-  '#16a34a',
-  '#f59e0b',
-  '#dc2626',
-  '#7c3aed',
-  '#0891b2',
-  '#db2777',
-  '#4f46e5',
-]
+  date.setDate(date.getDate() - 7)
+  return date
+})
 
-const recentLogs = computed(() => inventory.logs.value.slice(0, 5))
+const recentLogs = computed(() => inventory.logs.value
+  .filter(log => new Date(log.created_at) >= recentLogCutoff.value)
+  .slice(0, 5))
 const categoryStats = computed(() => {
   const stats = inventory.mainCategories.value.map(category => ({
     id: category.id,
@@ -64,24 +57,6 @@ const categoryChartData = computed(() => ({
     },
   ],
 }))
-const categoryChartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  cutout: '62%',
-  plugins: {
-    legend: {
-      display: false,
-    },
-    tooltip: {
-      callbacks: {
-        label(context: { label: string, parsed: number }) {
-          return `${context.label}: ${context.parsed}`
-        },
-      },
-    },
-  },
-}
-
 const summaryCards = computed(() => [
   {
     label: t('dashboard.summary.items'),
@@ -104,6 +79,20 @@ function getFieldLabel(field: InventoryChangedField['field']) {
   return t(`logs.fields.${field}`)
 }
 
+function getLogLabel(type: string) {
+  const labelMap: Record<string, string> = {
+    [InventoryLogType.Create]: t('logs.types.create'),
+    [InventoryLogType.Update]: t('logs.types.update'),
+    [InventoryLogType.Delete]: t('logs.types.delete'),
+  }
+
+  return labelMap[type] ?? type
+}
+
+function shouldShowChangedFields(type: string) {
+  return type === InventoryLogType.Update
+}
+
 function formatChangedFields(fields: InventoryChangedField[]) {
   if (fields.length === 0) {
     return t('logs.noChangedFields')
@@ -112,25 +101,26 @@ function formatChangedFields(fields: InventoryChangedField[]) {
   return fields.map(field => getFieldLabel(field.field)).join(t('common.separator'))
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('zh-TW', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-}
-
-async function testWorkerCron() {
-  isTestingWorker.value = true
+async function sendLowStockNotification() {
+  isSendingLowStockNotification.value = true
 
   await runSafely(async () => {
-    workerCronResult.value = await $fetch<WorkerCronResult>('/api/inventory/test-worker', {
+    const accessToken = auth.session?.access_token
+
+    if (accessToken === undefined) {
+      throw new Error('Missing user session')
+    }
+
+    await $fetch('/api/inventory/send-low-stock-notification', {
       method: 'POST',
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+      },
     })
-    appToast.setSuccess(t('dashboard.workerTest.success'))
-    await inventory.fetchAll()
+    appToast.setSuccess(t('dashboard.lowStockNotification.success'))
   })
 
-  isTestingWorker.value = false
+  isSendingLowStockNotification.value = false
 }
 
 onMounted(() => {
@@ -148,22 +138,18 @@ onMounted(() => {
         <p class="text-sm leading-6 text-muted">
           {{ t('dashboard.description') }}
         </p>
-        <p v-if="workerCronResult?.result" class="text-xs text-muted">
-          {{ t('dashboard.workerTest.result') }}
-          {{ t('dashboard.workerTest.count', { count: workerCronResult.result.count ?? 0 }) }}
-          {{ t('common.separator') }}
-          {{ t('dashboard.workerTest.checkedAt', { time: workerCronResult.result.checkedAt ? formatDate(workerCronResult.result.checkedAt) : '-' }) }}
-        </p>
       </div>
-      <UButton
-        icon="i-lucide-play"
-        variant="soft"
-        :loading="isTestingWorker"
-        class="self-start"
-        @click="testWorkerCron"
-      >
-        {{ t('dashboard.workerTest.run') }}
-      </UButton>
+      <div class="flex flex-wrap gap-2">
+        <UButton
+          icon="i-lucide-mail"
+          variant="soft"
+          :loading="isSendingLowStockNotification"
+          class="self-start"
+          @click="sendLowStockNotification"
+        >
+          {{ t('dashboard.lowStockNotification.run') }}
+        </UButton>
+      </div>
     </div>
 
     <section class="grid gap-4 lg:grid-cols-3">
@@ -298,12 +284,20 @@ onMounted(() => {
           :key="log.id"
           class="flex flex-col gap-1 rounded-md border border-default px-3 py-2 lg:flex-row lg:items-center lg:justify-between"
         >
-          <div class="font-medium text-highlighted">
-            {{ log.item_name }}
+          <div class="flex min-w-0 flex-wrap items-center gap-2">
+            <div class="font-medium text-highlighted">
+              {{ log.item_name }}
+            </div>
+            <UBadge color="neutral" variant="soft">
+              {{ getLogLabel(log.type) }}
+            </UBadge>
           </div>
           <div class="text-sm text-muted">
-            {{ formatChangedFields(log.changed_fields) }}
-            {{ t('common.separator') }} {{ formatDate(log.created_at) }}
+            <span v-if="shouldShowChangedFields(log.type)">
+              {{ formatChangedFields(log.changed_fields) }}
+              {{ t('common.separator') }}
+            </span>
+            {{ formatDateTime(log.created_at) }}
           </div>
         </div>
       </div>

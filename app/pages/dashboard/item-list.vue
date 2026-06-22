@@ -142,52 +142,40 @@ onMounted(() => {
       </p>
     </div>
 
-    <UCard>
-      <template #header>
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div class="space-y-1">
-            <h2 class="text-base font-semibold text-highlighted">
-              {{ t('data.sections.list') }}
-            </h2>
-            <p class="text-sm text-muted">
-              {{ t('data.sections.listDescription') }}
-            </p>
-          </div>
-          <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
-            <div class="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
-              <UButton
-                v-for="option in viewModeOptions"
-                :key="option.value"
-                :color="viewMode === option.value ? 'primary' : 'neutral'"
-                :variant="viewMode === option.value ? 'solid' : 'ghost'"
-                :icon="option.icon"
-                size="sm"
-                class="justify-center whitespace-nowrap"
-                @click="viewMode = option.value"
-              >
-                {{ option.label }}
-              </UButton>
-            </div>
-            <UButton
-              variant="ghost"
-              icon="i-lucide-refresh-cw"
-              class="justify-center whitespace-nowrap"
-              :loading="inventory.loading.value"
-              @click="inventory.fetchAll"
-            >
-              {{ t('data.actions.refresh') }}
-            </UButton>
-            <UButton
-              variant="soft"
-              icon="i-lucide-file-spreadsheet"
-              class="justify-center whitespace-nowrap"
-              @click="exportItemsCsv"
-            >
-              {{ t('data.actions.exportExcel') }}
-            </UButton>
-          </div>
+    <section class="space-y-3">
+      <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-end">
+        <div class="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
+          <UButton
+            v-for="option in viewModeOptions"
+            :key="option.value"
+            :color="viewMode === option.value ? 'primary' : 'neutral'"
+            :variant="viewMode === option.value ? 'solid' : 'ghost'"
+            :icon="option.icon"
+            size="sm"
+            class="justify-center whitespace-nowrap"
+            @click="viewMode = option.value"
+          >
+            {{ option.label }}
+          </UButton>
         </div>
-      </template>
+        <UButton
+          variant="ghost"
+          icon="i-lucide-refresh-cw"
+          class="justify-center whitespace-nowrap"
+          :loading="inventory.loading.value"
+          @click="inventory.fetchAll"
+        >
+          {{ t('data.actions.refresh') }}
+        </UButton>
+        <UButton
+          variant="soft"
+          icon="i-lucide-file-spreadsheet"
+          class="justify-center whitespace-nowrap"
+          @click="exportItemsCsv"
+        >
+          {{ t('data.actions.exportExcel') }}
+        </UButton>
+      </div>
 
       <div v-if="inventory.items.value.length === 0" class="py-8 text-center text-sm text-muted">
         {{ t('data.empty') }}
@@ -376,7 +364,7 @@ onMounted(() => {
           </div>
         </article>
       </div>
-    </UCard>
+    </section>
 
     <div
       v-if="pendingDeleteId !== undefined"

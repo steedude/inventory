@@ -59,14 +59,11 @@
     },
     "recentMovements": {
       "title": "近期紀錄",
-      "description": "系統最近記錄的物品更新。"
+      "description": "最近 7 天內的物品異動。"
     },
-    "workerTest": {
-      "run": "測試正式排程",
-      "success": "Worker 排程執行完成",
-      "result": "上次排程結果：",
-      "count": "{count} 個低庫存物品",
-      "checkedAt": "檢查時間 {time}"
+    "lowStockNotification": {
+      "run": "發送低庫存通知",
+      "success": "低庫存通知已發送"
     }
   },
   "profile": {
@@ -74,7 +71,12 @@
     "description": "這裡會顯示目前登入帳號的基本資料，之後可以再加入姓名、角色與權限設定。",
     "email": "Email",
     "userId": "使用者 ID",
-    "empty": "尚無資料"
+    "empty": "尚無資料",
+    "lowStockNotification": {
+      "title": "低庫存通知",
+      "description": "每天凌晨 12 點自動把低庫存商品寄到你的 Email。",
+      "dailyEmail": "每天凌晨 12 點接收"
+    }
   },
   "quickUse": {
     "title": "快速使用",
@@ -226,7 +228,7 @@
     "title": "庫存異動紀錄",
     "description": "查看物品建立、更新、刪除與欄位變更。",
     "recent": "近期紀錄",
-    "recentDescription": "最新的庫存紀錄資料。",
+    "recentDescription": "最近 7 天內的庫存紀錄資料。",
     "empty": "目前沒有庫存紀錄",
     "changedFields": "變更欄位",
     "noChangedFields": "沒有欄位細節",

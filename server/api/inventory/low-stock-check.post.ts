@@ -14,25 +14,19 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const supabase = useSupabaseServiceClient()
-  const { data, error } = await supabase
-    .from('items')
-    .select('id, user_id, name, quantity, min_quantity, barcode')
-    .eq('low_stock_enabled', true)
-    .order('updated_at', { ascending: false })
-
-  if (error !== null) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
-  }
-
-  const lowStockItems = (data ?? []).filter(item => item.quantity <= item.min_quantity)
+  const lowStockItems = await fetchLowStockItems()
+  const emailResults = await sendLowStockEmails(
+    lowStockItems,
+    config.resendApiKey,
+    config.lowStockFromEmail,
+    { respectDailyEmailSettings: true },
+  )
 
   return {
     checkedAt: new Date().toISOString(),
     count: lowStockItems.length,
+    emailCount: emailResults.sentCount,
+    skippedEmailCount: emailResults.skippedCount,
     items: lowStockItems,
   }
 })

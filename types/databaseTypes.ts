@@ -90,6 +90,27 @@ export interface Database {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          user_id: string
+          low_stock_daily_email_enabled: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          low_stock_daily_email_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          low_stock_daily_email_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           id: string

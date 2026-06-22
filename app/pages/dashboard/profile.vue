@@ -7,6 +7,22 @@ const auth = useAuthStore()
 const authService = useAuth()
 const appToast = useAppToast()
 const { t } = useI18n()
+const { runSafely } = useSafeRun()
+const userSettings = useUserSettings()
+const {
+  fetchSettings,
+  loading: settingsLoading,
+  lowStockDailyEmailEnabled,
+  saveSettings,
+  saving: settingsSaving,
+} = userSettings
+
+async function updateLowStockDailyEmail(enabled: boolean) {
+  await runSafely(async () => {
+    await saveSettings(enabled)
+    appToast.setSuccess(t('data.toast.updated'))
+  })
+}
 
 async function signOut() {
   const { error } = await authService.signOut()
@@ -19,6 +35,10 @@ async function signOut() {
   appToast.setSuccess(t('auth.logoutSuccess'))
   await navigateTo('/')
 }
+
+onMounted(() => {
+  void runSafely(fetchSettings)
+})
 </script>
 
 <template>
@@ -48,6 +68,26 @@ async function signOut() {
           {{ auth.user?.id ?? t('profile.empty') }}
         </dd>
       </dl>
+    </div>
+
+    <div class="rounded-md border border-default bg-default p-5">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-highlighted">
+            {{ t('profile.lowStockNotification.title') }}
+          </h2>
+          <p class="text-sm leading-6 text-muted">
+            {{ t('profile.lowStockNotification.description') }}
+          </p>
+        </div>
+
+        <USwitch
+          :model-value="lowStockDailyEmailEnabled"
+          :disabled="settingsLoading || settingsSaving"
+          :label="t('profile.lowStockNotification.dailyEmail')"
+          @update:model-value="updateLowStockDailyEmail"
+        />
+      </div>
     </div>
 
     <UButton
