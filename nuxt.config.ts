@@ -7,7 +7,12 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   vite: {
     optimizeDeps: {
-      include: ['@supabase/supabase-js'],
+      include: [
+        '@supabase/supabase-js',
+        '@zxing/browser',
+        '@zxing/library',
+        'browser-image-compression',
+      ],
     },
   },
   runtimeConfig: {

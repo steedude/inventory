@@ -68,24 +68,29 @@ const bottomNavigationItems = computed(() => navigationItems.value.map(item => (
 
 <template>
   <UApp :toaster="toasterConfig">
-    <div class="min-h-dvh bg-default text-default">
-      <header class="sticky top-0 z-40 border-b border-default bg-default/95 backdrop-blur">
-        <UContainer class="flex h-16 items-center justify-between gap-4">
+    <div class="app-shell min-h-dvh text-default">
+      <header class="app-header sticky top-0 z-40">
+        <div class="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:px-8">
           <NuxtLink to="/dashboard" class="flex min-w-0 items-center gap-3">
-            <div class="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-white">
+            <div class="app-brand-mark grid size-9 shrink-0 place-items-center rounded-md text-white">
               <UIcon name="i-lucide-boxes" class="size-5" />
             </div>
-            <span class="truncate text-base font-semibold text-highlighted">
-              {{ t('app.name') }}
-            </span>
+            <div class="min-w-0">
+              <span class="hidden truncate text-base font-semibold text-highlighted sm:block">
+                {{ t('app.name') }}
+              </span>
+              <span class="hidden text-xs text-muted lg:block">
+                Inventory control
+              </span>
+            </div>
           </NuxtLink>
 
-          <div class="flex shrink-0 items-center gap-3">
+          <div class="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
             <USelect
               :model-value="locale"
               :items="localeOptions"
               :aria-label="t('home.language')"
-              class="w-36"
+              class="hidden w-36 sm:block"
               @update:model-value="setLocale"
             />
             <UButton
@@ -94,26 +99,29 @@ const bottomNavigationItems = computed(() => navigationItems.value.map(item => (
               variant="ghost"
               to="/dashboard/profile"
               :aria-label="t('navigation.profile')"
+              class="hidden sm:inline-flex"
             />
           </div>
-        </UContainer>
+        </div>
       </header>
 
-      <UContainer class="grid gap-6 pb-24 pt-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:pb-6">
+      <div class="mx-auto grid w-[calc(100vw-2rem)] max-w-7xl gap-6 pb-24 pt-6 sm:w-full sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8 lg:pb-8">
         <aside class="hidden lg:sticky lg:top-22 lg:block lg:h-[calc(100dvh-7rem)]">
-          <UNavigationMenu
-            :items="navigationItems"
-            orientation="vertical"
-            class="w-full"
-          />
+          <div class="app-sidebar rounded-md border border-default p-2">
+            <UNavigationMenu
+              :items="navigationItems"
+              orientation="vertical"
+              class="w-full"
+            />
+          </div>
         </aside>
 
-        <main class="min-w-0">
+        <main class="min-w-0 overflow-hidden">
           <slot />
         </main>
-      </UContainer>
+      </div>
 
-      <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-default/95 px-4 py-2 backdrop-blur lg:hidden">
+      <nav class="app-header fixed inset-x-0 bottom-0 z-40 px-4 py-2 lg:hidden">
         <UNavigationMenu
           :items="bottomNavigationItems"
           class="mx-auto max-w-md justify-center"

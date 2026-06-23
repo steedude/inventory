@@ -18,30 +18,37 @@
     "logs": "Logs"
   },
   "home": {
-    "badge": "Inventory Management",
-    "title": "Turn inventory records into a clear management workspace",
-    "description": "The public home page explains the product at a glance. After signing in, users enter the dashboard to manage inventory data, categories, locations, and item lists.",
+    "badge": "Inventory management",
+    "title": "Keep household and daily supplies easy to track",
+    "description": "Manage item quantities, categories, storage locations, and low stock alerts in one place so replenishment decisions are clear.",
     "language": "Select language",
     "start": "Start using",
     "dashboardPreview": "Go to dashboard",
     "features": {
       "googleSheets": {
-        "title": "Flexible sign-in options",
-        "description": "Support email-password sign-in and Google sign-in so users can access the system with a familiar account."
+        "title": "Organize items quickly",
+        "description": "Use categories, locations, and groups to make everyday lookup, restocking, and inventory checks easier."
       },
       "database": {
-        "title": "Supabase database",
-        "description": "Use Supabase PostgreSQL for inventory items, inventory logs, user data, and Supabase Auth for sign-in."
+        "title": "Low stock notifications",
+        "description": "Set a safety threshold for each item and send reminders when quantities fall below the level you choose."
       },
       "stack": {
-        "title": "Modern frontend stack",
-        "description": "Built with Nuxt 4, TypeScript, Tailwind CSS, Pinia, Nuxt UI, and i18n for a maintainable admin interface."
+        "title": "Clear activity history",
+        "description": "Item creation, updates, and deletions are recorded so inventory changes stay easy to review."
       }
+    },
+    "preview": {
+      "title": "Inventory overview",
+      "subtitle": "Low stock tracking",
+      "items": "Items",
+      "lowStock": "Low stock",
+      "logs": "Logs"
     }
   },
   "dashboard": {
     "title": "Dashboard",
-    "description": "The signed-in workspace summarizes inventory status and recent management activity.",
+    "description": "Track inventory totals, low stock items, and activity from the last 7 days.",
     "summary": {
       "items": "Inventory items",
       "lowStock": "Low stock items",
@@ -54,7 +61,7 @@
     },
     "categoryChart": {
       "title": "Items by main category",
-      "description": "A simple distribution chart for current inventory items.",
+      "description": "See how current items are distributed across main categories.",
       "empty": "No category data yet"
     },
     "recentMovements": {
@@ -68,7 +75,7 @@
   },
   "profile": {
     "title": "Profile",
-    "description": "This page shows basic information for the signed-in account. Name, role, and permissions can be added later.",
+    "description": "Review your account information and choose whether to receive daily low stock notifications.",
     "email": "Email",
     "userId": "User ID",
     "empty": "No data yet",
@@ -103,7 +110,7 @@
   },
   "data": {
     "title": "Data",
-    "description": "Start by creating the categories, locations, groups, and items needed for inventory management.",
+    "description": "Manage item categories, storage locations, groups, and inventory records.",
     "empty": "No inventory items yet",
     "loading": "Loading data...",
     "sections": {
@@ -114,17 +121,17 @@
       "item": "Create item",
       "itemDescription": "Create inventory items and connect them to a subcategory, group, and location.",
       "list": "Item list",
-      "listDescription": "Inventory records currently stored in Supabase.",
-      "currentData": "Current data",
-      "currentDataDescription": "Review the categories, locations, and groups already stored in Supabase."
+      "listDescription": "Review, edit, delete, and export current inventory items.",
+      "currentData": "Categories",
+      "currentDataDescription": "Review the categories, locations, and groups you have created."
     },
     "pages": {
       "createItem": "Create item",
-      "createItemDescription": "Open a dedicated form for adding inventory records.",
+      "createItemDescription": "Add item name, quantity, category, location, image, and barcode details.",
       "editItem": "Edit item",
-      "editItemDescription": "Update the item name, quantity, category, group, location, and notes.",
+      "editItemDescription": "Update item details while keeping a clear activity history.",
       "itemList": "Item list",
-      "itemListDescription": "Review the inventory records currently stored in Supabase."
+      "itemListDescription": "Browse every inventory item and quickly check quantity, category, location, and barcode details."
     },
     "form": {
       "mainCategory": "Main category",
@@ -228,7 +235,7 @@
     "title": "Inventory logs",
     "description": "Review item creation, updates, deletes, and field changes.",
     "recent": "Recent logs",
-    "recentDescription": "Inventory log records from the last 7 days.",
+    "recentDescription": "Inventory activity from the last 7 days.",
     "empty": "No inventory logs yet",
     "changedFields": "Changed fields",
     "noChangedFields": "No field details",

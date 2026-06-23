@@ -4,7 +4,7 @@ import { toasterConfig } from '~~/config/toastConfig'
 
 <template>
   <UApp :toaster="toasterConfig">
-    <main class="min-h-dvh bg-default text-default">
+    <main class="app-shell min-h-dvh text-default">
       <slot />
     </main>
   </UApp>

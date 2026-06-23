@@ -19,29 +19,36 @@
   },
   "home": {
     "badge": "庫存管理",
-    "title": "把庫存資料整理成清楚好用的管理工作區",
-    "description": "首頁先簡短介紹系統。登入後可以進入主控台，管理庫存資料、分類、位置與物品清單。",
+    "title": "讓家中與日常備品管理更清楚",
+    "description": "集中管理物品數量、分類、存放位置與低庫存提醒，快速掌握哪些物品充足、哪些需要補貨。",
     "language": "選擇語言",
     "start": "開始使用",
     "dashboardPreview": "前往主控台",
     "features": {
       "googleSheets": {
-        "title": "多種登入方式",
-        "description": "支援 Email 密碼與 Google 登入，讓使用者可以用熟悉的帳號快速進入系統。"
+        "title": "快速建立庫存資料",
+        "description": "用分類、位置與群組整理物品，讓日常補貨、查找與盤點更直覺。"
       },
       "database": {
-        "title": "Supabase 資料庫",
-        "description": "使用 Supabase PostgreSQL 儲存庫存、分類、位置與使用者資料，並透過 Supabase Auth 處理登入。"
+        "title": "低庫存提醒",
+        "description": "為每個物品設定安全庫存，數量低於門檻時即可寄送通知，減少臨時缺貨的情況。"
       },
       "stack": {
-        "title": "現代前端技術",
-        "description": "使用 Nuxt 4、TypeScript、Tailwind CSS、Pinia、Nuxt UI 與 i18n 建立可維護的管理介面。"
+        "title": "異動紀錄清楚可查",
+        "description": "建立、更新與刪除物品都會留下紀錄，方便追蹤庫存變化與管理歷程。"
       }
+    },
+    "preview": {
+      "title": "庫存概況",
+      "subtitle": "低庫存追蹤",
+      "items": "物品",
+      "lowStock": "低庫存",
+      "logs": "紀錄"
     }
   },
   "dashboard": {
     "title": "主控台",
-    "description": "登入後的工作區會整理庫存概況與近期管理狀態。",
+    "description": "掌握庫存總覽、低庫存物品與最近 7 天的異動紀錄。",
     "summary": {
       "items": "庫存物品",
       "lowStock": "低庫存物品",
@@ -54,12 +61,12 @@
     },
     "categoryChart": {
       "title": "大類別物品分布",
-      "description": "目前庫存物品的分類分布圖。",
-      "empty": "目前沒有分類資料"
+      "description": "查看目前物品在各大類別中的分布。",
+      "empty": "尚未建立分類資料"
     },
     "recentMovements": {
       "title": "近期紀錄",
-      "description": "最近 7 天內的物品異動。"
+      "description": "最近 7 天內的物品建立、更新與刪除紀錄。"
     },
     "lowStockNotification": {
       "run": "發送低庫存通知",
@@ -68,34 +75,34 @@
   },
   "profile": {
     "title": "個人資料",
-    "description": "這裡會顯示目前登入帳號的基本資料，之後可以再加入姓名、角色與權限設定。",
+    "description": "查看帳號資訊，並設定是否每日接收低庫存通知。",
     "email": "Email",
     "userId": "使用者 ID",
     "empty": "尚無資料",
     "lowStockNotification": {
       "title": "低庫存通知",
-      "description": "每天凌晨 12 點自動把低庫存商品寄到你的 Email。",
-      "dailyEmail": "每天凌晨 12 點接收"
+      "description": "開啟後，每天凌晨 12 點會將低庫存物品寄送到你的信箱。",
+      "dailyEmail": "每天凌晨 12 點接收通知"
     }
   },
   "quickUse": {
     "title": "快速使用",
-    "description": "輸入條碼或上傳條碼圖片。若已有物品會前往編輯頁，若沒有對應物品會前往新增物品頁。",
+    "description": "輸入或掃描條碼後，系統會自動開啟既有物品，找不到時則帶入條碼建立新物品。",
     "barcode": "條碼",
     "barcodePlaceholder": "輸入或掃描條碼",
     "search": "搜尋",
     "uploadImage": "上傳圖片",
     "scanLive": "即時掃描",
     "stopScan": "停止掃描",
-    "routeHint": "辨識條碼後，系統會自動帶你到對應的操作流程。",
+    "routeHint": "辨識條碼後，系統會自動帶你前往適合的操作流程。",
     "unsupported": "這個瀏覽器不支援圖片條碼辨識，你仍然可以手動輸入條碼。",
     "unsupportedImageType": "圖片格式不支援，請使用 JPG、PNG 或 WebP。",
     "noBarcodeFound": "這張圖片沒有辨識到條碼。",
     "barcodeDetected": "已辨識條碼",
     "existingItem": "既有物品",
-    "existingItemDescription": "此條碼已對應到庫存物品，可以在下方直接調整數量。",
+    "existingItemDescription": "此條碼已對應到庫存物品，可直接進入編輯頁更新資料。",
     "newItem": "新增物品",
-    "newItemDescription": "目前沒有物品使用此條碼，請用此條碼建立新的庫存物品。",
+    "newItemDescription": "尚未有物品使用此條碼，可直接帶入條碼建立新物品。",
     "adjustQuantity": "調整數量",
     "increase": "增加",
     "decrease": "減少",
@@ -103,28 +110,28 @@
   },
   "data": {
     "title": "資料頁面",
-    "description": "先建立庫存管理需要的分類、位置、群組與物品資料。",
+    "description": "管理物品分類、存放位置、群組與庫存項目。",
     "empty": "目前還沒有物品資料",
     "loading": "資料載入中...",
     "sections": {
       "category": "分類設定",
-      "categoryDescription": "大類別用來區分主要品項，小類別掛在大類別底下。",
+      "categoryDescription": "大類別用來區分主要品項，小類別可掛在大類別底下。",
       "meta": "位置與群組",
-      "metaDescription": "位置用來記錄物品放在哪裡，群組可用來整理同品牌或同系列物品。",
+      "metaDescription": "位置用來記錄物品放在哪裡，群組可用來整理品牌、系列或用途。",
       "item": "新增物品",
-      "itemDescription": "建立真正的庫存項目，並選擇小類別、群組與位置。",
+      "itemDescription": "建立庫存項目，並設定分類、群組、位置、數量與低庫存提醒。",
       "list": "物品清單",
-      "listDescription": "目前 Supabase 裡已建立的庫存資料。",
-      "currentData": "目前資料",
-      "currentDataDescription": "查看目前 Supabase 裡已建立的分類、位置與群組。"
+      "listDescription": "查看、編輯、刪除與匯出目前的庫存物品。",
+      "currentData": "分類",
+      "currentDataDescription": "查看已建立的分類、位置與群組。"
     },
     "pages": {
       "createItem": "新增物品",
-      "createItemDescription": "開啟獨立表單來新增庫存物品。",
+      "createItemDescription": "新增物品名稱、數量、分類、位置、圖片與條碼資料。",
       "editItem": "編輯物品",
-      "editItemDescription": "更新物品名稱、數量、分類、群組、位置與備註。",
+      "editItemDescription": "更新物品資訊，並保留異動紀錄方便追蹤。",
       "itemList": "物品清單",
-      "itemListDescription": "查看目前 Supabase 裡已建立的庫存資料。"
+      "itemListDescription": "瀏覽所有庫存物品，快速檢查數量、分類、位置與條碼。"
     },
     "form": {
       "mainCategory": "大類別",
@@ -226,9 +233,9 @@
   },
   "logs": {
     "title": "庫存異動紀錄",
-    "description": "查看物品建立、更新、刪除與欄位變更。",
+    "description": "查看物品建立、更新、刪除與欄位變更紀錄。",
     "recent": "近期紀錄",
-    "recentDescription": "最近 7 天內的庫存紀錄資料。",
+    "recentDescription": "最近 7 天內的庫存異動紀錄。",
     "empty": "目前沒有庫存紀錄",
     "changedFields": "變更欄位",
     "noChangedFields": "沒有欄位細節",

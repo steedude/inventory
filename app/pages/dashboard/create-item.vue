@@ -92,7 +92,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <UCard>
+    <UCard class="app-surface">
       <InventoryItemForm
         v-model="itemForm"
         submit-icon="i-lucide-package-plus"

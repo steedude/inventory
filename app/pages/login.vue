@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AuthMode } from '~~/config/authConfig'
 import { AppError } from '~~/config/errorConfig'
 
 definePageMeta({
@@ -12,9 +13,20 @@ const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
-const isLoginMode = ref(true)
+const authMode = ref<AuthMode>(AuthMode.Login)
 const passwordVisible = ref(false)
 
+const authModeOptions = computed(() => [
+  {
+    label: t('auth.login'),
+    value: AuthMode.Login,
+  },
+  {
+    label: t('auth.signup'),
+    value: AuthMode.Signup,
+  },
+])
+const isLoginMode = computed(() => authMode.value === AuthMode.Login)
 const passwordInputType = computed(() => passwordVisible.value ? 'text' : 'password')
 const passwordIcon = computed(() => passwordVisible.value ? 'i-lucide-eye-off' : 'i-lucide-eye')
 
@@ -41,10 +53,6 @@ async function submit() {
   appToast.setSuccess(t('auth.signupSuccess'))
 }
 
-function toggleMode() {
-  isLoginMode.value = !isLoginMode.value
-}
-
 function togglePasswordVisible() {
   passwordVisible.value = !passwordVisible.value
 }
@@ -60,10 +68,47 @@ async function signInWithGoogle() {
 
 <template>
   <UContainer class="grid min-h-dvh place-items-center py-12">
-    <form class="w-full max-w-sm space-y-5" @submit.prevent="submit">
-      <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
-        {{ isLoginMode ? t('auth.loginTitle') : t('auth.signupTitle') }}
-      </h1>
+    <form class="app-surface w-full max-w-sm space-y-5 rounded-md p-6" @submit.prevent="submit">
+      <div class="space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <NuxtLink to="/" class="inline-flex min-w-0 items-center gap-3">
+            <span class="app-brand-mark grid size-9 shrink-0 place-items-center rounded-md text-white">
+              <UIcon name="i-lucide-boxes" class="size-5" />
+            </span>
+            <span class="truncate font-semibold text-highlighted">{{ t('app.name') }}</span>
+          </NuxtLink>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-arrow-left"
+            size="sm"
+            to="/"
+          >
+            {{ t('navigation.home') }}
+          </UButton>
+        </div>
+        <div class="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
+          <UButton
+            v-for="option in authModeOptions"
+            :key="option.value"
+            type="button"
+            :color="authMode === option.value ? 'primary' : 'neutral'"
+            :variant="authMode === option.value ? 'solid' : 'ghost'"
+            class="justify-center"
+            @click="authMode = option.value"
+          >
+            {{ option.label }}
+          </UButton>
+        </div>
+        <div class="space-y-1">
+          <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
+            {{ isLoginMode ? t('auth.loginTitle') : t('auth.signupTitle') }}
+          </h1>
+          <p class="text-sm leading-6 text-muted">
+            {{ t('home.description') }}
+          </p>
+        </div>
+      </div>
 
       <UFormField :label="t('auth.email')">
         <UInput
@@ -113,14 +158,6 @@ async function signInWithGoogle() {
       <div class="flex items-center gap-3">
         <UButton type="submit" :loading="auth.loading">
           {{ isLoginMode ? t('auth.login') : t('auth.signup') }}
-        </UButton>
-        <UButton
-          type="button"
-          color="neutral"
-          variant="ghost"
-          @click="toggleMode"
-        >
-          {{ isLoginMode ? t('auth.useSignup') : t('auth.useLogin') }}
         </UButton>
       </div>
     </form>

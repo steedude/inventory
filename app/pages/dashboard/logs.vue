@@ -12,17 +12,10 @@ const inventory = useInventoryData()
 const { runSafely } = useSafeRun()
 const page = ref(1)
 const pageSize = 10
-const recentLogCutoff = computed(() => {
-  const date = new Date()
-
-  date.setDate(date.getDate() - 7)
-  return date
-})
-const recentLogs = computed(() => inventory.logs.value.filter(log => new Date(log.created_at) >= recentLogCutoff.value))
 const paginatedLogs = computed(() => {
   const start = (page.value - 1) * pageSize
 
-  return recentLogs.value.slice(start, start + pageSize)
+  return inventory.logs.value.slice(start, start + pageSize)
 })
 
 function getLogLabel(type: string) {
@@ -84,13 +77,25 @@ function shouldShowChangedFields(type: string) {
   return type === InventoryLogType.Update
 }
 
-watch(recentLogs, () => {
+watch(inventory.logs, () => {
   page.value = 1
 })
 
 onMounted(() => {
-  void runSafely(inventory.fetchAll)
+  void runSafely(async () => {
+    await Promise.all([
+      inventory.ensureItemMetaData(),
+      inventory.ensureLogs(),
+    ])
+  })
 })
+
+async function refreshPageData() {
+  await Promise.all([
+    inventory.refreshItemMetaData(),
+    inventory.refreshLogs(),
+  ])
+}
 </script>
 
 <template>
@@ -111,13 +116,13 @@ onMounted(() => {
           icon="i-lucide-refresh-cw"
           class="justify-center whitespace-nowrap"
           :loading="inventory.loading.value"
-          @click="inventory.fetchAll"
+          @click="refreshPageData"
         >
           {{ t('data.actions.refresh') }}
         </UButton>
       </div>
 
-      <div v-if="recentLogs.length === 0" class="py-8 text-center text-sm text-muted">
+      <div v-if="inventory.logs.value.length === 0" class="py-8 text-center text-sm text-muted">
         {{ t('logs.empty') }}
       </div>
 
@@ -125,7 +130,7 @@ onMounted(() => {
         <article
           v-for="log in paginatedLogs"
           :key="log.id"
-          class="grid gap-3 rounded-md border border-default p-3 lg:grid-cols-[minmax(0,1fr)_180px]"
+          class="app-list-row grid gap-3 rounded-md p-3 lg:grid-cols-[minmax(0,1fr)_180px]"
         >
           <div class="min-w-0 space-y-1">
             <div class="flex flex-wrap items-center gap-2">
@@ -165,10 +170,10 @@ onMounted(() => {
           </div>
         </article>
 
-        <div v-if="recentLogs.length > pageSize" class="flex justify-center pt-2">
+        <div v-if="inventory.logs.value.length > pageSize" class="flex justify-center pt-2">
           <UPagination
             v-model:page="page"
-            :total="recentLogs.length"
+            :total="inventory.logs.value.length"
             :items-per-page="pageSize"
           />
         </div>

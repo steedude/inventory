@@ -127,8 +127,20 @@ async function confirmDelete() {
 }
 
 onMounted(() => {
-  void runSafely(inventory.fetchAll)
+  void runSafely(async () => {
+    await Promise.all([
+      inventory.ensureItemMetaData(),
+      inventory.ensureItems(),
+    ])
+  })
 })
+
+async function refreshPageData() {
+  await Promise.all([
+    inventory.refreshItemMetaData(),
+    inventory.refreshItems(),
+  ])
+}
 </script>
 
 <template>
@@ -163,7 +175,7 @@ onMounted(() => {
           icon="i-lucide-refresh-cw"
           class="justify-center whitespace-nowrap"
           :loading="inventory.loading.value"
-          @click="inventory.fetchAll"
+          @click="refreshPageData"
         >
           {{ t('data.actions.refresh') }}
         </UButton>
@@ -188,12 +200,12 @@ onMounted(() => {
         <article
           v-for="item in inventory.items.value"
           :key="item.id"
-          class="grid gap-3 rounded-md border border-default p-3"
+          class="app-list-row grid gap-3 rounded-md p-3"
         >
           <button
             v-if="hasImage(item)"
             type="button"
-            class="overflow-hidden rounded-md border border-default"
+            class="aspect-[4/3] overflow-hidden rounded-md border border-default bg-elevated"
             @click="openImagePreview(item)"
           >
             <img
@@ -204,7 +216,7 @@ onMounted(() => {
           </button>
           <div
             v-else
-            class="grid place-items-center rounded-md border border-dashed border-default bg-muted/30 text-muted"
+            class="grid aspect-[4/3] place-items-center rounded-md border border-dashed border-default bg-elevated text-muted"
           >
             <UIcon name="i-lucide-image" class="size-8" />
           </div>
@@ -224,7 +236,7 @@ onMounted(() => {
           </div>
 
           <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="rounded-md bg-muted/40 p-2">
+            <div class="rounded-md border border-default bg-elevated p-2">
               <div class="text-xs text-muted">
                 {{ t('data.form.quantity') }}
               </div>
@@ -235,7 +247,7 @@ onMounted(() => {
                 {{ t('data.lowStock.threshold') }}: {{ item.min_quantity }}
               </div>
             </div>
-            <div class="rounded-md bg-muted/40 p-2">
+            <div class="rounded-md border border-default bg-elevated p-2">
               <div class="text-xs text-muted">
                 {{ t('data.form.location') }}
               </div>
@@ -243,7 +255,7 @@ onMounted(() => {
                 {{ inventory.getLocationName(item.location_id) }}
               </div>
             </div>
-            <div class="rounded-md bg-muted/40 p-2">
+            <div class="rounded-md border border-default bg-elevated p-2">
               <div class="text-xs text-muted">
                 {{ t('data.form.mainCategory') }}
               </div>
@@ -251,7 +263,7 @@ onMounted(() => {
                 {{ inventory.getMainCategoryName(item.category_id) }}
               </div>
             </div>
-            <div class="rounded-md bg-muted/40 p-2">
+            <div class="rounded-md border border-default bg-elevated p-2">
               <div class="text-xs text-muted">
                 {{ t('data.form.subCategory') }}
               </div>
@@ -259,7 +271,7 @@ onMounted(() => {
                 {{ inventory.getCategoryName(item.category_id) }}
               </div>
             </div>
-            <div class="rounded-md bg-muted/40 p-2">
+            <div class="rounded-md border border-default bg-elevated p-2">
               <div class="text-xs text-muted">
                 {{ t('data.form.group') }}
               </div>
@@ -267,7 +279,7 @@ onMounted(() => {
                 {{ inventory.getGroupName(item.group_id) }}
               </div>
             </div>
-            <div class="rounded-md bg-muted/40 p-2">
+            <div class="rounded-md border border-default bg-elevated p-2">
               <div class="text-xs text-muted">
                 {{ t('data.form.barcode') }}
               </div>
@@ -278,21 +290,18 @@ onMounted(() => {
           </div>
 
           <div class="flex items-center justify-end gap-1 border-t border-default pt-2">
-            <UButton
-              color="neutral"
-              variant="ghost"
+            <IconActionButton
               icon="i-lucide-pencil"
               size="sm"
               :to="`/dashboard/item-edit/${item.id}`"
-              :aria-label="t('data.actions.editItem')"
+              :label="t('data.actions.editItem')"
             />
-            <UButton
-              color="error"
-              variant="ghost"
+            <IconActionButton
               icon="i-lucide-trash-2"
               size="sm"
+              tone="danger"
               :loading="deletingId === item.id"
-              :aria-label="t('data.actions.delete')"
+              :label="t('data.actions.delete')"
               @click="deleteItem(item.id)"
             />
           </div>
@@ -303,7 +312,7 @@ onMounted(() => {
         <article
           v-for="item in inventory.items.value"
           :key="item.id"
-          class="flex min-w-0 items-center gap-3 rounded-md border border-default p-3"
+          class="app-list-row flex min-w-0 items-center gap-3 rounded-md p-3"
         >
           <button
             v-if="hasImage(item)"
@@ -319,7 +328,7 @@ onMounted(() => {
           </button>
           <div
             v-else
-            class="grid size-14 shrink-0 place-items-center rounded-md border border-dashed border-default bg-muted/30 text-muted"
+            class="grid size-14 shrink-0 place-items-center rounded-md border border-dashed border-default bg-elevated text-muted"
           >
             <UIcon name="i-lucide-image" class="size-5" />
           </div>
@@ -344,21 +353,18 @@ onMounted(() => {
           </div>
 
           <div class="flex shrink-0 items-center gap-1">
-            <UButton
-              color="neutral"
-              variant="ghost"
+            <IconActionButton
               icon="i-lucide-pencil"
               size="sm"
               :to="`/dashboard/item-edit/${item.id}`"
-              :aria-label="t('data.actions.editItem')"
+              :label="t('data.actions.editItem')"
             />
-            <UButton
-              color="error"
-              variant="ghost"
+            <IconActionButton
               icon="i-lucide-trash-2"
               size="sm"
+              tone="danger"
               :loading="deletingId === item.id"
-              :aria-label="t('data.actions.delete')"
+              :label="t('data.actions.delete')"
               @click="deleteItem(item.id)"
             />
           </div>
@@ -403,11 +409,9 @@ onMounted(() => {
     >
       <div class="w-full max-w-3xl space-y-3">
         <div class="flex justify-end">
-          <UButton
-            color="neutral"
-            variant="soft"
+          <IconActionButton
             icon="i-lucide-x"
-            :aria-label="t('data.actions.close')"
+            :label="t('data.actions.close')"
             @click="closeImagePreview"
           />
         </div>

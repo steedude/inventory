@@ -9,7 +9,7 @@ import {
 import { Doughnut } from 'vue-chartjs'
 import { categoryChartColors, categoryChartOptions } from '~~/config/dashboardConfig'
 import { InventoryLogType } from '~~/config/inventoryLogConfig'
-import { formatDateTime } from '~~/utils/dateUtils'
+import { formatDateTime, getRecentDaysStart } from '~~/utils/dateUtils'
 
 definePageMeta({
   layout: 'dashboard',
@@ -24,12 +24,7 @@ const { runSafely } = useSafeRun()
 const appToast = useAppToast()
 
 const isSendingLowStockNotification = ref(false)
-const recentLogCutoff = computed(() => {
-  const date = new Date()
-
-  date.setDate(date.getDate() - 7)
-  return date
-})
+const recentLogCutoff = computed(() => getRecentDaysStart(7))
 
 const recentLogs = computed(() => inventory.logs.value
   .filter(log => new Date(log.created_at) >= recentLogCutoff.value)
@@ -70,7 +65,7 @@ const summaryCards = computed(() => [
   },
   {
     label: t('dashboard.summary.movements'),
-    value: String(inventory.logs.value.length),
+    value: String(recentLogs.value.length),
     icon: 'i-lucide-history',
   },
 ])
@@ -124,43 +119,60 @@ async function sendLowStockNotification() {
 }
 
 onMounted(() => {
-  void runSafely(inventory.fetchAll)
+  void runSafely(async () => {
+    await Promise.all([
+      inventory.ensureCategories(),
+      inventory.ensureItems(),
+      inventory.ensureLogs(),
+    ])
+  })
 })
 </script>
 
 <template>
   <div class="space-y-6">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div class="space-y-2">
-        <h1 class="text-2xl font-semibold tracking-normal text-highlighted">
-          {{ t('dashboard.title') }}
-        </h1>
-        <p class="text-sm leading-6 text-muted">
-          {{ t('dashboard.description') }}
-        </p>
+    <section class="app-page-intro overflow-hidden rounded-md p-5 lg:p-6">
+      <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center">
+        <div class="space-y-3">
+          <div class="space-y-2">
+            <h1 class="text-3xl font-semibold tracking-normal text-highlighted lg:text-4xl">
+              {{ t('dashboard.title') }}
+            </h1>
+            <p class="max-w-2xl text-sm leading-6 text-muted lg:text-base">
+              {{ t('dashboard.description') }}
+            </p>
+          </div>
+        </div>
+        <div class="space-y-3 rounded-md border border-default bg-elevated p-4">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-toned">{{ t('dashboard.lowStock.title') }}</span>
+            <UBadge color="warning" variant="soft">
+              {{ inventory.lowStockItems.value.length }}
+            </UBadge>
+          </div>
+          <UButton
+            icon="i-lucide-mail"
+            block
+            :loading="isSendingLowStockNotification"
+            @click="sendLowStockNotification"
+          >
+            {{ t('dashboard.lowStockNotification.run') }}
+          </UButton>
+        </div>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <UButton
-          icon="i-lucide-mail"
-          variant="soft"
-          :loading="isSendingLowStockNotification"
-          class="self-start"
-          @click="sendLowStockNotification"
-        >
-          {{ t('dashboard.lowStockNotification.run') }}
-        </UButton>
-      </div>
-    </div>
+    </section>
 
     <section class="grid gap-4 lg:grid-cols-3">
       <div
         v-for="card in summaryCards"
         :key="card.label"
-        class="rounded-md border border-default bg-default p-5"
+        class="app-metric-card rounded-md p-5"
       >
         <div class="flex items-center justify-between gap-3">
           <span class="text-sm text-muted">{{ card.label }}</span>
-          <UIcon :name="card.icon" class="size-5 text-primary" />
+          <span class="grid size-10 place-items-center rounded-md bg-primary/10 text-primary">
+            <UIcon :name="card.icon" class="size-5" />
+          </span>
         </div>
         <p class="mt-3 text-2xl font-semibold text-highlighted">
           {{ card.value }}
@@ -169,7 +181,7 @@ onMounted(() => {
     </section>
 
     <section class="grid gap-4 lg:grid-cols-2">
-      <UCard>
+      <UCard class="app-surface">
         <template #header>
           <div class="space-y-1">
             <h2 class="text-base font-semibold text-highlighted">
@@ -189,7 +201,7 @@ onMounted(() => {
           <div
             v-for="item in inventory.lowStockItems.value.slice(0, 6)"
             :key="item.id"
-            class="flex items-center justify-between gap-3 rounded-md border border-default px-3 py-2"
+            class="app-list-row flex items-center justify-between gap-3 rounded-md px-3 py-2"
           >
             <div class="min-w-0">
               <div class="truncate font-medium text-highlighted">
@@ -206,7 +218,7 @@ onMounted(() => {
         </div>
       </UCard>
 
-      <UCard>
+      <UCard class="app-surface">
         <template #header>
           <div class="space-y-1">
             <h2 class="text-base font-semibold text-highlighted">
@@ -241,7 +253,7 @@ onMounted(() => {
             <div
               v-for="(category, index) in categoryStats"
               :key="category.id"
-              class="flex items-center justify-between gap-3 rounded-md border border-default px-3 py-2 text-sm"
+              class="app-list-row flex items-center justify-between gap-3 rounded-md px-3 py-2 text-sm"
             >
               <div class="flex min-w-0 items-center gap-2">
                 <span
@@ -257,7 +269,7 @@ onMounted(() => {
       </UCard>
     </section>
 
-    <UCard>
+    <UCard class="app-surface">
       <template #header>
         <div class="flex items-center justify-between gap-3">
           <div class="space-y-1">
@@ -282,7 +294,7 @@ onMounted(() => {
         <div
           v-for="log in recentLogs"
           :key="log.id"
-          class="flex flex-col gap-1 rounded-md border border-default px-3 py-2 lg:flex-row lg:items-center lg:justify-between"
+          class="app-list-row flex flex-col gap-1 rounded-md px-3 py-2 lg:flex-row lg:items-center lg:justify-between"
         >
           <div class="flex min-w-0 flex-wrap items-center gap-2">
             <div class="font-medium text-highlighted">

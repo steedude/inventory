@@ -124,7 +124,9 @@ function submitForm() {
 }
 
 onMounted(async () => {
-  await runSafely(inventory.fetchAll)
+  await runSafely(async () => {
+    await inventory.ensureItemMetaData()
+  })
   syncMainCategoryFromSubCategory()
 })
 
@@ -223,7 +225,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
               color="neutral"
               variant="soft"
               icon="i-lucide-image-up"
-              class="justify-center whitespace-nowrap"
+              class="app-outline-action justify-center whitespace-nowrap"
               :loading="barcodeImageLoading"
             >
               {{ t("quickUse.uploadImage") }}
@@ -239,7 +241,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
               color="neutral"
               variant="soft"
               icon="i-lucide-camera"
-              class="justify-center whitespace-nowrap"
+              class="app-outline-action justify-center whitespace-nowrap"
               @click="startCameraScan"
             >
               {{ t("quickUse.scanLive") }}
@@ -281,7 +283,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
       <UFormField :label="t('data.form.image')">
         <div class="grid gap-3">
           <div
-            class="grid aspect-square w-full place-items-center overflow-hidden rounded-md border border-default bg-muted/30 text-muted"
+            class="grid aspect-square w-full place-items-center overflow-hidden rounded-md border border-default bg-elevated text-muted"
           >
             <img
               v-if="itemForm.image_url.length > 0"
@@ -297,7 +299,7 @@ watch(() => itemForm.value.category_id, syncMainCategoryFromSubCategory)
               color="neutral"
               variant="soft"
               icon="i-lucide-image-up"
-              class="justify-center whitespace-nowrap"
+              class="app-outline-action justify-center whitespace-nowrap"
               :loading="imageUploading"
             >
               {{ t("data.actions.uploadImage") }}

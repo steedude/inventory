@@ -6,8 +6,10 @@
     "config/**/*",
     "server/**/*",
     "nuxt.config.ts",
+    "tests/**/*",
     "types/**/*",
-    "utils/**/*"
+    "utils/**/*",
+    "vitest.config.ts"
   ],
   "vueCompilerOptions": {
     "plugins": []

@@ -1,0 +1,33 @@
+:root,
+.dark {
+  --ui-radius: 0.5rem;
+  color-scheme: light;
+
+  --app-bg: #f5f6f8;
+  --app-bg-soft: #eceff3;
+  --app-bg-card: #ffffff;
+  --app-bg-row: #f9fafb;
+  --app-border: #d4d8df;
+  --app-border-strong: #b8bec8;
+  --app-text: #28303a;
+  --app-text-muted: #64707f;
+  --app-text-toned: #46515f;
+  --app-text-strong: #111827;
+  --app-shadow: rgb(17 24 39 / 7%);
+
+  --ui-bg: var(--app-bg);
+  --ui-bg-muted: var(--app-bg-soft);
+  --ui-bg-elevated: var(--app-bg-card);
+  --ui-bg-accented: #dde2e8;
+  --ui-bg-inverted: #111827;
+  --ui-text: var(--app-text);
+  --ui-text-muted: var(--app-text-muted);
+  --ui-text-toned: var(--app-text-toned);
+  --ui-text-highlighted: var(--app-text-strong);
+  --ui-text-inverted: #ffffff;
+  --ui-border: var(--app-border);
+  --ui-primary: #2563eb;
+  --ui-warning: #a16207;
+  --ui-error: #dc2626;
+  --ui-success: #15803d;
+}

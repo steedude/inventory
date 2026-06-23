@@ -52,7 +52,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <div class="rounded-md border border-default bg-default p-5">
+    <div class="app-surface rounded-md p-5">
       <dl class="grid gap-4 lg:grid-cols-[140px_minmax(0,1fr)]">
         <dt class="text-sm font-medium text-muted">
           {{ t('profile.email') }}
@@ -70,7 +70,7 @@ onMounted(() => {
       </dl>
     </div>
 
-    <div class="rounded-md border border-default bg-default p-5">
+    <div class="app-surface rounded-md p-5">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div class="space-y-1">
           <h2 class="text-base font-semibold text-highlighted">

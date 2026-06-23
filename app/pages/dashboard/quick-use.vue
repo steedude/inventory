@@ -31,7 +31,7 @@ async function routeByBarcode(value: string) {
 
   try {
     await runSafely(async () => {
-      await inventory.fetchAll()
+      await inventory.ensureItems()
       const item = inventory.findItemByBarcode(currentBarcode)
 
       if (item !== undefined) {
@@ -87,7 +87,9 @@ function stopCameraScan() {
 }
 
 onMounted(() => {
-  void runSafely(inventory.fetchAll)
+  void runSafely(async () => {
+    await inventory.ensureItems()
+  })
 })
 
 onBeforeUnmount(() => {
@@ -106,7 +108,7 @@ onBeforeUnmount(() => {
       </p>
     </div>
 
-    <UCard>
+    <UCard class="app-surface">
       <div class="space-y-4">
         <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto]">
           <UFormField :label="t('quickUse.barcode')">
@@ -132,7 +134,7 @@ onBeforeUnmount(() => {
               color="neutral"
               variant="soft"
               icon="i-lucide-image-up"
-              class="justify-center whitespace-nowrap"
+              class="app-outline-action justify-center whitespace-nowrap"
               :loading="imageLoading"
             >
               {{ t('quickUse.uploadImage') }}
@@ -148,7 +150,7 @@ onBeforeUnmount(() => {
               color="neutral"
               variant="soft"
               icon="i-lucide-camera"
-              class="justify-center whitespace-nowrap"
+              class="app-outline-action justify-center whitespace-nowrap"
               @click="startCameraScan"
             >
               {{ t('quickUse.scanLive') }}

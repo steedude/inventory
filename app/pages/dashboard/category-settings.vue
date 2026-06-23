@@ -8,7 +8,7 @@ definePageMeta({
   layout: 'dashboard',
 })
 
-const { t } = useI18n()
+const { locale, t } = useI18n()
 const inventory = useInventoryData()
 const appToast = useAppToast()
 const { runSafely } = useSafeRun()
@@ -57,6 +57,7 @@ const saving = reactive({
 })
 
 const categoryOptions = computed(() => createCategoryOptions(inventory.mainCategories.value))
+const currentCategoryTitle = computed(() => locale.value === 'en' ? 'Category' : '分類')
 
 const groupedCategories = computed(() => inventory.mainCategories.value.map(category => ({
   ...category,
@@ -346,8 +347,20 @@ async function submitGroup() {
 }
 
 onMounted(() => {
-  void runSafely(inventory.fetchAll)
+  void runSafely(async () => {
+    await Promise.all([
+      inventory.ensureItemMetaData(),
+      inventory.ensureItems(),
+    ])
+  })
 })
+
+async function refreshPageData() {
+  await Promise.all([
+    inventory.refreshItemMetaData(),
+    inventory.refreshItems(),
+  ])
+}
 </script>
 
 <template>
@@ -362,7 +375,7 @@ onMounted(() => {
     </div>
 
     <div class="grid gap-4 lg:grid-cols-2">
-      <UCard>
+      <UCard class="app-surface">
         <template #header>
           <div class="space-y-1">
             <h2 class="text-base font-semibold text-highlighted">
@@ -420,7 +433,7 @@ onMounted(() => {
         </div>
       </UCard>
 
-      <UCard>
+      <UCard class="app-surface">
         <template #header>
           <div class="space-y-1">
             <h2 class="text-base font-semibold text-highlighted">
@@ -484,17 +497,17 @@ onMounted(() => {
           variant="ghost"
           icon="i-lucide-refresh-cw"
           :loading="inventory.loading.value"
-          @click="inventory.fetchAll"
+          @click="refreshPageData"
         >
           {{ t('data.actions.refresh') }}
         </UButton>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-3">
-        <UCard>
+        <UCard class="app-surface">
           <template #header>
             <h3 class="text-base font-semibold text-highlighted">
-              {{ t('data.sections.category') }}
+              {{ currentCategoryTitle }}
             </h3>
           </template>
 
@@ -509,7 +522,7 @@ onMounted(() => {
             <div
               v-for="category in groupedCategories"
               :key="category.id"
-              class="space-y-2 rounded-md border border-default p-3"
+              class="app-list-row space-y-2 rounded-md p-3"
             >
               <div class="flex items-center justify-between gap-2">
                 <div v-if="!isEditingCategory(category.id)" class="font-medium text-highlighted">
@@ -523,37 +536,31 @@ onMounted(() => {
                 />
                 <div class="flex shrink-0 items-center gap-1">
                   <template v-if="isEditingCategory(category.id)">
-                    <UButton
-                      color="success"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-check"
+                      tone="success"
                       :loading="isSavingCategory(category.id)"
-                      :aria-label="t('data.actions.save')"
+                      :label="t('data.actions.save')"
                       @click="saveCategory"
                     />
-                    <UButton
-                      color="neutral"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-x"
                       :disabled="isSavingCategory(category.id)"
-                      :aria-label="t('data.actions.cancel')"
+                      :label="t('data.actions.cancel')"
                       @click="stopEditCategory"
                     />
                   </template>
                   <template v-else>
-                    <UButton
-                      color="neutral"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-pencil"
-                      :aria-label="t('data.actions.edit')"
+                      :label="t('data.actions.edit')"
                       @click="startEditCategory(category.id, category.name)"
                     />
-                    <UButton
-                      color="error"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-trash-2"
+                      tone="danger"
                       :loading="deletingId === category.id"
-                      :aria-label="t('data.actions.delete')"
+                      :label="t('data.actions.delete')"
                       @click="deleteCategory(category.id)"
                     />
                   </template>
@@ -563,7 +570,7 @@ onMounted(() => {
                 <div
                   v-for="subCategory in category.children"
                   :key="subCategory.id"
-                  class="flex items-center justify-between gap-2 rounded-md bg-muted/40 px-3 py-2"
+                  class="flex items-center justify-between gap-2 rounded-md border border-default bg-elevated px-3 py-2"
                 >
                   <div v-if="!isEditingCategory(subCategory.id)" class="text-sm font-medium text-highlighted">
                     {{ subCategory.name }}
@@ -576,37 +583,31 @@ onMounted(() => {
                   />
                   <div class="flex shrink-0 items-center gap-1">
                     <template v-if="isEditingCategory(subCategory.id)">
-                      <UButton
-                        color="success"
-                        variant="ghost"
+                      <IconActionButton
                         icon="i-lucide-check"
+                        tone="success"
                         :loading="isSavingCategory(subCategory.id)"
-                        :aria-label="t('data.actions.save')"
+                        :label="t('data.actions.save')"
                         @click="saveCategory"
                       />
-                      <UButton
-                        color="neutral"
-                        variant="ghost"
+                      <IconActionButton
                         icon="i-lucide-x"
                         :disabled="isSavingCategory(subCategory.id)"
-                        :aria-label="t('data.actions.cancel')"
+                        :label="t('data.actions.cancel')"
                         @click="stopEditCategory"
                       />
                     </template>
                     <template v-else>
-                      <UButton
-                        color="neutral"
-                        variant="ghost"
+                      <IconActionButton
                         icon="i-lucide-pencil"
-                        :aria-label="t('data.actions.edit')"
+                        :label="t('data.actions.edit')"
                         @click="startEditCategory(subCategory.id, subCategory.name)"
                       />
-                      <UButton
-                        color="error"
-                        variant="ghost"
+                      <IconActionButton
                         icon="i-lucide-trash-2"
+                        tone="danger"
                         :loading="deletingId === subCategory.id"
-                        :aria-label="t('data.actions.delete')"
+                        :label="t('data.actions.delete')"
                         @click="deleteCategory(subCategory.id)"
                       />
                     </template>
@@ -620,7 +621,7 @@ onMounted(() => {
           </div>
         </UCard>
 
-        <UCard>
+        <UCard class="app-surface">
           <template #header>
             <h3 class="text-base font-semibold text-highlighted">
               {{ t('data.form.location') }}
@@ -635,7 +636,7 @@ onMounted(() => {
             <div
               v-for="location in inventory.locations.value"
               :key="location.id"
-              class="flex items-center justify-between gap-2 rounded-md border border-default px-3 py-2"
+              class="app-list-row flex items-center justify-between gap-2 rounded-md px-3 py-2"
             >
               <div v-if="!isEditingLocation(location.id)" class="text-sm font-medium text-highlighted">
                 {{ location.name }}
@@ -648,37 +649,31 @@ onMounted(() => {
               />
               <div class="flex shrink-0 items-center gap-1">
                 <template v-if="isEditingLocation(location.id)">
-                  <UButton
-                    color="success"
-                    variant="ghost"
+                  <IconActionButton
                     icon="i-lucide-check"
+                    tone="success"
                     :loading="isSavingLocation(location.id)"
-                    :aria-label="t('data.actions.save')"
+                    :label="t('data.actions.save')"
                     @click="saveLocation"
                   />
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
+                  <IconActionButton
                     icon="i-lucide-x"
                     :disabled="isSavingLocation(location.id)"
-                    :aria-label="t('data.actions.cancel')"
+                    :label="t('data.actions.cancel')"
                     @click="stopEditLocation"
                   />
                 </template>
                 <template v-else>
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
+                  <IconActionButton
                     icon="i-lucide-pencil"
-                    :aria-label="t('data.actions.edit')"
+                    :label="t('data.actions.edit')"
                     @click="startEditLocation(location.id, location.name)"
                   />
-                  <UButton
-                    color="error"
-                    variant="ghost"
+                  <IconActionButton
                     icon="i-lucide-trash-2"
+                    tone="danger"
                     :loading="deletingId === location.id"
-                    :aria-label="t('data.actions.delete')"
+                    :label="t('data.actions.delete')"
                     @click="deleteLocation(location.id)"
                   />
                 </template>
@@ -687,7 +682,7 @@ onMounted(() => {
           </div>
         </UCard>
 
-        <UCard>
+        <UCard class="app-surface">
           <template #header>
             <h3 class="text-base font-semibold text-highlighted">
               {{ t('data.form.group') }}
@@ -702,7 +697,7 @@ onMounted(() => {
             <div
               v-for="group in inventory.groups.value"
               :key="group.id"
-              class="space-y-2 rounded-md border border-default px-3 py-2"
+              class="app-list-row space-y-2 rounded-md px-3 py-2"
             >
               <div class="flex items-start justify-between gap-2">
                 <div v-if="!isEditingGroup(group.id)" class="min-w-0">
@@ -719,37 +714,31 @@ onMounted(() => {
                 </div>
                 <div class="flex shrink-0 items-center gap-1">
                   <template v-if="isEditingGroup(group.id)">
-                    <UButton
-                      color="success"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-check"
+                      tone="success"
                       :loading="isSavingGroup(group.id)"
-                      :aria-label="t('data.actions.save')"
+                      :label="t('data.actions.save')"
                       @click="saveGroup"
                     />
-                    <UButton
-                      color="neutral"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-x"
                       :disabled="isSavingGroup(group.id)"
-                      :aria-label="t('data.actions.cancel')"
+                      :label="t('data.actions.cancel')"
                       @click="stopEditGroup"
                     />
                   </template>
                   <template v-else>
-                    <UButton
-                      color="neutral"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-pencil"
-                      :aria-label="t('data.actions.edit')"
+                      :label="t('data.actions.edit')"
                       @click="startEditGroup(group.id, group.name)"
                     />
-                    <UButton
-                      color="error"
-                      variant="ghost"
+                    <IconActionButton
                       icon="i-lucide-trash-2"
+                      tone="danger"
                       :loading="deletingId === group.id"
-                      :aria-label="t('data.actions.delete')"
+                      :label="t('data.actions.delete')"
                       @click="deleteGroup(group.id)"
                     />
                   </template>

@@ -4,33 +4,74 @@ import type {
   CreateInventoryItemPayload,
   CreateInventoryLocationPayload,
   CreateInventoryLogPayload,
-  InventoryCategory,
-  InventoryChangedField,
-  InventoryGroup,
-  InventoryItem,
-  InventoryLocation,
-  InventoryLog,
   InventoryLogInsert,
-  InventoryNameRecord,
   UpdateInventoryCategoryPayload,
   UpdateInventoryGroupPayload,
   UpdateInventoryItemPayload,
   UpdateInventoryLocationPayload,
 } from '~~/types/inventoryTypes'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { createInventoryService } from '~~/app/services/inventoryService'
 import { AppError } from '~~/config/errorConfig'
-import { inventoryLogFields, InventoryLogType } from '~~/config/inventoryLogConfig'
-import { toInventoryChangedFields } from '~~/utils/inventoryLogUtils'
+import { InventoryLogType } from '~~/config/inventoryLogConfig'
+import { inventoryQueryKey, inventoryQueryStaleTime } from '~~/config/inventoryQueryConfig'
+import { createInventoryChangedFields } from '~~/utils/inventoryLogUtils'
+import {
+  emptyToNull,
+  findInventoryItemByBarcode,
+  findInventoryName,
+} from '~~/utils/inventoryUtils'
 
 export function useInventoryData() {
   const auth = useAuthStore()
   const { $supabase } = useNuxtApp()
+  const queryClient = useQueryClient()
+  const service = createInventoryService($supabase)
+  const userId = computed(() => auth.user?.id ?? null)
 
-  const categories = ref<InventoryCategory[]>([])
-  const groups = ref<InventoryGroup[]>([])
-  const items = ref<InventoryItem[]>([])
-  const locations = ref<InventoryLocation[]>([])
-  const logs = ref<InventoryLog[]>([])
-  const loading = ref(false)
+  const categoriesQuery = useQuery({
+    enabled: false,
+    queryFn: service.fetchCategories,
+    queryKey: computed(() => inventoryQueryKey.categories(userId.value)),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const groupsQuery = useQuery({
+    enabled: false,
+    queryFn: service.fetchGroups,
+    queryKey: computed(() => inventoryQueryKey.groups(userId.value)),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const itemsQuery = useQuery({
+    enabled: false,
+    queryFn: service.fetchItems,
+    queryKey: computed(() => inventoryQueryKey.items(userId.value)),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const locationsQuery = useQuery({
+    enabled: false,
+    queryFn: service.fetchLocations,
+    queryKey: computed(() => inventoryQueryKey.locations(userId.value)),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const logsQuery = useQuery({
+    enabled: false,
+    queryFn: service.fetchLogs,
+    queryKey: computed(() => inventoryQueryKey.logs(userId.value)),
+    staleTime: inventoryQueryStaleTime,
+  })
+
+  const categories = computed(() => categoriesQuery.data.value ?? [])
+  const groups = computed(() => groupsQuery.data.value ?? [])
+  const items = computed(() => itemsQuery.data.value ?? [])
+  const locations = computed(() => locationsQuery.data.value ?? [])
+  const logs = computed(() => logsQuery.data.value ?? [])
+  const loading = computed(() =>
+    categoriesQuery.isFetching.value
+    || groupsQuery.isFetching.value
+    || itemsQuery.isFetching.value
+    || locationsQuery.isFetching.value
+    || logsQuery.isFetching.value,
+  )
 
   const mainCategories = computed(() => categories.value.filter(category => category.parent_id === null))
   const subCategories = computed(() => categories.value.filter(category => category.parent_id !== null))
@@ -39,29 +80,16 @@ export function useInventoryData() {
   ))
 
   const requireUserId = () => {
-    const userId = auth.user?.id
+    const id = auth.user?.id
 
-    if (userId === undefined) {
+    if (id === undefined) {
       throw new Error(AppError.MissingSignedInUser)
     }
 
-    return userId
+    return id
   }
 
-  const emptyToNull = (value: string) => {
-    const trimmedValue = value.trim()
-    return trimmedValue.length > 0 ? trimmedValue : null
-  }
-
-  const findName = (records: InventoryNameRecord[], id: string | null) => {
-    if (id === null) {
-      return '-'
-    }
-
-    return records.find(record => record.id === id)?.name ?? '-'
-  }
-
-  const getCategoryName = (id: string | null) => findName(categories.value, id)
+  const getCategoryName = (id: string | null) => findInventoryName(categories.value, id)
   const getMainCategoryName = (id: string | null) => {
     if (id === null) {
       return '-'
@@ -77,36 +105,66 @@ export function useInventoryData() {
       ? category.name
       : getCategoryName(category.parent_id)
   }
-  const getGroupName = (id: string | null) => findName(groups.value, id)
-  const getLocationName = (id: string | null) => findName(locations.value, id)
-  const findItemByBarcode = (barcode: string) => {
-    const trimmedBarcode = barcode.trim()
+  const getGroupName = (id: string | null) => findInventoryName(groups.value, id)
+  const getLocationName = (id: string | null) => findInventoryName(locations.value, id)
+  const findItemByBarcode = (barcode: string) => findInventoryItemByBarcode(items.value, barcode)
 
-    if (trimmedBarcode.length === 0) {
-      return undefined
-    }
+  const ensureCategories = async () => queryClient.ensureQueryData({
+    queryFn: service.fetchCategories,
+    queryKey: inventoryQueryKey.categories(userId.value),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const ensureGroups = async () => queryClient.ensureQueryData({
+    queryFn: service.fetchGroups,
+    queryKey: inventoryQueryKey.groups(userId.value),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const ensureItems = async () => queryClient.ensureQueryData({
+    queryFn: service.fetchItems,
+    queryKey: inventoryQueryKey.items(userId.value),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const ensureLocations = async () => queryClient.ensureQueryData({
+    queryFn: service.fetchLocations,
+    queryKey: inventoryQueryKey.locations(userId.value),
+    staleTime: inventoryQueryStaleTime,
+  })
+  const ensureLogs = async () => queryClient.ensureQueryData({
+    queryFn: service.fetchLogs,
+    queryKey: inventoryQueryKey.logs(userId.value),
+    staleTime: inventoryQueryStaleTime,
+  })
 
-    return items.value.find(item => item.barcode === trimmedBarcode)
+  const refreshCategories = async () => {
+    await categoriesQuery.refetch()
+  }
+  const refreshGroups = async () => {
+    await groupsQuery.refetch()
+  }
+  const refreshItems = async () => {
+    await itemsQuery.refetch()
+  }
+  const refreshLocations = async () => {
+    await locationsQuery.refetch()
+  }
+  const refreshLogs = async () => {
+    await logsQuery.refetch()
   }
 
-  const createChangedFields = (
-    beforeItem: Partial<InventoryItem> | null,
-    afterItem: Partial<InventoryItem> | null,
-  ): InventoryChangedField[] => {
-    return inventoryLogFields.flatMap((field) => {
-      const before = beforeItem?.[field] ?? null
-      const after = afterItem?.[field] ?? null
+  const ensureItemMetaData = async () => {
+    await Promise.all([
+      ensureCategories(),
+      ensureGroups(),
+      ensureLocations(),
+    ])
+  }
 
-      if (before === after) {
-        return []
-      }
-
-      return [{
-        field,
-        before,
-        after,
-      }]
-    })
+  const refreshItemMetaData = async () => {
+    await Promise.all([
+      refreshCategories(),
+      refreshGroups(),
+      refreshLocations(),
+    ])
   }
 
   const createLog = async (payload: CreateInventoryLogPayload) => {
@@ -116,235 +174,77 @@ export function useInventoryData() {
       user_id: requireUserId(),
     }
 
-    const { error } = await $supabase
-      .from('inventory_logs')
-      .insert(logPayload)
-
-    if (error !== null) {
-      throw error
-    }
-  }
-
-  const fetchCategories = async () => {
-    const { data, error } = await $supabase
-      .from('categories')
-      .select('*')
-      .order('created_at', { ascending: true })
-
-    if (error !== null) {
-      throw error
-    }
-
-    categories.value = data ?? []
-  }
-
-  const fetchGroups = async () => {
-    const { data, error } = await $supabase
-      .from('item_groups')
-      .select('*')
-      .order('created_at', { ascending: true })
-
-    if (error !== null) {
-      throw error
-    }
-
-    groups.value = data ?? []
-  }
-
-  const fetchItems = async () => {
-    const { data, error } = await $supabase
-      .from('items')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error !== null) {
-      throw error
-    }
-
-    items.value = data ?? []
-  }
-
-  const fetchLogs = async () => {
-    const { data, error } = await $supabase
-      .from('inventory_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100)
-
-    if (error !== null) {
-      throw error
-    }
-
-    logs.value = (data ?? []).map(log => ({
-      ...log,
-      changed_fields: toInventoryChangedFields(log.changed_fields),
-    }))
-  }
-
-  const fetchItem = async (id: string) => {
-    const { data, error } = await $supabase
-      .from('items')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (error !== null) {
-      throw error
-    }
-
-    return data
-  }
-
-  const fetchLocations = async () => {
-    const { data, error } = await $supabase
-      .from('locations')
-      .select('*')
-      .order('created_at', { ascending: true })
-
-    if (error !== null) {
-      throw error
-    }
-
-    locations.value = data ?? []
-  }
-
-  const fetchAll = async () => {
-    loading.value = true
-
-    try {
-      await Promise.all([
-        fetchCategories(),
-        fetchGroups(),
-        fetchItems(),
-        fetchLocations(),
-        fetchLogs(),
-      ])
-    }
-    finally {
-      loading.value = false
-    }
+    await service.createLog(logPayload)
   }
 
   const createCategory = async (payload: CreateInventoryCategoryPayload) => {
-    const { error } = await $supabase
-      .from('categories')
-      .insert({
-        ...payload,
-        user_id: requireUserId(),
-      })
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchCategories()
+    await service.createCategory({
+      ...payload,
+      user_id: requireUserId(),
+    })
+    await refreshCategories()
   }
 
   const updateCategory = async (id: string, payload: UpdateInventoryCategoryPayload) => {
-    const { error } = await $supabase
-      .from('categories')
-      .update(payload)
-      .eq('id', id)
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchCategories()
+    await service.updateCategory(id, payload)
+    await refreshCategories()
   }
 
   const deleteCategory = async (id: string) => {
-    const { error } = await $supabase
-      .from('categories')
-      .delete()
-      .eq('id', id)
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchCategories()
+    await service.deleteCategory(id)
+    await refreshCategories()
   }
 
   const createGroup = async (payload: CreateInventoryGroupPayload) => {
-    const { error } = await $supabase
-      .from('item_groups')
-      .insert({
-        ...payload,
-        user_id: requireUserId(),
-      })
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchGroups()
+    await service.createGroup({
+      ...payload,
+      user_id: requireUserId(),
+    })
+    await refreshGroups()
   }
 
   const updateGroup = async (id: string, payload: UpdateInventoryGroupPayload) => {
-    const { error } = await $supabase
-      .from('item_groups')
-      .update(payload)
-      .eq('id', id)
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchGroups()
+    await service.updateGroup(id, payload)
+    await refreshGroups()
   }
 
   const deleteGroup = async (id: string) => {
-    const { error } = await $supabase
-      .from('item_groups')
-      .delete()
-      .eq('id', id)
+    await service.deleteGroup(id)
+    await refreshGroups()
+  }
 
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchGroups()
+  const fetchItem = async (id: string) => {
+    return queryClient.ensureQueryData({
+      queryFn: async () => service.fetchItem(id),
+      queryKey: inventoryQueryKey.item(userId.value, id),
+      staleTime: inventoryQueryStaleTime,
+    })
   }
 
   const createItem = async (payload: CreateInventoryItemPayload) => {
-    const { data, error } = await $supabase
-      .from('items')
-      .insert({
-        ...payload,
-        user_id: requireUserId(),
-      })
-      .select('*')
-      .single()
-
-    if (error !== null) {
-      throw error
-    }
+    const data = await service.createItem({
+      ...payload,
+      user_id: requireUserId(),
+    })
 
     await createLog({
       item_id: data.id,
       item_name: data.name,
       type: InventoryLogType.Create,
-      changed_fields: createChangedFields(null, data),
+      changed_fields: createInventoryChangedFields(null, data),
     })
-    await fetchItems()
-    await fetchLogs()
+    await Promise.all([
+      refreshItems(),
+      refreshLogs(),
+    ])
   }
 
   const updateItem = async (id: string, payload: UpdateInventoryItemPayload) => {
     const beforeItem = await fetchItem(id)
-    const { data, error } = await $supabase
-      .from('items')
-      .update(payload)
-      .eq('id', id)
-      .select('*')
-      .single()
+    const data = await service.updateItem(id, payload)
+    const changedFields = createInventoryChangedFields(beforeItem, data)
 
-    if (error !== null) {
-      throw error
-    }
-
-    const changedFields = createChangedFields(beforeItem, data)
+    queryClient.setQueryData(inventoryQueryKey.item(userId.value, id), data)
 
     if (changedFields.length > 0) {
       await createLog({
@@ -355,70 +255,47 @@ export function useInventoryData() {
       })
     }
 
-    await fetchItems()
-    await fetchLogs()
+    await Promise.all([
+      refreshItems(),
+      refreshLogs(),
+    ])
   }
 
   const deleteItem = async (id: string) => {
     const item = await fetchItem(id)
-    const { error } = await $supabase
-      .from('items')
-      .delete()
-      .eq('id', id)
 
-    if (error !== null) {
-      throw error
-    }
-
+    await service.deleteItem(id)
     await createLog({
       item_id: null,
       item_name: item.name,
       type: InventoryLogType.Delete,
-      changed_fields: createChangedFields(item, null),
+      changed_fields: createInventoryChangedFields(item, null),
     })
-    await fetchItems()
-    await fetchLogs()
+    queryClient.removeQueries({
+      queryKey: inventoryQueryKey.item(userId.value, id),
+    })
+    await Promise.all([
+      refreshItems(),
+      refreshLogs(),
+    ])
   }
 
   const createLocation = async (payload: CreateInventoryLocationPayload) => {
-    const { error } = await $supabase
-      .from('locations')
-      .insert({
-        ...payload,
-        user_id: requireUserId(),
-      })
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchLocations()
+    await service.createLocation({
+      ...payload,
+      user_id: requireUserId(),
+    })
+    await refreshLocations()
   }
 
   const updateLocation = async (id: string, payload: UpdateInventoryLocationPayload) => {
-    const { error } = await $supabase
-      .from('locations')
-      .update(payload)
-      .eq('id', id)
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchLocations()
+    await service.updateLocation(id, payload)
+    await refreshLocations()
   }
 
   const deleteLocation = async (id: string) => {
-    const { error } = await $supabase
-      .from('locations')
-      .delete()
-      .eq('id', id)
-
-    if (error !== null) {
-      throw error
-    }
-
-    await fetchLocations()
+    await service.deleteLocation(id)
+    await refreshLocations()
   }
 
   return {
@@ -440,17 +317,27 @@ export function useInventoryData() {
     deleteItem,
     deleteLocation,
     emptyToNull,
-    fetchAll,
+    ensureCategories,
+    ensureGroups,
+    ensureItemMetaData,
+    ensureItems,
+    ensureLocations,
+    ensureLogs,
     fetchItem,
-    fetchLogs,
     findItemByBarcode,
     getCategoryName,
-    getMainCategoryName,
     getGroupName,
     getLocationName,
-    updateItem,
+    getMainCategoryName,
+    refreshCategories,
+    refreshGroups,
+    refreshItemMetaData,
+    refreshItems,
+    refreshLocations,
+    refreshLogs,
     updateCategory,
     updateGroup,
+    updateItem,
     updateLocation,
   }
 }
