@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /login
+
+Sitemap: https://inventory.3854335.com/sitemap.xml

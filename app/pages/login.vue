@@ -11,6 +11,10 @@ const authService = useAuth()
 const appToast = useAppToast()
 const { t } = useI18n()
 
+useSeoMeta({
+  robots: 'noindex, nofollow',
+})
+
 const email = ref('')
 const password = ref('')
 const authMode = ref<AuthMode>(AuthMode.Login)

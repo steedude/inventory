@@ -1,8 +1,20 @@
 <script setup lang="ts">
 const auth = useAuthStore()
 const { t } = useI18n()
+const config = useRuntimeConfig()
 
 const startTo = computed(() => auth.isLogin ? '/dashboard' : '/login')
+const siteUrl = computed(() => String(config.public.siteUrl).replace(/\/$/, ''))
+
+useSeoMeta({
+  title: () => t('home.title'),
+  description: () => t('home.description'),
+  ogTitle: () => t('home.title'),
+  ogDescription: () => t('home.description'),
+  ogUrl: () => siteUrl.value,
+  twitterTitle: () => t('home.title'),
+  twitterDescription: () => t('home.description'),
+})
 
 const features = computed(() => [
   {

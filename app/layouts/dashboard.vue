@@ -3,6 +3,10 @@ import { toasterConfig } from '~~/config/toastConfig'
 
 const { locale, locales, setLocale, t } = useI18n()
 
+useSeoMeta({
+  robots: 'noindex, nofollow',
+})
+
 const localeOptions = computed(() => locales.value.map(item => ({
   label: item.name ?? item.code,
   value: item.code,
