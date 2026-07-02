@@ -18,9 +18,10 @@
     "logs": "Logs"
   },
   "home": {
+    "seoTitle": "Inventory Management System | Household Supplies, Categories, and Low Stock Notifications",
     "badge": "Inventory management",
     "title": "Keep household and daily supplies easy to track",
-    "description": "Manage item quantities, categories, storage locations, and low stock alerts in one place so replenishment decisions are clear.",
+    "description": "Manage item quantities, categories, storage locations, and low stock alerts in one place, then receive email notifications when supplies need attention.",
     "language": "Select language",
     "start": "Start using",
     "dashboardPreview": "Go to dashboard",

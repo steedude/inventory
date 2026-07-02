@@ -7,12 +7,12 @@ const startTo = computed(() => auth.isLogin ? '/dashboard' : '/login')
 const siteUrl = computed(() => String(config.public.siteUrl).replace(/\/$/, ''))
 
 useSeoMeta({
-  title: () => t('home.title'),
+  title: () => t('home.seoTitle'),
   description: () => t('home.description'),
-  ogTitle: () => t('home.title'),
+  ogTitle: () => t('home.seoTitle'),
   ogDescription: () => t('home.description'),
   ogUrl: () => siteUrl.value,
-  twitterTitle: () => t('home.title'),
+  twitterTitle: () => t('home.seoTitle'),
   twitterDescription: () => t('home.description'),
 })
 

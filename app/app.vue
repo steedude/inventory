@@ -20,9 +20,15 @@ useHead(() => ({
       href: canonicalUrl.value,
     },
   ],
-  titleTemplate: (title?: string) => title === undefined
-    ? t('app.name')
-    : `${title} | ${t('app.name')}`,
+  titleTemplate: (title?: string) => {
+    const appName = t('app.name')
+
+    if (title === undefined || title === appName || title === t('home.seoTitle')) {
+      return title ?? appName
+    }
+
+    return `${title}｜${appName}`
+  },
 }))
 
 useSeoMeta({
