@@ -5,6 +5,8 @@
     "app/**/*",
     "config/**/*",
     "server/**/*",
+    "sentry.client.config.ts",
+    "sentry.server.config.ts",
     "nuxt.config.ts",
     "tests/**/*",
     "types/**/*",

@@ -3,7 +3,13 @@ import process from 'node:process'
 export default defineNuxtConfig({
   compatibilityDate: '2026-06-09',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt', '@nuxtjs/i18n', '@nuxt/eslint'],
+  modules: ['@sentry/nuxt/module', '@nuxt/ui', '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt', '@nuxtjs/i18n', '@nuxt/eslint'],
+  sentry: {
+    sourcemaps: {
+      disable: true,
+    },
+    telemetry: false,
+  },
   css: ['~/assets/css/main.css'],
   vite: {
     optimizeDeps: {
@@ -24,6 +30,8 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.SUPABASE_URL ?? '',
       supabaseKey: process.env.SUPABASE_KEY ?? '',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+      sentryDsn: process.env.NUXT_PUBLIC_SENTRY_DSN ?? '',
+      sentryEnabled: process.env.NUXT_PUBLIC_SENTRY_ENABLED === 'true',
     },
   },
   i18n: {
