@@ -1,4 +1,5 @@
 import { appToastDuration } from '~~/config/toastConfig'
+import { useAppErrorMessage } from '~~/app/composables/useAppErrorMessage'
 import { resolveAppErrorCode } from '~~/utils/errorUtils'
 
 export function useAppToast() {
