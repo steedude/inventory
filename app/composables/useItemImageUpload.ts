@@ -1,5 +1,7 @@
-import { AppError } from '~~/config/errorConfig'
-import { getImageUploadExtension, itemImageBucket } from '~~/config/imageConfig'
+import { AppErrorCode } from '~~/config/errorConfig'
+import { itemImageBucket } from '~~/config/imageConfig'
+import { createAppError } from '~~/utils/errorUtils'
+import { getImageUploadExtension } from '~~/utils/imageUtils'
 
 export function useItemImageUpload() {
   const auth = useAuthStore()
@@ -10,7 +12,7 @@ export function useItemImageUpload() {
     const userId = auth.user?.id
 
     if (userId === undefined) {
-      throw new Error(AppError.MissingSignedInUser)
+      throw createAppError(AppErrorCode.MissingSignedInUser)
     }
 
     return userId

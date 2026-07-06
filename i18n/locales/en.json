@@ -4,8 +4,14 @@
   },
   "common": {
     "error": "Something went wrong",
+    "emailSendFailed": "Failed to send email. Please try again later.",
+    "lowStockCheckFailed": "Failed to check low stock items. Please try again later.",
+    "missingResendConfig": "Email notification config is incomplete. Check the environment variables.",
     "missingSignedInUser": "Missing signed-in user. Please sign in again.",
     "missingSupabaseConfig": "Missing Supabase config. Check the environment variables.",
+    "unauthorizedCronRequest": "Cron verification failed. Check the cron secret.",
+    "unauthorizedUserRequest": "Your session has expired. Please sign in again.",
+    "userSettingsFetchFailed": "Failed to load notification settings. Please try again later.",
     "yes": "Yes",
     "no": "No",
     "arrow": "to",
@@ -228,6 +234,7 @@
     "signupSignedIn": "Account created and signed in",
     "signupSuccess": "Account created. Please sign in.",
     "emailAlreadyExists": "This email is already registered. Please sign in instead.",
+    "invalidCredentials": "Email or password is incorrect.",
     "googleLogin": "Sign in with Google",
     "showPassword": "Show password",
     "hidePassword": "Hide password"

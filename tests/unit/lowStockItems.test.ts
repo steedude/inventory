@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { AppErrorCode } from '~~/config/errorConfig'
 import { fetchLowStockItems } from '~~/server/utils/lowStockItems'
 
 const { query, useSupabaseServiceClientMock } = vi.hoisted(() => {
@@ -62,7 +63,9 @@ describe('fetchLowStockItems', () => {
 
     await expect(fetchLowStockItems()).rejects.toMatchObject({
       statusCode: 500,
-      statusMessage: 'Database unavailable',
+      data: {
+        code: AppErrorCode.LowStockCheckFailed,
+      },
     })
   })
 })

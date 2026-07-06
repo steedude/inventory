@@ -1,4 +1,6 @@
 import type { LowStockItem } from '~~/types/lowStockEmailTypes'
+import { AppErrorCode } from '~~/config/errorConfig'
+import { createAppServerError } from '~~/server/utils/appServerError'
 
 export async function fetchLowStockItems(userId?: string) {
   const supabase = useSupabaseServiceClient()
@@ -15,10 +17,7 @@ export async function fetchLowStockItems(userId?: string) {
   const { data, error } = await query.overrideTypes<LowStockItem[], { merge: false }>()
 
   if (error !== null) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
+    throw createAppServerError(500, AppErrorCode.LowStockCheckFailed)
   }
 
   return (data ?? []).filter(item => item.quantity <= item.min_quantity)

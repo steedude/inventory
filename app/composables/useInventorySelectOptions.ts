@@ -2,7 +2,7 @@ import {
   createGroupOptions,
   createLocationOptions,
   createSubCategoryOptions,
-} from '~~/config/inventorySelectConfig'
+} from '~~/utils/inventorySelectUtils'
 
 export function useInventorySelectOptions(inventory: ReturnType<typeof useInventoryData>) {
   const { t } = useI18n()

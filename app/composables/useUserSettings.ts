@@ -1,4 +1,5 @@
-import { AppError } from '~~/config/errorConfig'
+import { AppErrorCode } from '~~/config/errorConfig'
+import { createAppError } from '~~/utils/errorUtils'
 
 export function useUserSettings() {
   const auth = useAuthStore()
@@ -12,7 +13,7 @@ export function useUserSettings() {
     const userId = auth.user?.id
 
     if (userId === undefined) {
-      throw new Error(AppError.MissingSignedInUser)
+      throw createAppError(AppErrorCode.MissingSignedInUser)
     }
 
     return userId

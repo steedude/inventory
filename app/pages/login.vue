@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { AuthMode } from '~~/config/authConfig'
-import { AppError } from '~~/config/errorConfig'
 
 definePageMeta({
   layout: 'auth',
@@ -40,11 +39,6 @@ async function submit() {
     : await authService.signUp(email.value, password.value)
 
   if (result.error) {
-    if (result.error.message === AppError.EmailAlreadyExists) {
-      appToast.setError(t(AppError.EmailAlreadyExists))
-      return
-    }
-
     appToast.setError(result.error)
     return
   }
@@ -59,6 +53,10 @@ async function submit() {
 
 function togglePasswordVisible() {
   passwordVisible.value = !passwordVisible.value
+}
+
+function selectAuthMode(mode: AuthMode) {
+  authMode.value = mode
 }
 
 async function signInWithGoogle() {
@@ -99,7 +97,7 @@ async function signInWithGoogle() {
             :color="authMode === option.value ? 'primary' : 'neutral'"
             :variant="authMode === option.value ? 'solid' : 'ghost'"
             class="justify-center"
-            @click="authMode = option.value"
+            @click="selectAuthMode(option.value)"
           >
             {{ option.label }}
           </UButton>

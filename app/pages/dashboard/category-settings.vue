@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {
-  createCategoryOptions,
   InventoryDeleteTarget,
 } from '~~/config/inventorySelectConfig'
+import { createCategoryOptions } from '~~/utils/inventorySelectUtils'
 
 definePageMeta({
   layout: 'dashboard',

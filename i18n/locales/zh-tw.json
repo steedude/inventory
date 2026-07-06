@@ -4,8 +4,14 @@
   },
   "common": {
     "error": "發生錯誤",
+    "emailSendFailed": "Email 發送失敗，請稍後再試。",
+    "lowStockCheckFailed": "低庫存檢查失敗，請稍後再試。",
+    "missingResendConfig": "Email 通知設定不完整，請檢查環境變數。",
     "missingSignedInUser": "找不到登入使用者，請重新登入。",
     "missingSupabaseConfig": "Supabase 設定不完整，請檢查環境變數。",
+    "unauthorizedCronRequest": "排程驗證失敗，請檢查排程密鑰。",
+    "unauthorizedUserRequest": "登入狀態已失效，請重新登入。",
+    "userSettingsFetchFailed": "讀取通知設定失敗，請稍後再試。",
     "yes": "是",
     "no": "否",
     "arrow": "→",
@@ -228,6 +234,7 @@
     "signupSignedIn": "註冊成功，已登入",
     "signupSuccess": "註冊成功，請直接登入。",
     "emailAlreadyExists": "這個 Email 已經註冊過，請直接登入。",
+    "invalidCredentials": "Email 或密碼不正確。",
     "googleLogin": "使用 Google 登入",
     "showPassword": "顯示密碼",
     "hidePassword": "隱藏密碼"

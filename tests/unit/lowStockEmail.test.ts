@@ -1,5 +1,6 @@
 import type { LowStockItem } from '~~/types/lowStockEmailTypes'
 import { describe, expect, it } from 'vitest'
+import { AppErrorCode } from '~~/config/errorConfig'
 import { sendLowStockEmails } from '~~/server/utils/lowStockEmail'
 
 const lowStockItem: LowStockItem = {
@@ -20,7 +21,9 @@ describe('sendLowStockEmails', () => {
   it('rejects missing Resend configuration when an email must be sent', async () => {
     await expect(sendLowStockEmails([lowStockItem], '', '')).rejects.toMatchObject({
       statusCode: 500,
-      statusMessage: 'Missing Resend email config',
+      data: {
+        code: AppErrorCode.MissingResendConfig,
+      },
     })
   })
 })

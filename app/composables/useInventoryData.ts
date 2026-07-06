@@ -12,9 +12,10 @@ import type {
 } from '~~/types/inventoryTypes'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { createInventoryService } from '~~/app/services/inventoryService'
-import { AppError } from '~~/config/errorConfig'
+import { AppErrorCode } from '~~/config/errorConfig'
 import { InventoryLogType } from '~~/config/inventoryLogConfig'
 import { inventoryQueryKey, inventoryQueryStaleTime } from '~~/config/inventoryQueryConfig'
+import { createAppError } from '~~/utils/errorUtils'
 import { createInventoryChangedFields } from '~~/utils/inventoryLogUtils'
 import {
   emptyToNull,
@@ -83,7 +84,7 @@ export function useInventoryData() {
     const id = auth.user?.id
 
     if (id === undefined) {
-      throw new Error(AppError.MissingSignedInUser)
+      throw createAppError(AppErrorCode.MissingSignedInUser)
     }
 
     return id

@@ -2,10 +2,12 @@
 import type { InventoryItemFormState } from '~~/types/inventoryTypes'
 import { barcodeImageAccept } from '~~/config/barcodeConfig'
 import {
-  createCategoryOptions,
-  createSubCategoryOptions,
   InventorySelectValue,
 } from '~~/config/inventorySelectConfig'
+import {
+  createCategoryOptions,
+  createSubCategoryOptions,
+} from '~~/utils/inventorySelectUtils'
 
 defineProps<{
   submitIcon: string

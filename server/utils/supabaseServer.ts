@@ -1,6 +1,7 @@
 import type { Database } from '~~/types/databaseTypes'
 import { createClient } from '@supabase/supabase-js'
-import { AppError } from '~~/config/errorConfig'
+import { AppErrorCode } from '~~/config/errorConfig'
+import { createAppServerError } from '~~/server/utils/appServerError'
 
 export function useSupabaseServiceClient() {
   const config = useRuntimeConfig()
@@ -8,10 +9,7 @@ export function useSupabaseServiceClient() {
   const serviceRoleKey = config.supabaseServiceRoleKey
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: AppError.MissingSupabaseConfig,
-    })
+    throw createAppServerError(500, AppErrorCode.MissingSupabaseConfig)
   }
 
   return createClient<Database>(supabaseUrl, serviceRoleKey)

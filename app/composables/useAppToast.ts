@@ -1,36 +1,15 @@
-export const appToastDuration = 3000
+import { appToastDuration } from '~~/config/toastConfig'
+import { resolveAppErrorCode } from '~~/utils/errorUtils'
 
 export function useAppToast() {
   const toast = useToast()
   const i18n = useI18n()
+  const { getAppErrorMessage } = useAppErrorMessage()
   const toastOptions = {
     duration: appToastDuration,
   }
 
   const resolveMessage = (message: string) => i18n.te(message) === true ? i18n.t(message) : message
-
-  const isMessageObject = (message: unknown): message is { message: string } => {
-    return typeof message === 'object'
-      && message !== null
-      && 'message' in message
-      && typeof message.message === 'string'
-  }
-
-  const getMessage = (message: unknown) => {
-    if (message === null || message === undefined || message === '') {
-      return ''
-    }
-
-    if (typeof message === 'string') {
-      return resolveMessage(message)
-    }
-
-    if (isMessageObject(message)) {
-      return resolveMessage(message.message)
-    }
-
-    return ''
-  }
 
   const setSuccess = (message: string, description?: string) => {
     toast.add({
@@ -42,12 +21,12 @@ export function useAppToast() {
     })
   }
 
-  const setError = (message: unknown) => {
-    const title = getMessage(message)
+  const setError = (error: unknown) => {
+    const code = resolveAppErrorCode(error)
 
     toast.add({
       ...toastOptions,
-      title: title.length > 0 ? title : resolveMessage('common.error'),
+      title: getAppErrorMessage(code),
       color: 'error',
       icon: 'i-lucide-circle-alert',
     })

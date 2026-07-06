@@ -1,3 +1,6 @@
+import { AppErrorCode } from '~~/config/errorConfig'
+import { createAppServerError } from '~~/server/utils/appServerError'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const cronSecret = config.inventoryCronSecret
@@ -8,10 +11,7 @@ export default defineEventHandler(async (event) => {
     : cronHeader
 
   if (!cronSecret || providedSecret !== cronSecret) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized cron request',
-    })
+    throw createAppServerError(401, AppErrorCode.UnauthorizedCronRequest)
   }
 
   const lowStockItems = await fetchLowStockItems()

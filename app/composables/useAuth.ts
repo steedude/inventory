@@ -1,5 +1,6 @@
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
-import { AppError } from '~~/config/errorConfig'
+import { AppErrorCode } from '~~/config/errorConfig'
+import { createAppError } from '~~/utils/errorUtils'
 
 export function useAuth() {
   const auth = useAuthStore()
@@ -54,7 +55,7 @@ export function useAuth() {
 
       return {
         data,
-        error: new Error(AppError.EmailAlreadyExists),
+        error: createAppError(AppErrorCode.EmailAlreadyExists),
       }
     }
 

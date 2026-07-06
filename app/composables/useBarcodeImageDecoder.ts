@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import { isSupportedBarcodeImage } from '~~/config/barcodeConfig'
+import { isSupportedBarcodeImage } from '~~/utils/barcodeUtils'
 
 export function useBarcodeImageDecoder() {
   const appToast = useAppToast()

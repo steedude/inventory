@@ -2,9 +2,11 @@
 import type { InventoryItemFormState } from '~~/types/inventoryTypes'
 import {
   InventorySelectValue,
+} from '~~/config/inventorySelectConfig'
+import {
   nullToSelect,
   selectToNull,
-} from '~~/config/inventorySelectConfig'
+} from '~~/utils/inventorySelectUtils'
 
 definePageMeta({
   layout: 'dashboard',

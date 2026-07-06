@@ -1,24 +1,20 @@
 import type { H3Event } from 'h3'
+import { AppErrorCode } from '~~/config/errorConfig'
+import { createAppServerError } from '~~/server/utils/appServerError'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = getBearerToken(event)
 
   if (accessToken === null) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Missing user authorization',
-    })
+    throw createAppServerError(401, AppErrorCode.UnauthorizedUserRequest)
   }
 
   const supabase = useSupabaseServiceClient()
   const { data: userData, error: userError } = await supabase.auth.getUser(accessToken)
 
   if (userError !== null || userData.user === null) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: userError?.message ?? 'Invalid user authorization',
-    })
+    throw createAppServerError(401, AppErrorCode.UnauthorizedUserRequest)
   }
 
   const lowStockItems = await fetchLowStockItems(userData.user.id)

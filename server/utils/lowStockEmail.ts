@@ -1,6 +1,8 @@
 import type { LowStockItem, NotificationSettingRow } from '~~/types/lowStockEmailTypes'
 import { Resend } from 'resend'
+import { AppErrorCode } from '~~/config/errorConfig'
 import { lowStockEmailCopy, lowStockEmailStyles } from '~~/config/lowStockEmailConfig'
+import { createAppServerError } from '~~/server/utils/appServerError'
 
 interface SendLowStockEmailOptions {
   respectDailyEmailSettings?: boolean
@@ -20,10 +22,7 @@ export async function sendLowStockEmails(
   }
 
   if (!apiKey || !fromEmail) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Missing Resend email config',
-    })
+    throw createAppServerError(500, AppErrorCode.MissingResendConfig)
   }
 
   const resend = new Resend(apiKey)
@@ -44,10 +43,7 @@ export async function sendLowStockEmails(
     const { data, error } = await supabase.auth.admin.getUserById(userId)
 
     if (error !== null) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: error.message,
-      })
+      throw createAppServerError(500, AppErrorCode.EmailSendFailed)
     }
 
     const email = data.user?.email
@@ -66,10 +62,7 @@ export async function sendLowStockEmails(
     })
 
     if (emailError !== null) {
-      throw createError({
-        statusCode: 502,
-        statusMessage: emailError.message,
-      })
+      throw createAppServerError(502, AppErrorCode.EmailSendFailed)
     }
 
     sentCount += 1
@@ -94,10 +87,7 @@ async function fetchNotificationSettings(userIds: string[]) {
     .overrideTypes<NotificationSettingRow[], { merge: false }>()
 
   if (error !== null) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
+    throw createAppServerError(500, AppErrorCode.UserSettingsFetchFailed)
   }
 
   return (data ?? []).reduce((settings, setting) => {
